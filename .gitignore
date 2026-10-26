@@ -1,0 +1,42 @@
+# OpenCode local state
+.opencode/
+
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+out/
+release/
+build/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Test / coverage
+coverage/
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# SQLite development artifacts if any are ever created in the repository
+*.db-shm
+*.db-wal
+
+# TypeScript incremental builds
+*.tsbuildinfo
+
+# Playwright
+test-results/
+playwright-report/
