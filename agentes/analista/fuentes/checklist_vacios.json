@@ -1,0 +1,32 @@
+[
+  {
+    "id": "CHK-RN-01",
+    "categoria": "Reglas de negocio",
+    "descripcion": "¿Qué regla determina el resultado para cada condición relevante?",
+    "terminos": ["regla", "condición", "resultado", "negocio"]
+  },
+  {
+    "id": "CHK-DAT-01",
+    "categoria": "Datos requeridos",
+    "descripcion": "¿Qué datos de entrada son obligatorios y quién los proporciona?",
+    "terminos": ["dato", "entrada", "obligatorio", "actor"]
+  },
+  {
+    "id": "CHK-VAL-01",
+    "categoria": "Validaciones",
+    "descripcion": "¿Qué validaciones se aplican y qué ocurre si una falla?",
+    "terminos": ["validación", "validar", "falla", "error"]
+  },
+  {
+    "id": "CHK-EXC-01",
+    "categoria": "Excepciones",
+    "descripcion": "¿Qué excepciones cambian el flujo esperado?",
+    "terminos": ["excepción", "alternativo", "fallo", "flujo"]
+  },
+  {
+    "id": "CHK-COM-01",
+    "categoria": "Comportamiento esperado",
+    "descripcion": "¿Qué resultado observable espera la persona usuaria?",
+    "terminos": ["resultado", "usuario", "esperado", "pantalla"]
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agents": {
+    "analista": {
+      "description": "Agente de análisis de vacíos de requerimientos para StoryCraft AI.",
+      "mode": "primary",
+      "system": "{file:./agentes/analista/prompts/sistema.md}",
+      "permissions": [
+        { "action": "*", "resource": "*", "effect": "deny" }
+      ]
+    }
+  }
+}

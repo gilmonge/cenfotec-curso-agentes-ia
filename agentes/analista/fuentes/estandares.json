@@ -1,0 +1,23 @@
+[
+  {
+    "id": "STD-REF-001",
+    "titulo": "Mensajes de validación",
+    "regla": "Definir el dato que se valida, la condición esperada y el mensaje para cada resultado.",
+    "referencia": "Estándar ficticio de validación v1",
+    "terminos": ["validación", "dato", "mensaje", "resultado"]
+  },
+  {
+    "id": "STD-REF-002",
+    "titulo": "Fechas y plazos",
+    "regla": "Aclarar zona horaria, fecha inicial, fecha final y responsable de confirmar el plazo.",
+    "referencia": "Estándar ficticio de reglas temporales v1",
+    "terminos": ["fecha", "plazo", "vigencia", "tiempo"]
+  },
+  {
+    "id": "STD-REF-003",
+    "titulo": "Excepciones de negocio",
+    "regla": "Describir cada excepción, su condición de activación y el comportamiento esperado.",
+    "referencia": "Estándar ficticio de excepciones v1",
+    "terminos": ["excepción", "condición", "comportamiento"]
+  }
+]
