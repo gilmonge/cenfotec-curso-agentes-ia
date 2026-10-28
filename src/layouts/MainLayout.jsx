@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { LayoutDashboard, FileText, PlusCircle, HelpCircle, Sparkles, Cpu } from 'lucide-react';
+import { AnalystChat } from '../components/analyst-chat/AnalystChat.jsx';
 
 export const MainLayout = () => {
   return (
@@ -86,6 +87,8 @@ export const MainLayout = () => {
           </div>
         </div>
       </footer>
+
+      <AnalystChat />
     </div>
   );
 };

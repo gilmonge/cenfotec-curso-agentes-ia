@@ -37,6 +37,13 @@ Thumbs.db
 # TypeScript incremental builds
 *.tsbuildinfo
 
+# Python agent environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
 # Playwright
 test-results/
 playwright-report/

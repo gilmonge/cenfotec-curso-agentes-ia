@@ -1,0 +1,22 @@
+[
+  {
+    "termino": "plazo de atención",
+    "definicion": "Intervalo objetivo para responder una solicitud, sujeto a confirmación del área responsable.",
+    "fuente": "Glosario simulado v1"
+  },
+  {
+    "termino": "beneficiario",
+    "definicion": "Persona designada para recibir un beneficio cuando se cumplen las condiciones aplicables.",
+    "fuente": "Glosario simulado v1"
+  },
+  {
+    "termino": "vigencia",
+    "definicion": "Periodo durante el cual una condición o servicio puede estar activo; las fechas deben confirmarse.",
+    "fuente": "Glosario simulado v1"
+  },
+  {
+    "termino": "deducible",
+    "definicion": "Monto definido en una póliza que puede corresponder al asegurado bajo condiciones contractuales.",
+    "fuente": "Glosario simulado v1"
+  }
+]

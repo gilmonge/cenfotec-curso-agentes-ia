@@ -1,0 +1,498 @@
+contract: analista-mcp-tools
+version: 1.0.0
+feature: 002-chat-agente-analista
+transport: stdio
+server_name: analista-fuentes
+schema_dialect: JSON Schema 2020-12
+read_only: true
+description: >-
+  Contrato de las cuatro herramientas MCP de solo lectura que el backend ejecuta
+  antes de llamar a OpenCode. Las herramientas no usan red, shell, sistema de
+  archivos de escritura ni herramientas genéricas. Sus datos son ficticios o
+  anonimizados y se tratan como contenido no confiable.
+
+launch:
+  command: python
+  args:
+    - -m
+    - agentes.analista.mcp.server
+  cwd: <repo-root>
+  env:
+    PYTHONPATH: <repo-root>
+  notes:
+    - El subpaquete es agentes.analista.mcp para no sombrear el SDK oficial mcp.
+    - No se ejecuta como "python -m mcp.server" desde agentes/analista.
+    - Un solo proceso stdio por instancia del backend; el adaptador lo abre en el lifespan.
+
+limits:
+  timeouts:
+    per_tool_ms: 5000
+    parallel_fanout_ms: 5000
+    turn_total_ms: 90000
+  tools:
+    max_calls_per_turn: 4
+    max_results_per_tool: 5
+  input:
+    consulta_min_chars: 1
+    consulta_max_chars: 4000
+    limite_min: 1
+    limite_max: 5
+  privacy:
+    log_content: false
+    persist: false
+    external_network: false
+
+data_sources:
+  - file: agentes/analista/fuentes/glosario.json
+    tool: consultar_glosario
+    description: Términos de negocio ficticios o anonimizados.
+  - file: agentes/analista/fuentes/hu_similares.json
+    tool: buscar_hu_similares
+    description: Historias históricas anonimizadas y aclaraciones de referencia.
+  - file: agentes/analista/fuentes/estandares.json
+    tool: consultar_estandares
+    description: Reglas y estándares internos ficticios de referencia.
+  - file: agentes/analista/fuentes/checklist_vacios.json
+    tool: aplicar_checklist_vacios
+    description: Checklist de categorías de vacíos; no decide la respuesta por el modelo.
+
+tools:
+  - name: consultar_glosario
+    title: Consultar glosario de negocio
+    description: >-
+      Busca definiciones de términos de negocio relacionados con la consulta.
+      Devuelve coincidencias ordenadas de forma determinista y limitadas por
+      limite. Una lista vacía es un resultado válido.
+    read_only: true
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    inputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - consulta
+      properties:
+        consulta:
+          type: string
+          minLength: 1
+          maxLength: 4000
+          description: Texto de búsqueda; no se registra.
+        limite:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 5
+    outputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - definiciones
+        - total
+        - origen
+        - contenido_no_confiable
+      properties:
+        definiciones:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - termino
+              - definicion
+              - fuente
+            properties:
+              termino:
+                type: string
+                minLength: 1
+                maxLength: 120
+              definicion:
+                type: string
+                minLength: 1
+                maxLength: 800
+              fuente:
+                type: string
+                minLength: 1
+                maxLength: 120
+        total:
+          type: integer
+          minimum: 0
+          maximum: 5
+        origen:
+          type: string
+          enum:
+            - simulado
+            - anonimizado
+        contenido_no_confiable:
+          type: boolean
+          const: true
+  - name: buscar_hu_similares
+    title: Buscar historias de usuario similares
+    description: >-
+      Recupera historias históricas anonimizadas que se parecen a la consulta.
+      Las aclaraciones históricas son referencia, nunca reglas aplicables al
+      requerimiento actual. La similitud es un valor determinista del fixture,
+      no una probabilidad de un modelo.
+    read_only: true
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    inputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - consulta
+      properties:
+        consulta:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        limite:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 5
+    outputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - historias
+        - total
+        - origen
+        - contenido_no_confiable
+      properties:
+        historias:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - titulo
+              - resumen
+              - aclaraciones
+              - similitud
+            properties:
+              id:
+                type: string
+                minLength: 1
+                maxLength: 80
+              titulo:
+                type: string
+                minLength: 1
+                maxLength: 200
+              resumen:
+                type: string
+                minLength: 1
+                maxLength: 1000
+              aclaraciones:
+                type: array
+                maxItems: 5
+                items:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+              similitud:
+                type: number
+                minimum: 0
+                maximum: 1
+        total:
+          type: integer
+          minimum: 0
+          maximum: 5
+        origen:
+          type: string
+          enum:
+            - anonimizado
+        contenido_no_confiable:
+          type: boolean
+          const: true
+    usage_rule: >-
+      El prompt debe indicar que las aclaraciones históricas son referencia y
+      que no se copian como reglas confirmadas del requerimiento actual.
+  - name: consultar_estandares
+    title: Consultar estándares internos
+    description: >-
+      Recupera estándares internos de referencia relacionados con la consulta.
+      No son reglas confirmadas del requerimiento actual salvo que el texto o una
+      fuente identificada lo indique.
+    read_only: true
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    inputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - consulta
+      properties:
+        consulta:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        limite:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 5
+    outputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - estandares
+        - total
+        - origen
+        - contenido_no_confiable
+      properties:
+        estandares:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - id
+              - titulo
+              - regla
+              - referencia
+            properties:
+              id:
+                type: string
+                minLength: 1
+                maxLength: 80
+              titulo:
+                type: string
+                minLength: 1
+                maxLength: 200
+              regla:
+                type: string
+                minLength: 1
+                maxLength: 1200
+              referencia:
+                type: string
+                minLength: 1
+                maxLength: 200
+        total:
+          type: integer
+          minimum: 0
+          maximum: 5
+        origen:
+          type: string
+          enum:
+            - simulado
+            - anonimizado
+        contenido_no_confiable:
+          type: boolean
+          const: true
+  - name: aplicar_checklist_vacios
+    title: Aplicar checklist de vacíos
+    description: >-
+      Devuelve los ítems del checklist que aplican a la consulta, agrupados por
+      las cinco categorías permitidas. La herramienta es determinista y de solo
+      lectura; no redacta, no aprueba y no decide por el modelo.
+    read_only: true
+    annotations:
+      readOnlyHint: true
+      destructiveHint: false
+      idempotentHint: true
+      openWorldHint: false
+    inputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - consulta
+      properties:
+        consulta:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        limite:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 5
+    outputSchema:
+      type: object
+      additionalProperties: false
+      required:
+        - categorias
+        - total
+        - origen
+        - contenido_no_confiable
+      properties:
+        categorias:
+          type: array
+          maxItems: 5
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - categoria
+              - items
+            properties:
+              categoria:
+                type: string
+                enum:
+                  - Reglas de negocio
+                  - Datos requeridos
+                  - Validaciones
+                  - Excepciones
+                  - Comportamiento esperado
+              items:
+                type: array
+                maxItems: 5
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                    - id
+                    - descripcion
+                    - aplica
+                    - evidencia
+                  properties:
+                    id:
+                      type: string
+                      minLength: 1
+                      maxLength: 80
+                    descripcion:
+                      type: string
+                      minLength: 1
+                      maxLength: 500
+                    aplica:
+                      type: boolean
+                    evidencia:
+                      type: string
+                      minLength: 1
+                      maxLength: 500
+        total:
+          type: integer
+          minimum: 0
+          maximum: 25
+        origen:
+          type: string
+          enum:
+            - simulado
+        contenido_no_confiable:
+          type: boolean
+          const: true
+
+errors:
+  codes:
+    - code: INVALID_INPUT
+      retryable: false
+      description: El argumento no cumple el esquema; el backend no debe reintentar sin corregir.
+    - code: TOOL_TIMEOUT
+      retryable: true
+      description: La herramienta excedió 5 s; se declara limitación y se continúa con las demás.
+    - code: TOOL_UNAVAILABLE
+      retryable: true
+      description: El servidor o la fuente no está disponible.
+    - code: TOOL_DATA_INVALID
+      retryable: false
+      description: El fixture o la salida no cumple el contrato; se rechaza la salida, no se inventa.
+    - code: INTERNAL_ERROR
+      retryable: false
+      description: Error no controlado; se devuelve un código sin detalles internos.
+  error_envelope:
+    type: object
+    additionalProperties: false
+    required:
+      - error
+    properties:
+      error:
+        type: object
+        additionalProperties: false
+        required:
+          - code
+          - message
+          - retryable
+        properties:
+          code:
+            type: string
+          message:
+            type: string
+            maxLength: 300
+          retryable:
+            type: boolean
+
+invariants:
+  - id: MCP-01
+    rule: Solo existen las cuatro herramientas listadas; no hay recursos, prompts ni tools genéricas.
+  - id: MCP-02
+    rule: Ninguna herramienta escribe archivos, ejecuta comandos, abre sockets ni modifica datos.
+  - id: MCP-03
+    rule: Las salidas son deterministas para el mismo fixture y entrada; el orden es estable.
+  - id: MCP-04
+    rule: total coincide con la longitud de la colección y respeta el límite.
+  - id: MCP-05
+    rule: Toda salida se marca como contenido no confiable y se delimita en el prompt.
+  - id: MCP-06
+    rule: El backend deriva fuentes_consultadas solo de llamadas con status ok.
+  - id: MCP-07
+    rule: Un resultado vacío es exitoso y se declara con resultados=0; no se convierte en error.
+  - id: MCP-08
+    rule: No se registran consultas, resultados ni texto del usuario en logs.
+  - id: MCP-09
+    rule: Las aclaraciones de HU similares son referencia histórica, no reglas del requerimiento actual.
+  - id: MCP-10
+    rule: La allowlist se aplica en el adaptador y en el servidor; el prompt no es la única defensa.
+
+failure_semantics:
+  per_tool: >-
+    Cada herramienta falla de forma aislada. El fan-out no se cancela por un
+    fallo; se registra ToolExecution(status=error|timeout) y se añade una
+    limitación. Las herramientas exitosas siguen siendo fuentes consultadas.
+  all_tools_fail: >-
+    El turno puede continuar solo si el modelo produce un análisis válido con
+    limitaciones; si el health indica MCP no disponible, el envío se bloquea con
+    MCP_UNAVAILABLE y no se finge una consulta.
+  invalid_output: >-
+    Si una salida no cumple el esquema, el backend rechaza esa herramienta y
+    declara la limitación; no repara datos de fuente ni inventa resultados.
+
+health:
+  probe: listar herramientas y verificar exactamente los cuatro nombres
+  ready_if:
+    - El servidor responde al listado.
+    - Están las cuatro herramientas y no hay duplicados.
+    - Los fixtures cargan y validan.
+  degraded_if:
+    - Una herramienta falla en un turno, pero el servidor está vivo.
+  unavailable_if:
+    - El proceso no arranca, el listado falla o faltan herramientas.
+
+testing:
+  contract:
+    - Validar inputSchema y outputSchema de cada herramienta.
+    - Verificar que no existan tools fuera de la allowlist.
+    - Verificar límites, orden y total.
+    - Verificar errores y timeouts.
+  security:
+    - Intentar rutas, comandos y URLs en consulta; no deben tener efecto.
+    - Verificar que no se escriben archivos ni se abren sockets.
+    - Verificar que el logging no contiene consulta/resultado.
+  integration:
+    - Arranque stdio con el comando documentado y listado desde LangChain MCPAdapter.
+    - Fan-out de las cuatro en paralelo.
+    - Fuentes derivadas solo de ok.
+  fixtures:
+    - glosario.json
+    - hu_similares.json
+    - estandares.json
+    - checklist_vacios.json
+
+compatibility:
+  fastmcp: 4.1.4
+  mcp: 2.3.0
+  langchain_mcp_adapter: 1.4.7
+  notes:
+    - langchain.mcp es beta; el adaptador está aislado y cubierto por pruebas de contrato.
+    - El lockfile de Python se genera después de la instalación de la Fase 0.

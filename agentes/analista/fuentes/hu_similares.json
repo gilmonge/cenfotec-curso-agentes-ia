@@ -1,0 +1,26 @@
+[
+  {
+    "id": "HU-REF-001",
+    "titulo": "Consultar estado de una solicitud",
+    "resumen": "Referencia ficticia para identificar estados, actor que consulta y datos mínimos de búsqueda.",
+    "aclaraciones": ["El canal de consulta debe confirmarse con Negocio."],
+    "similitud": 0.82,
+    "terminos": ["solicitud", "estado", "consulta"]
+  },
+  {
+    "id": "HU-REF-002",
+    "titulo": "Validar vigencia de una cobertura",
+    "resumen": "Referencia anonimizada de ejemplo para precisar fechas, condiciones y resultado de validación.",
+    "aclaraciones": ["La fuente de fechas requiere validación humana."],
+    "similitud": 0.76,
+    "terminos": ["vigencia", "cobertura", "validar", "fecha"]
+  },
+  {
+    "id": "HU-REF-003",
+    "titulo": "Registrar beneficiarios autorizados",
+    "resumen": "Ejemplo ficticio para revisar identidad del actor, reglas de autorización y datos requeridos.",
+    "aclaraciones": ["No se conserva información personal en esta referencia."],
+    "similitud": 0.71,
+    "terminos": ["beneficiario", "autorización", "datos"]
+  }
+]

@@ -1,0 +1,734 @@
+openapi: 3.1.0
+info:
+  title: StoryCraft AI — API del Chat del Agente Analista
+  version: 1.0.0
+  description: >-
+    Contrato REST del backend local del chat. El backend es la autoridad del
+    contexto, ejecuta las herramientas MCP y llama a OpenCode local. El
+    navegador solo consume esta API a través de /api/analista; nunca contacta
+    OpenCode, MCP o Langfuse. Todas las respuestas son JSON salvo 204.
+  contact:
+    name: StoryCraft AI — Popular Seguros
+servers:
+  - url: http://127.0.0.1:8000/api/analista
+    description: Backend local (también accesible por el proxy Vite /api/analista)
+security: []
+tags:
+  - name: health
+    description: Estado de dependencias y configuración
+  - name: conversations
+    description: Ciclo de vida de conversaciones y turnos
+components:
+  parameters:
+    ConversationId:
+      name: conversation_id
+      in: path
+      required: true
+      description: Identificador opaco de la conversación.
+      schema:
+        $ref: '#/components/schemas/ConversationId'
+  schemas:
+    ConversationId:
+      type: string
+      format: uuid
+      description: UUID v4 generado por el backend.
+      example: 3f0f5f7e-7d8a-4d3e-9f7a-1a2b3c4d5e6f
+    RequestId:
+      type: string
+      format: uuid
+      description: UUID v4 generado por el cliente; clave de idempotencia.
+      example: 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+    TurnId:
+      type: string
+      format: uuid
+      description: UUID v4 interno del turno; se usa para correlación.
+      example: 2b3c4d5e-6f70-4a8b-9c0d-1e2f3a4b5c6d
+    HealthStatus:
+      type: string
+      enum:
+        - ready
+        - degraded
+        - unavailable
+      description: >-
+        ready: flujo completo disponible. degraded: el chat funciona con una
+        limitación declarada. unavailable: no se puede garantizar el flujo real.
+    CheckStatus:
+      type: string
+      enum:
+        - ok
+        - degraded
+        - unavailable
+        - disabled
+    QuestionCategory:
+      type: string
+      enum:
+        - Reglas de negocio
+        - Datos requeridos
+        - Validaciones
+        - Excepciones
+        - Comportamiento esperado
+    QuestionState:
+      type: string
+      enum:
+        - pendiente
+        - respondida
+    SourceName:
+      type: string
+      enum:
+        - consultar_glosario
+        - buscar_hu_similares
+        - consultar_estandares
+        - aplicar_checklist_vacios
+    Analysis:
+      type: object
+      additionalProperties: false
+      required:
+        - conocida
+        - faltante
+        - supuesta
+        - ambigua
+      properties:
+        conocida:
+          $ref: '#/components/schemas/AnalysisList'
+        faltante:
+          $ref: '#/components/schemas/AnalysisList'
+        supuesta:
+          $ref: '#/components/schemas/AnalysisList'
+        ambigua:
+          $ref: '#/components/schemas/AnalysisList'
+    AnalysisList:
+      type: array
+      maxItems: 100
+      items:
+        type: string
+        minLength: 1
+        maxLength: 1000
+      description: >-
+        Lista de elementos del análisis. Una categoría sin elementos se
+        representa como [] y la UI la muestra con cero; no se omite.
+    Question:
+      type: object
+      additionalProperties: false
+      required:
+        - question_id
+        - categoria
+        - pregunta
+        - estado
+      properties:
+        question_id:
+          type: string
+          minLength: 1
+          maxLength: 80
+          description: Identificador opaco generado por el backend.
+        categoria:
+          $ref: '#/components/schemas/QuestionCategory'
+        pregunta:
+          type: string
+          minLength: 1
+          maxLength: 500
+        estado:
+          $ref: '#/components/schemas/QuestionState'
+        created_turn_id:
+          $ref: '#/components/schemas/TurnId'
+        updated_turn_id:
+          $ref: '#/components/schemas/TurnId'
+    SourceConsultation:
+      type: object
+      additionalProperties: false
+      required:
+        - nombre
+        - resultados
+        - duracion_ms
+      properties:
+        nombre:
+          $ref: '#/components/schemas/SourceName'
+        resultados:
+          type: integer
+          minimum: 0
+          description: >-
+            Número de resultados devueltos por una ejecución MCP exitosa.
+            Cero es un resultado válido.
+        duracion_ms:
+          type: integer
+          minimum: 0
+          description: Duración real de la llamada MCP en milisegundos.
+    AgentTurnResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - conversation_id
+        - request_id
+        - turn_id
+        - estado
+        - respuesta_markdown
+        - analisis
+        - preguntas
+        - fuentes_consultadas
+        - listo_para_redactor
+        - limitaciones
+        - duracion_ms
+        - prompt_version
+      properties:
+        conversation_id:
+          $ref: '#/components/schemas/ConversationId'
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        turn_id:
+          $ref: '#/components/schemas/TurnId'
+        estado:
+          type: string
+          enum:
+            - completado
+        respuesta_markdown:
+          type: string
+          minLength: 1
+          maxLength: 50000
+          description: >-
+            Markdown GFM seguro. El renderer del frontend desactiva HTML crudo,
+            imágenes y esquemas de URL no permitidos.
+        analisis:
+          $ref: '#/components/schemas/Analysis'
+        preguntas:
+          type: array
+          maxItems: 50
+          items:
+            $ref: '#/components/schemas/Question'
+        fuentes_consultadas:
+          type: array
+          maxItems: 4
+          description: >-
+            Solo fuentes con ejecución MCP exitosa. Las fallidas se describen en
+            limitaciones.
+          items:
+            $ref: '#/components/schemas/SourceConsultation'
+        listo_para_redactor:
+          type: boolean
+          description: >-
+            Compuerta conservadora calculada por el backend. No implica redactar
+            ni aprobar una historia de usuario.
+        limitaciones:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            minLength: 1
+            maxLength: 300
+        duracion_ms:
+          type: integer
+          minimum: 0
+          description: Duración total real del turno, medida por el backend.
+        prompt_version:
+          type: string
+          minLength: 1
+          maxLength: 40
+          description: Versión editorial del prompt cargada al iniciar.
+      example:
+        conversation_id: 3f0f5f7e-7d8a-4d3e-9f7a-1a2b3c4d5e6f
+        request_id: 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+        turn_id: 2b3c4d5e-6f70-4a8b-9c0d-1e2f3a4b5c6d
+        estado: completado
+        respuesta_markdown: "## Análisis\n\nFaltan reglas de negocio."
+        analisis:
+          conocida:
+            - "El requerimiento menciona una póliza."
+          faltante:
+            - "No se define el plazo de respuesta."
+          supuesta: []
+          ambigua: []
+        preguntas:
+          - question_id: q-1
+            categoria: Reglas de negocio
+            pregunta: "¿Cuál es el plazo máximo de respuesta?"
+            estado: pendiente
+        fuentes_consultadas:
+          - nombre: consultar_glosario
+            resultados: 1
+            duracion_ms: 12
+        listo_para_redactor: false
+        limitaciones: []
+        duracion_ms: 18400
+        prompt_version: "1.0.0"
+    CreateConversationResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - conversation_id
+        - created_at
+        - expires_at
+        - message_limit
+        - timeout_seconds
+      properties:
+        conversation_id:
+          $ref: '#/components/schemas/ConversationId'
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        message_limit:
+          type: integer
+          minimum: 1
+          example: 4000
+        timeout_seconds:
+          type: integer
+          minimum: 1
+          example: 90
+    SendMessageRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - request_id
+        - message
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+          description: >-
+            Texto del requerimiento o aclaración. No puede ser solo espacios o
+            saltos de línea.
+    ResetResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - conversation_id
+        - created_at
+        - expires_at
+        - message_limit
+        - timeout_seconds
+      properties:
+        conversation_id:
+          $ref: '#/components/schemas/ConversationId'
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        message_limit:
+          type: integer
+          minimum: 1
+        timeout_seconds:
+          type: integer
+          minimum: 1
+        replaced_conversation_id:
+          $ref: '#/components/schemas/ConversationId'
+    CancelRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - request_id
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+    CancelResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - canceled
+        - reason
+      properties:
+        canceled:
+          type: boolean
+        turn_id:
+          $ref: '#/components/schemas/TurnId'
+        reason:
+          type: string
+          enum:
+            - CANCELED
+            - NO_ACTIVE_TURN
+            - ALREADY_TERMINAL
+            - REQUEST_ID_MISMATCH
+    ErrorCode:
+      type: string
+      enum:
+        - INVALID_REQUEST
+        - MESSAGE_EMPTY
+        - MESSAGE_TOO_LONG
+        - CONVERSATION_NOT_FOUND
+        - TURN_IN_PROGRESS
+        - TURN_CANCELLED
+        - TURN_INVALIDATED
+        - REQUEST_ID_CONFLICT
+        - AGENT_OUTPUT_INVALID
+        - OPENCODE_UNAVAILABLE
+        - OPENCODE_AUTH_FAILED
+        - OPENCODE_RATE_LIMITED
+        - OPENCODE_INCOMPATIBLE
+        - MODEL_UNAVAILABLE
+        - MCP_UNAVAILABLE
+        - PROMPT_INVALID
+        - PROMPT_RESTART_REQUIRED
+        - TURN_TIMEOUT
+        - CAPACITY_EXCEEDED
+        - INTERNAL_ERROR
+    ValidationIssue:
+      type: object
+      additionalProperties: false
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          maxLength: 120
+        message:
+          type: string
+          maxLength: 300
+    ErrorDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - retryable
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Mensaje comprensible; sin stack, rutas, secretos ni IDs de sesión.
+        retryable:
+          type: boolean
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        retry_at:
+          type: string
+          format: date-time
+          description: >-
+            Instante UTC de recuperación normalizado desde una pista válida de
+            OpenCode. Solo aparece si el proveedor informó una duración o fecha
+            futura; se omite cuando falta o ya venció.
+        field:
+          type: string
+          maxLength: 120
+        issues:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+      example:
+        error:
+          code: TURN_IN_PROGRESS
+          message: "Ya hay un turno en proceso para esta conversación."
+          retryable: false
+          request_id: 9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d
+    OpenCodeCheck:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/CheckStatus'
+        version:
+          type: string
+          maxLength: 40
+          description: Versión reportada por OpenCode v2 GET /api/info; no se exponen rutas internas.
+        agent:
+          type: string
+          maxLength: 80
+          description: Nombre del agente verificado, normalmente analista.
+    McpCheck:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - tools
+      properties:
+        status:
+          $ref: '#/components/schemas/CheckStatus'
+        tools:
+          type: array
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/SourceName'
+    LangfuseCheck:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/CheckStatus'
+    HealthChecks:
+      type: object
+      additionalProperties: false
+      required:
+        - opencode
+        - mcp
+        - langfuse
+      properties:
+        opencode:
+          $ref: '#/components/schemas/OpenCodeCheck'
+        mcp:
+          $ref: '#/components/schemas/McpCheck'
+        langfuse:
+          $ref: '#/components/schemas/LangfuseCheck'
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - checked_at
+        - backend_version
+        - timeout_seconds
+        - message_limit
+        - restart_required
+        - checks
+      properties:
+        status:
+          $ref: '#/components/schemas/HealthStatus'
+        checked_at:
+          type: string
+          format: date-time
+        backend_version:
+          type: string
+          maxLength: 40
+        timeout_seconds:
+          type: integer
+          minimum: 1
+          example: 90
+        message_limit:
+          type: integer
+          minimum: 1
+          example: 4000
+        prompt_version:
+          type: string
+          maxLength: 40
+          description: Presente solo si el prompt se cargó y validó.
+        prompt_hash:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: >-
+            SHA-256 del prompt cargado; no revela el contenido. Se omite si el
+            prompt no pudo cargarse.
+        restart_required:
+          type: boolean
+        checks:
+          $ref: '#/components/schemas/HealthChecks'
+  responses:
+    ConversationNotFound:
+      description: La conversación no existe, expiró, fue reemplazada o eliminada.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error:
+              code: CONVERSATION_NOT_FOUND
+              message: "La conversación no está disponible. Inicia una nueva."
+              retryable: false
+    Conflict:
+      description: >-
+        Conflicto de turno o de idempotencia. El código indica si se debe
+        esperar, cancelar o iniciar una nueva identidad.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: La solicitud no cumple el contrato.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ServiceUnavailable:
+      description: >-
+        Dependencia no disponible (incluye HTTP 503 real de OpenCode/MCP),
+        configuración inválida o capacidad agotada. El tope de 32 conversaciones
+        expulsa primero el registro sin turno activo menos recientemente usado; si
+        todos tienen un turno activo, la creación devuelve CAPACITY_EXCEEDED y no
+        expulsa ninguno. Códigos posibles:
+        OPENCODE_UNAVAILABLE, OPENCODE_AUTH_FAILED, OPENCODE_RATE_LIMITED,
+        MODEL_UNAVAILABLE, OPENCODE_INCOMPATIBLE,
+        MCP_UNAVAILABLE, PROMPT_INVALID, PROMPT_RESTART_REQUIRED y
+        CAPACITY_EXCEEDED. Health conserva su estado independiente; los endpoints
+        de creación/turno que declaran 503 devuelven este sobre.
+        El chat no inventa una respuesta.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    BadGateway:
+      description: El agente devolvió una salida no válida tras el intento de reparación.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    GatewayTimeout:
+      description: Se agotó el deadline total de 90 s y el trabajo fue abortado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Error no controlado; no se exponen detalles internos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      operationId: getHealth
+      summary: Estado de dependencias y configuración
+      description: >-
+        No crea conversaciones ni llama al modelo. Devuelve un estado global y
+        por dependencia sin rutas, claves ni detalles sensibles. Si Langfuse está
+        deshabilitado, el chat puede operar en estado degraded.
+      responses:
+        '200':
+          description: Estado actual.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /conversaciones:
+    post:
+      tags:
+        - conversations
+      operationId: createConversation
+      summary: Crear una conversación vacía
+      description: >-
+        Crea una conversación en memoria. No hay recuperación tras recargar el
+        navegador ni tras reiniciar el backend.
+      responses:
+        '201':
+          description: Conversación creada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateConversationResponse'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /conversaciones/{conversation_id}/mensajes:
+    parameters:
+      - $ref: '#/components/parameters/ConversationId'
+    post:
+      tags:
+        - conversations
+      operationId: sendMessage
+      summary: Enviar un mensaje y esperar la respuesta del agente
+      description: >-
+        Ejecuta las cuatro herramientas MCP en paralelo, crea una sesión
+        efímera de OpenCode, espera la respuesta, la valida y actualiza el
+        contexto. Solo hay un turno en vuelo por conversación. El deadline total
+        es de 90 s. Una respuesta tardía de un turno cancelado, reiniciado,
+        eliminado o expirado se descarta por identidad y generación.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: Turno completado y validado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentTurnResponse'
+        '404':
+          $ref: '#/components/responses/ConversationNotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /conversaciones/{conversation_id}/cancelar:
+    parameters:
+      - $ref: '#/components/parameters/ConversationId'
+    post:
+      tags:
+        - conversations
+      operationId: cancelTurn
+      summary: Cancelar el turno activo
+      description: >-
+        Invalida el turno antes de interrumpir OpenCode. Es idempotente: si no
+        hay turno activo devuelve 200 con canceled=false. La conversación y su
+        historial previo se conservan; el turno cancelado no entra al contexto.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelRequest'
+      responses:
+        '200':
+          description: Resultado de la cancelación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelResponse'
+        '404':
+          $ref: '#/components/responses/ConversationNotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /conversaciones/{conversation_id}/reiniciar:
+    parameters:
+      - $ref: '#/components/parameters/ConversationId'
+    post:
+      tags:
+        - conversations
+      operationId: resetConversation
+      summary: Reiniciar la conversación
+      description: >-
+        Invalida y aborta el turno activo si existe, elimina la conversación
+        anterior y devuelve un ID nuevo. El panel del chat permanece abierto.
+      responses:
+        '200':
+          description: Nueva conversación vacía.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetResponse'
+        '404':
+          $ref: '#/components/responses/ConversationNotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /conversaciones/{conversation_id}:
+    parameters:
+      - $ref: '#/components/parameters/ConversationId'
+    delete:
+      tags:
+        - conversations
+      operationId: deleteConversation
+      summary: Eliminar la conversación
+      description: >-
+        Invalida y aborta el turno activo, elimina el contexto y es idempotente:
+        devuelve 204 incluso si la conversación ya no existe. El frontend cierra
+        el panel después de confirmar.
+      responses:
+        '204':
+          description: Conversación eliminada o ya inexistente.
+        '500':
+          $ref: '#/components/responses/InternalError'
