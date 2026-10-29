@@ -44,8 +44,11 @@ def load_prompt(path: str | Path = DEFAULT_PROMPT_PATH) -> PromptSnapshot:
 
 
 def verify_loaded_prompt(snapshot: PromptSnapshot, server_prompt: str | None) -> bool:
-    """Compare the server-loaded prompt with the local snapshot without logging it."""
-    if not server_prompt:
+    """Verify prompt content regardless of Windows/Unix line endings."""
+    if not isinstance(server_prompt, str) or not server_prompt.strip():
         return False
-    normalized = server_prompt.strip()
-    return normalized == snapshot.text
+
+    def normalize(text: str) -> str:
+        return text.replace("\r\n", "\n").replace("\r", "\n").strip()
+
+    return normalize(server_prompt) == normalize(snapshot.text)
