@@ -327,7 +327,7 @@ async def run_turn(
                 operation = trace.operation(
                     kind="generation",
                     name="opencode-generation",
-                    metadata={"provider": "opencode", "model": model["id"]},
+                    metadata={"provider": model["providerID"], "model": model["id"]},
                 )
                 try:
                     title = f"analista-{str(conversation_id)[:8]}-{str(turn_id)[:8]}"

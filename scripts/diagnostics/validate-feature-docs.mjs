@@ -35,9 +35,11 @@ const agentConfig = JSON.parse(await fs.readFile(path.join(root, 'opencode.jsonc
 if (agentConfig.agents?.analista?.model) failures.push('project-agent-fixes-model');
 if (agentConfig.agents?.analista?.permissions?.[0]?.effect !== 'deny') failures.push('project-agent-not-deny-all');
 const clientSource = await fs.readFile(path.join(root, 'agentes/analista/core/opencode_client.py'), 'utf8');
-if (!clientSource.includes('"providerID": "opencode"')) failures.push('client-does-not-select-opencode');
+if (!clientSource.includes('opencode_provider_id') || !clientSource.includes('item.get("providerID") == provider_id')) failures.push('client-does-not-use-configured-provider');
+if (!clientSource.includes('OPENCODE_PROVIDER_ID')) failures.push('client-provider-setting-not-loaded');
 if (/ollama/i.test(clientSource)) failures.push('client-has-legacy-provider-reference');
 if (!clientSource.includes('_has_zero_cost(match.get("cost"))')) failures.push('client-does-not-enforce-zero-cost-models');
+if (!clientSource.includes('explicitly_authorized = bool(configured_provider_id and configured_id)')) failures.push('client-does-not-require-explicit-model-authorization');
 const requirementText = await fs.readFile(path.join(root, 'agentes/analista/requirements.txt'), 'utf8');
 if (/ollama/i.test(requirementText)) failures.push('backend-requires-legacy-provider');
 const preflightSource = await fs.readFile(path.join(root, 'scripts/diagnostics/opencode-v2-t001.mjs'), 'utf8');

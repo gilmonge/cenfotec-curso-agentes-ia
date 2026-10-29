@@ -16,7 +16,7 @@ from agentes.analista.core.models import (
     OpenCodeCheck,
     ToolName,
 )
-from agentes.analista.core.opencode_client import OpenCodeClient, OpenCodeClientError
+from agentes.analista.core.opencode_client import OpenCodeClient, OpenCodeClientError, OpenCodeSettings
 from agentes.analista.core.opencode_compat import is_supported_opencode_version
 from agentes.analista.core.prompt_loader import PromptLoadError, load_prompt
 from agentes.analista.core.orchestrator import MCP_SERVER, EXPECTED_TOOLS
@@ -40,16 +40,47 @@ async def health(request: Request) -> HealthResponse:
         current_prompt = state.prompt_snapshot
         prompt_status = CheckStatus.UNAVAILABLE
 
-    opencode_check = OpenCodeCheck(status=CheckStatus.UNAVAILABLE, version=None, agent=None)
+    settings = getattr(state, "settings", None) or OpenCodeSettings.from_environment()
+    configured_provider_id = getattr(settings, "opencode_provider_id", "") or "opencode"
+    configured_model_id = getattr(settings, "opencode_model_id", "") or None
+    opencode_check = OpenCodeCheck(
+        status=CheckStatus.UNAVAILABLE,
+        version=None,
+        agent=None,
+        configured_provider_id=configured_provider_id,
+        configured_model_id=configured_model_id,
+    )
+    server_version: str | None = None
+    verified_agent: str | None = None
     try:
-        async with OpenCodeClient(prompt=current_prompt) as client:
+        async with OpenCodeClient(settings=settings, prompt=current_prompt) as client:
             info = await client.server_info()
-            if not is_supported_opencode_version(info.get("version")):
+            candidate_version = info.get("version")
+            server_version = candidate_version if isinstance(candidate_version, str) else None
+            if not is_supported_opencode_version(candidate_version):
                 raise OpenCodeClientError("OPENCODE_INCOMPATIBLE", "La versión de OpenCode no es compatible.")
-            await client.verify_agent("analista")
-            opencode_check = OpenCodeCheck(status=CheckStatus.OK, version=info["version"], agent="analista")
-    except OpenCodeClientError:
-        pass
+            agent = await client.verify_agent("analista")
+            verified_agent = "analista"
+            model = await client.select_model(agent)
+            opencode_check = OpenCodeCheck(
+                status=CheckStatus.OK,
+                version=info["version"],
+                agent="analista",
+                configured_provider_id=configured_provider_id,
+                configured_model_id=configured_model_id,
+                selected_provider_id=model["providerID"],
+                selected_model_id=model["id"],
+            )
+    except OpenCodeClientError as exc:
+        opencode_check = OpenCodeCheck(
+            status=CheckStatus.UNAVAILABLE,
+            version=server_version,
+            agent=verified_agent,
+            configured_provider_id=configured_provider_id,
+            configured_model_id=configured_model_id,
+            rejection_code=exc.code,
+            rejection_reason=str(exc),
+        )
 
     mcp_check = McpCheck(status=CheckStatus.UNAVAILABLE, tools=[])
     try:

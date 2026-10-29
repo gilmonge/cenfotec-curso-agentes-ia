@@ -267,6 +267,12 @@ class OpenCodeCheck(ContractModel):
     status: CheckStatus
     version: str | None = Field(default=None, max_length=40)
     agent: str | None = Field(default=None, max_length=80)
+    configured_provider_id: str = Field(default="opencode", max_length=80)
+    configured_model_id: str | None = Field(default=None, max_length=160)
+    selected_provider_id: str | None = Field(default=None, max_length=80)
+    selected_model_id: str | None = Field(default=None, max_length=160)
+    rejection_code: str | None = Field(default=None, max_length=80)
+    rejection_reason: str | None = Field(default=None, max_length=500)
 
 
 class McpCheck(ContractModel):
