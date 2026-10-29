@@ -189,7 +189,7 @@ async def test_health_reports_degraded_without_langfuse_and_checks_contracts(api
     client, _app = api_client
 
     class FakeOpenCode:
-        def __init__(self, *, prompt=None):
+        def __init__(self, *, settings=None, prompt=None):
             self.prompt = prompt
 
         async def __aenter__(self):
@@ -203,6 +203,9 @@ async def test_health_reports_degraded_without_langfuse_and_checks_contracts(api
 
         async def verify_agent(self, _agent):
             return {"id": "analista"}
+
+        async def select_model(self, _agent):
+            return {"providerID": "opencode-go", "id": "glm-5.3-flash"}
 
     class FakeAdapter:
         async def __aenter__(self):
@@ -223,6 +226,11 @@ async def test_health_reports_degraded_without_langfuse_and_checks_contracts(api
     assert body["status"] == "degraded"
     assert body["timeout_seconds"] == 75
     assert body["checks"]["opencode"]["version"] == version
+    assert body["checks"]["opencode"]["configured_provider_id"] == "opencode"
+    assert body["checks"]["opencode"]["configured_model_id"] is None
+    assert body["checks"]["opencode"]["selected_provider_id"] == "opencode-go"
+    assert body["checks"]["opencode"]["selected_model_id"] == "glm-5.3-flash"
+    assert body["checks"]["opencode"]["rejection_reason"] is None
     assert body["checks"]["mcp"]["status"] == "ok"
     assert body["checks"]["langfuse"]["status"] == "disabled"
 
@@ -232,7 +240,7 @@ async def test_health_degrades_for_unsupported_opencode_version(api_client, monk
     client, _app = api_client
 
     class FakeOpenCode:
-        def __init__(self, *, prompt=None):
+        def __init__(self, *, settings=None, prompt=None):
             pass
 
         async def __aenter__(self):
@@ -264,5 +272,64 @@ async def test_health_degrades_for_unsupported_opencode_version(api_client, monk
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "unavailable"
-    assert body["checks"]["opencode"] == {"status": "unavailable", "version": None, "agent": None}
+    assert body["checks"]["opencode"]["status"] == "unavailable"
+    assert body["checks"]["opencode"]["version"] == "2.1.3"
+    assert body["checks"]["opencode"]["agent"] is None
+    assert body["checks"]["opencode"]["rejection_code"] == "OPENCODE_INCOMPATIBLE"
+    assert body["checks"]["opencode"]["rejection_reason"] == "La versión de OpenCode no es compatible."
     assert body["checks"]["mcp"]["status"] == "ok"
+
+
+@pytest.mark.asyncio
+async def test_health_exposes_configured_model_and_exact_selection_rejection(api_client, monkeypatch):
+    client, app = api_client
+    app.state.settings.opencode_provider_id = "opencode-go"
+    app.state.settings.opencode_model_id = "glm-5.3-flash"
+
+    class FakeOpenCode:
+        def __init__(self, *, settings=None, prompt=None):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_args):
+            return None
+
+        async def server_info(self):
+            return {"version": "2.1.2"}
+
+        async def verify_agent(self, _agent):
+            return {"id": "analista"}
+
+        async def select_model(self, _agent):
+            raise health.OpenCodeClientError(
+                "MODEL_UNAVAILABLE",
+                "OpenCode no anuncia el modelo 'opencode-go/glm-5.3-flash'.",
+            )
+
+    class FakeAdapter:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_args):
+            return None
+
+        async def list_tools(self):
+            return [SimpleNamespace(name=name) for name in health.EXPECTED_TOOLS]
+
+    monkeypatch.setattr(health, "OpenCodeClient", FakeOpenCode)
+    monkeypatch.setattr(health, "MCPAdapter", lambda _server: FakeAdapter())
+    response = await client.get("/api/analista/health")
+
+    assert response.status_code == 200
+    check = response.json()["checks"]["opencode"]
+    assert check["version"] == "2.1.2"
+    assert check["agent"] == "analista"
+    assert check["configured_provider_id"] == "opencode-go"
+    assert check["configured_model_id"] == "glm-5.3-flash"
+    assert check["selected_provider_id"] is None
+    assert check["selected_model_id"] is None
+    assert check["rejection_code"] == "MODEL_UNAVAILABLE"
+    assert check["rejection_reason"] == "OpenCode no anuncia el modelo 'opencode-go/glm-5.3-flash'."
+    assert "password" not in response.text.lower()

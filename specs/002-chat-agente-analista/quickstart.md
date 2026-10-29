@@ -68,6 +68,7 @@ Valores esperados (sin secretos reales en el repositorio):
 OPENCODE_SERVER_URL=http://127.0.0.1:4096
 OPENCODE_SERVER_USERNAME=opencode
 OPENCODE_SERVER_PASSWORD=<misma contraseña que uses al arrancar OpenCode>
+OPENCODE_PROVIDER_ID=
 OPENCODE_MODEL_ID=
 ANALISTA_HOST=127.0.0.1
 ANALISTA_PORT=8000
@@ -110,7 +111,7 @@ La instancia probada es OpenCode `2.0.27`/API v2. `/global/health` y `/doc` sirv
 
 ## 5. Configurar el agente v2
 
-El agente de proyecto está en `opencode.jsonc`. `system` carga el prompt desde `agentes/analista/prompts/sistema.md` mediante `{file:...}` y conserva deny-all; no fija modelo ni proveedor. El backend genera exclusivamente a través de OpenCode y selecciona `providerID=opencode`. `OPENCODE_MODEL_ID` permite elegir un ID listado por `/api/model`; vacío usa `/api/model/default` solo si pertenece a `opencode`. Antes de crear una sesión, el backend exige costo cero publicado en entrada, salida y caché; costo positivo o desconocido se rechaza, sin hacer llamadas de pago. La lista no garantiza cuota ni acceso real. Las herramientas MCP autorizadas se ejecutan en el backend.
+El agente de proyecto está en `opencode.jsonc`. `system` carga el prompt desde `agentes/analista/prompts/sistema.md` mediante `{file:...}` y conserva deny-all; no fija modelo ni proveedor. El backend genera exclusivamente a través de OpenCode. `OPENCODE_PROVIDER_ID` vacío usa `opencode`; `OPENCODE_MODEL_ID` permite elegir un ID listado por `/api/model`, y vacío usa el modelo predeterminado si pertenece al provider configurado. Sin selección explícita de provider y modelo, el backend exige costo cero publicado en entrada, salida y caché. Configurar ambos autoriza ese par aunque el precio sea positivo o desconocido; OpenCode aún debe anunciar el modelo y marcarlo habilitado. Por ejemplo, `OPENCODE_PROVIDER_ID=opencode-go` y `OPENCODE_MODEL_ID=glm-5.3-flash`. `/api/analista/health` informa configuración, selección efectiva y motivo de rechazo. La lista no garantiza cuota ni acceso real. Las herramientas MCP autorizadas se ejecutan en el backend.
 
 Comprueba que el prompt existe y no está vacío:
 
@@ -375,7 +376,7 @@ No inicies otro servidor OpenCode ni cambies el perfil habitual. Si el agente no
 | `AGENT_OUTPUT_INVALID` | JSON inválido tras una reparación | Reintenta; revisa el prompt y el modelo |
 | `TURN_TIMEOUT` | Se agotaron 90 s o OpenCode respondió 504 | Reintenta; revisa el timeout de OpenCode |
 | `OPENCODE_RATE_LIMITED` | OpenCode devolvió 429/`provider.quota` | Espera cuota o configura otro modelo `opencode` autorizado |
-| `MODEL_UNAVAILABLE` | Modelo no listado/habilitado o default de otro proveedor | Revisa `OPENCODE_MODEL_ID` y `/api/model` |
+| `MODEL_UNAVAILABLE` | Modelo o provider no listado/habilitado, o default de otro provider | Revisa `OPENCODE_PROVIDER_ID`, `OPENCODE_MODEL_ID`, `/api/model` y `checks.opencode.rejection_reason` en `/api/analista/health` |
 | Health `degraded` por Langfuse | Claves ausentes o servicio caído | El chat funciona; configura Langfuse o acepta el aviso |
 | `401` en `/api/info` | Basic Auth no coincide | Revisa usuario/contraseña en el `.env` local; no los pegues en el issue |
 | `npm run dev` no llega al backend | Proxy Vite ausente/incorrecto | Revisa `vite.config.js` y que el backend esté en 8000 |

@@ -131,6 +131,7 @@ Verificar que se hayan definido correctamente, como mínimo:
 OPENCODE_SERVER_URL=http://127.0.0.1:4096
 OPENCODE_SERVER_USERNAME=opencode
 OPENCODE_SERVER_PASSWORD=<CONTRASEÑA_LOCAL_DEL_SERVIDOR>
+OPENCODE_PROVIDER_ID=opencode
 OPENCODE_MODEL_ID=nemotron-3.5-lightning-free
 ANALISTA_HOST=127.0.0.1
 ANALISTA_PORT=8000
@@ -143,13 +144,13 @@ LANGFUSE_SECRET_KEY=<LANGFUSE_SECRET_KEY>
 
   
 
-- Reemplazar `<CONTRASEÑA_LOCAL_DEL_SERVIDOR>` por la clave **del servidor activo**, indicada en su terminal. **Nunca** compartirla, subirla a Git ni copiarla en el frontend.
+- Reemplazar `<CONTRASEÑA_LOCAL_DEL_SERVIDOR>` por una contraseña Basic Auth local que usarán tanto el script `iniciar-opencode.ps1` como FastAPI. El script la lee directamente de `.env` y no te la solicita en cada inicio. **Nunca** compartirla, subirla a Git ni copiarla en el frontend.
 
--  `OPENCODE_MODEL_ID` vacío usa el modelo predeterminado **solo si** pertenece al proveedor `opencode` y tiene costo cero verificable. Si no cumple esas condiciones, se obtiene `MODEL_UNAVAILABLE`. Para elegir explícitamente un modelo, utilizar un ID real permitido por el proyecto; que esté listado no garantiza cuota disponible.
+- `OPENCODE_PROVIDER_ID` vacío usa `opencode`. Con `OPENCODE_MODEL_ID` vacío se usa el default de ese provider solo si tiene costo cero verificable. Configurar provider y modelo juntos autoriza ese par aunque el precio sea positivo o no esté publicado; OpenCode debe anunciarlo y tenerlo habilitado. Ejemplo: `OPENCODE_PROVIDER_ID=opencode-go` y `OPENCODE_MODEL_ID=glm-5.3-flash`. `/api/analista/health` expone la configuración, la selección y el motivo concreto de rechazo. La lista no garantiza cuota disponible.
 
 - Langfuse es opcional para levantar el chat; sin claves/servicio, el health puede indicar `degraded`.
 
-- Reiniciar **FastAPI** después de modificar `.env`; si la contraseña del servidor cambia, actualizarla localmente antes del siguiente arranque de FastAPI.
+- Reiniciar **FastAPI** después de modificar `.env`; si cambia `OPENCODE_SERVER_PASSWORD`, reiniciar también OpenCode con `.\iniciar-opencode.ps1`.
 
   
 
@@ -163,38 +164,17 @@ Iniciar **en este orden**, desde la raíz del proyecto.
 
 ### Terminal 1 — OpenCode Server 2.1.2 (puerto 4096)
 
-  
-
-Usa **este bloque completo** en PowerShell, desde la raíz del repositorio. Antes de ejecutarlo, verifica que no haya otra instancia de OpenCode escuchando en `4096` y que hayas instalado la versión temporal en la preparación inicial.
-
-  
+Ejecuta **un único comando** desde la raíz del repositorio. El archivo `iniciar-opencode.ps1` debe estar junto a `.env` y `package.json`. El script lee `OPENCODE_SERVER_PASSWORD` del `.env` local, utiliza la instalación temporal de OpenCode 2.1.2 y no solicita que escribas la contraseña manualmente.
 
 ```powershell
-
-$opencodeProbe = Join-Path $env:TEMP 'opencode-2.1.2-isolated'
-$securePassword = Read-Host 'Password Basic Auth local usado por FastAPI' -AsSecureString
-$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
-try {
-$env:OPENCODE_SERVER_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
-& (Join-Path $opencodeProbe 'node_modules/@opencode/cli/bin/opencode.exe') serve --hostname 127.0.0.1 --port 4096
-}
-finally {
-Remove-Item Env:OPENCODE_SERVER_PASSWORD -ErrorAction SilentlyContinue
-[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
-}
+.\iniciar-opencode.ps1
 ```
 
-  
-
-- Al solicitar la contraseña, escribe **exactamente el mismo valor** que está en `OPENCODE_SERVER_PASSWORD` del `.env` de la raíz; no lo pegues en el comando, en mensajes o capturas. El usuario Basic Auth es `opencode`.
-
-- Debe aparecer algo similar a `server listening on http://127.0.0.1:4096`. **Conserva abierta esta terminal** mientras utilizas el chat; `Ctrl+C` detiene el servidor y ejecuta el bloque de limpieza.
-
--  **No ejecutes `opencode serve` sin la ruta temporal**: podría iniciar tu instalación global 2.0.27 en lugar de 2.1.2.
-
-- Si cambias la contraseña del servidor, actualiza `.env` y reinicia FastAPI. No inicies dos servidores en el mismo puerto.
-
-  
+- Antes de iniciarlo, comprueba que la versión temporal haya sido instalada según la preparación inicial y que el puerto `4096` no esté ocupado. El script también valida estas condiciones.
+- Debe aparecer algo similar a `server listening on http://127.0.0.1:4096`. **Mantén abierta esta terminal**; usa `Ctrl+C` para detener OpenCode.
+- El usuario Basic Auth es `opencode`. El valor de `OPENCODE_SERVER_PASSWORD` del `.env` se utiliza para arrancar el servidor y también para que FastAPI se autentique. **No compartas ni publiques ese valor**.
+- Si modificas la contraseña en `.env`, detén y vuelve a iniciar OpenCode con el script, y reinicia FastAPI. No inicies dos servidores en el mismo puerto.
+- **No utilices `opencode serve` directamente** para este proyecto: podría ejecutar tu instalación global en lugar de la versión temporal 2.1.2.
 
 ### Terminal 2 — Backend FastAPI / Agente Analista (puerto 8000)
 
@@ -312,7 +292,7 @@ Si se usa `npm run dev`, comprobar también el puerto indicado por Vite (habitua
 | `500 /api/analista/health` tras cambiar a 2.1.2 | Verificar que las validaciones del backend acepten 2.1.2 además de 2.0.27; no confundir el error con falta de cuota del modelo. |
 | `401` al consultar OpenCode | `OPENCODE_SERVER_USERNAME` / `OPENCODE_SERVER_PASSWORD` no coinciden con el servidor activo; corregir `.env` local y reiniciar FastAPI. |
 | **OpenCode Server desconectado** / `OPENCODE_UNAVAILABLE` | OpenCode Server no está disponible; revisa el listener 4096 y su terminal. No inicies una segunda instancia. |
-| **Modelo no disponible** / `MODEL_UNAVAILABLE` | Revisa `OPENCODE_MODEL_ID` y el proveedor configurado; el backend rechaza modelos de costo desconocido o positivo. |
+| **Modelo no disponible** / `MODEL_UNAVAILABLE` | Revisa `OPENCODE_PROVIDER_ID` y `OPENCODE_MODEL_ID`, y consulta `checks.opencode.rejection_reason` en `/api/analista/health`; el modelo debe aparecer habilitado en OpenCode. |
 | **Cuota agotada (429)** / `OPENCODE_RATE_LIMITED` | OpenCode rechazó la generación por cuota. Si OpenCode `2.1.2` devuelve `retryAfterMs`, el chat muestra la cuenta regresiva real; si no, informa que el tiempo es desconocido. El mensaje se conserva para reintentar manualmente. |
 | **Timeout de 90 segundos** / `TURN_TIMEOUT` | La generación superó el deadline; revisa el proveedor. El mensaje se conserva para reintentar. |
 | El panel muestra generación sin verificar | Health no ejecuta el modelo. Solo una respuesta real confirma capacidad de generación. |
@@ -324,7 +304,7 @@ Si se usa `npm run dev`, comprobar también el puerto indicado por Vite (habitua
 
   
 
-El contador automático puede recibir el tiempo de recuperación cuando **OpenCode 2.1.2** incluya `retryAfterMs` en el error. Para utilizar esa versión, sigue la instalación temporal de la sección 1 y arranca el servidor mediante el bloque completo de la **Terminal 1** en la sección 2. No es necesario reemplazar la instalación global. Reinicia FastAPI tras cambiar la versión activa del servidor; conserva Basic Auth local y `providerID=opencode`. El modelo debe seguir publicando costo cero y la interfaz no realiza reintentos automáticos.
+El contador automático puede recibir el tiempo de recuperación cuando **OpenCode 2.1.2** incluya `retryAfterMs` en el error. Para utilizar esa versión, sigue la instalación temporal de la sección 1 y arranca el servidor mediante `.\iniciar-opencode.ps1`, como se indica en la **Terminal 1** de la sección 2. No es necesario reemplazar la instalación global. Reinicia FastAPI tras cambiar la versión activa del servidor; conserva Basic Auth local y el provider/model configurado. La interfaz no realiza reintentos automáticos.
 
   
 
@@ -368,18 +348,8 @@ En cada una de las terminales de OpenCode, FastAPI y Vite, presionar **Ctrl+C**.
   
 
 ```powershell
-# TERMINAL 1: OpenCode Server 2.1.2 (introducir contraseña de .env cuando se solicite)
-$opencodeProbe = Join-Path $env:TEMP 'opencode-2.1.2-isolated'
-$securePassword = Read-Host 'Password Basic Auth local usado por FastAPI' -AsSecureString
-$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
-try {
-$env:OPENCODE_SERVER_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer)
-& (Join-Path $opencodeProbe 'node_modules/@opencode/cli/bin/opencode.exe') serve --hostname 127.0.0.1 --port 4096
-}
-finally {
-Remove-Item Env:OPENCODE_SERVER_PASSWORD -ErrorAction SilentlyContinue
-[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
-}
+# TERMINAL 1: OpenCode Server 2.1.2 (lee la contraseña del .env)
+.\iniciar-opencode.ps1
 
 # TERMINAL 2: Backend Python / FastAPI
 & .\agentes\analista\.venv\Scripts\python.exe -m uvicorn agentes.analista.api.main:app --host 127.0.0.1 --port 8000 --workers 1

@@ -235,7 +235,7 @@ def test_zero_retry_after_ms_means_recovery_is_available_now():
 
 
 @pytest.mark.asyncio
-async def test_configured_model_is_selected_only_from_opencode_provider():
+async def test_opencode_provider_with_explicitly_free_model_is_selected():
     def respond(request):
         assert request.url.path == "/api/model"
         return httpx.Response(200, json={"data": [
@@ -246,7 +246,11 @@ async def test_configured_model_is_selected_only_from_opencode_provider():
     transport = httpx.MockTransport(respond)
     async with httpx.AsyncClient(base_url="http://opencode.test", transport=transport) as http:
         client = OpenCodeClient(
-            OpenCodeSettings(server_password=SecretStr("test-only"), opencode_model_id="selected-model"),
+            OpenCodeSettings(
+                server_password=SecretStr("test-only"),
+                opencode_provider_id="opencode",
+                opencode_model_id="selected-model",
+            ),
             client=http,
         )
         selected = await client.select_model()
@@ -255,13 +259,43 @@ async def test_configured_model_is_selected_only_from_opencode_provider():
 
 
 @pytest.mark.asyncio
+async def test_opencode_go_glm_flash_is_selected_with_explicit_paid_model_configuration():
+    def respond(request):
+        assert request.url.path == "/api/model"
+        return httpx.Response(200, json={"data": [
+            {
+                "providerID": "opencode-go",
+                "modelID": "glm-5.3-flash",
+                "enabled": True,
+                "cost": [{"input": 0.2, "output": 0.8, "cache": {"read": 0.1, "write": 0.2}}],
+            },
+        ]})
+
+    transport = httpx.MockTransport(respond)
+    async with httpx.AsyncClient(base_url="http://opencode.test", transport=transport) as http:
+        client = OpenCodeClient(
+            OpenCodeSettings(
+                _env_file=None,
+                server_password=SecretStr("test-only"),
+                opencode_provider_id="opencode-go",
+                opencode_model_id="glm-5.3-flash",
+            ),
+            client=http,
+        )
+        selected = await client.select_model()
+
+    assert selected == {"providerID": "opencode-go", "id": "glm-5.3-flash"}
+
+
+@pytest.mark.asyncio
 async def test_missing_configured_model_fails_without_provider_fallback():
     transport = httpx.MockTransport(lambda _request: httpx.Response(200, json={"data": [
+        {"providerID": "opencode", "modelID": "other-model", "enabled": True, "cost": ZERO_COST},
         {"providerID": "other-provider", "modelID": "other-model", "enabled": True},
     ]}))
     async with httpx.AsyncClient(base_url="http://opencode.test", transport=transport) as http:
         client = OpenCodeClient(
-            OpenCodeSettings(server_password=SecretStr("test-only"), opencode_model_id="missing-model"),
+            OpenCodeSettings(_env_file=None, server_password=SecretStr("test-only"), opencode_model_id="missing-model"),
             client=http,
         )
         with pytest.raises(OpenCodeClientError) as raised:
@@ -269,6 +303,29 @@ async def test_missing_configured_model_fails_without_provider_fallback():
 
     assert raised.value.code == "MODEL_UNAVAILABLE"
     assert raised.value.retryable is False
+    assert str(raised.value) == "OpenCode no anuncia el modelo 'opencode/missing-model'."
+
+
+@pytest.mark.asyncio
+async def test_provider_not_announced_by_opencode_is_rejected_with_reason():
+    transport = httpx.MockTransport(lambda _request: httpx.Response(200, json={"data": [
+        {"providerID": "opencode", "modelID": "other-model", "enabled": True, "cost": ZERO_COST},
+    ]}))
+    async with httpx.AsyncClient(base_url="http://opencode.test", transport=transport) as http:
+        client = OpenCodeClient(
+            OpenCodeSettings(
+                _env_file=None,
+                server_password=SecretStr("test-only"),
+                opencode_provider_id="unknown-provider",
+                opencode_model_id="some-model",
+            ),
+            client=http,
+        )
+        with pytest.raises(OpenCodeClientError) as raised:
+            await client.select_model()
+
+    assert raised.value.code == "MODEL_UNAVAILABLE"
+    assert str(raised.value) == "OpenCode no anuncia el provider 'unknown-provider'."
 
 
 @pytest.mark.asyncio

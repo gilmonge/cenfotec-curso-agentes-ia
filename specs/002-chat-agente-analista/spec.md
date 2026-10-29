@@ -28,7 +28,7 @@ errores y fuera de alcance. No implementar código."
 ### Architectural decision — 2026-10-27
 
 - OpenCode Server API v2 is the only authorized interface for AI generation. FastAPI reaches models only through OpenCode; it never connects to model providers directly.
-- The project uses only the `opencode` provider. `OPENCODE_MODEL_ID` may select a model already listed by OpenCode; no fixed model with exhausted quota is a permanent requirement. A 429 blocks live generation evidence only, not independent implementation or isolated automated tests.
+- The project uses OpenCode Server as its only generation interface. The default provider is `opencode`; `OPENCODE_PROVIDER_ID` and `OPENCODE_MODEL_ID` can explicitly select another provider/model listed and enabled by OpenCode. An explicit pair authorizes a model even when its published cost is positive or unknown. No fixed model with exhausted quota is a permanent requirement. A 429 blocks live generation evidence only, not independent implementation or isolated automated tests.
 - No paid model may be called and no budget may be consumed without explicit authorization. Unit tests may use mocks but must not be reported as real generation.
 
 ### Session 2026-10-26

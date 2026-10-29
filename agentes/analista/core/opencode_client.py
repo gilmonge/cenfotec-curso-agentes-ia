@@ -39,6 +39,7 @@ class OpenCodeSettings(BaseSettings):
     server_url: str = "http://127.0.0.1:4096"
     server_username: str = "opencode"
     server_password: SecretStr = SecretStr("")
+    opencode_provider_id: str = ""
     opencode_model_id: str = ""
     request_timeout_seconds: float = 90.0
     turn_timeout_seconds: float = Field(default=90.0, gt=0, le=300)
@@ -62,6 +63,7 @@ class OpenCodeSettings(BaseSettings):
             server_url=_read_env_value("OPENCODE_SERVER_URL", "http://127.0.0.1:4096"),
             server_username=_read_env_value("OPENCODE_SERVER_USERNAME", "opencode"),
             server_password=SecretStr(_read_env_value("OPENCODE_SERVER_PASSWORD", "")),
+            opencode_provider_id=_read_env_value("OPENCODE_PROVIDER_ID", "").strip(),
             opencode_model_id=_read_env_value("OPENCODE_MODEL_ID", "").strip(),
             request_timeout_seconds=float(_read_env_value("ANALISTA_REQUEST_TIMEOUT_SECONDS", "90")),
             turn_timeout_seconds=float(_read_env_value("ANALISTA_TURN_TIMEOUT_SECONDS", "90")),
@@ -223,20 +225,32 @@ class OpenCodeClient:
         return agent
 
     async def select_model(self, agent: Mapping[str, Any] | None = None) -> dict[str, str]:
+        configured_provider_id = self.settings.opencode_provider_id.strip()
+        provider_id = configured_provider_id or "opencode"
         configured_id = self.settings.opencode_model_id
         agent_model = (agent or {}).get("model")
+
+        if not re.fullmatch(r"[A-Za-z0-9._-]{1,80}", provider_id):
+            raise OpenCodeClientError("MODEL_UNAVAILABLE", "El identificador del provider configurado no es válido.")
+
         if configured_id:
             requested_id = configured_id
         elif isinstance(agent_model, Mapping):
-            provider_id = agent_model.get("providerID")
+            agent_provider_id = agent_model.get("providerID")
             requested_id = agent_model.get("modelID", agent_model.get("id"))
-            if provider_id != "opencode":
-                raise OpenCodeClientError("MODEL_UNAVAILABLE", "El agente debe usar un modelo del proveedor OpenCode.")
+            if agent_provider_id != provider_id:
+                raise OpenCodeClientError(
+                    "MODEL_UNAVAILABLE",
+                    f"El agente selecciona el provider '{agent_provider_id}', pero el provider configurado es '{provider_id}'.",
+                )
         else:
             default = await self._request("GET", "/api/model/default", params=self._location_params())
             model = default.get("data") if isinstance(default, dict) else None
-            if not isinstance(model, Mapping) or model.get("providerID") != "opencode" or not model.get("modelID"):
-                raise OpenCodeClientError("MODEL_UNAVAILABLE", "OpenCode no tiene un modelo predeterminado del proveedor autorizado.")
+            if not isinstance(model, Mapping) or model.get("providerID") != provider_id or not model.get("modelID"):
+                raise OpenCodeClientError(
+                    "MODEL_UNAVAILABLE",
+                    f"OpenCode no tiene un modelo predeterminado para el provider '{provider_id}'.",
+                )
             requested_id = str(model["modelID"])
 
         if not isinstance(requested_id, str) or not re.fullmatch(r"[A-Za-z0-9._:-]{1,160}", requested_id):
@@ -246,20 +260,31 @@ class OpenCodeClient:
         match = next(
             (
                 item for item in models or []
-                if item.get("providerID") == "opencode"
+                if item.get("providerID") == provider_id
                 and item.get("modelID") == requested_id
                 and item.get("enabled", True) is not False
             ),
             None,
         )
         if match is None:
-            raise OpenCodeClientError("MODEL_UNAVAILABLE", "El modelo configurado no está disponible en OpenCode.")
-        if not _has_zero_cost(match.get("cost")):
+            provider_models = [item for item in models or [] if item.get("providerID") == provider_id]
+            listed = next((item for item in provider_models if item.get("modelID") == requested_id), None)
+            if listed is not None and listed.get("enabled", True) is False:
+                reason = f"El modelo '{provider_id}/{requested_id}' está deshabilitado en OpenCode."
+            elif not provider_models:
+                reason = f"OpenCode no anuncia el provider '{provider_id}'."
+            else:
+                reason = f"OpenCode no anuncia el modelo '{provider_id}/{requested_id}'."
+            raise OpenCodeClientError("MODEL_UNAVAILABLE", reason)
+        # Naming both provider and model is an explicit operator choice and
+        # authorizes models whose OpenCode metadata is paid or unpriced.
+        explicitly_authorized = bool(configured_provider_id and configured_id)
+        if not explicitly_authorized and not _has_zero_cost(match.get("cost")):
             raise OpenCodeClientError(
                 "MODEL_UNAVAILABLE",
-                "El modelo no tiene costo cero verificado y no puede usarse sin autorizacion explicita.",
+                "El modelo no tiene costo cero verificado; configura OPENCODE_PROVIDER_ID y OPENCODE_MODEL_ID para autorizarlo explícitamente.",
             )
-        return {"providerID": "opencode", "id": str(match["modelID"])}
+        return {"providerID": provider_id, "id": str(match["modelID"])}
 
     async def create_session(self, *, title: str, agent_id: str = "analista", model: Mapping[str, str] | None = None) -> dict[str, Any]:
         body = {

@@ -148,7 +148,7 @@ No se hace sondeo ni se usa endpoint `wait`: el POST v1 entrega la respuesta. Un
 
 ## 5. Prompt, hash y recarga (actualizado a v2)
 
-La configuración vigente es `opencode.jsonc`, con prompt externo y permisos deny-all, sin modelo/provider fijo. FastAPI valida el `OPENCODE_MODEL_ID` opcional contra la lista v2 y exige `providerID=opencode`; si no se fija, acepta el default solo cuando pertenece a ese provider. El backend valida versión/hash del prompt y requiere reinicio ante cambios del archivo.
+La configuración vigente es `opencode.jsonc`, con prompt externo y permisos deny-all, sin modelo/provider fijo. FastAPI usa `opencode` como provider predeterminado; `OPENCODE_PROVIDER_ID` y `OPENCODE_MODEL_ID` permiten seleccionar un par anunciado y habilitado por la API v2. Sin ese par explícito, el modelo debe tener costo cero publicado; un par explícito autoriza costo positivo o desconocido. El backend valida versión/hash del prompt y requiere reinicio ante cambios del archivo.
 
 - Ruta única: `agentes/analista/prompts/sistema.md`.
 - El backend carga el archivo al iniciar, valida que no esté vacío y calcula SHA-256; extrae `Versión editorial` si existe.

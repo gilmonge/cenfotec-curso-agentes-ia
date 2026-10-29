@@ -6,7 +6,7 @@ Backend local de solo lectura para la feature `002-chat-agente-analista`.
 
 React se comunica con FastAPI por el proxy local de Vite. FastAPI orquesta LangChain, las cuatro herramientas MCP stdio y OpenCode Server `2.0.27` o `2.1.2`/API v2. El proceso MCP se inicia por turno; no necesita una terminal ni un servicio aparte. Langfuse es opcional y el chat se degrada a `degraded` si no está configurado o falla.
 
-La generación usa exclusivamente `providerID=opencode`. El cliente acepta `OPENCODE_MODEL_ID` si aparece en la lista del servidor y tiene costo publicado cero para entrada, salida y caché; costo positivo o desconocido se rechaza. No se usa Ollama ni una respuesta simulada en runtime. OpenCode y FastAPI deben escuchar solo en `127.0.0.1`.
+La generación usa el provider y el modelo validados en OpenCode Server. Por defecto el provider es `opencode` y un modelo predeterminado solo se acepta con costo cero publicado para entrada, salida y caché. Configurar juntos `OPENCODE_PROVIDER_ID` y `OPENCODE_MODEL_ID` autoriza explícitamente ese modelo aunque su metadata de costo sea positiva o no esté publicada; OpenCode todavía debe anunciarlo y tenerlo habilitado. Por ejemplo, `OPENCODE_PROVIDER_ID=opencode-go` y `OPENCODE_MODEL_ID=glm-5.3-flash`. El endpoint `/api/analista/health` informa valores configurados, selección efectiva y causa de rechazo. No se usa Ollama ni una respuesta simulada en runtime. OpenCode y FastAPI deben escuchar solo en `127.0.0.1`.
 
 ## Requisitos y configuración
 

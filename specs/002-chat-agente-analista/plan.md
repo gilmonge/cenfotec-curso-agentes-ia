@@ -19,7 +19,7 @@
 
 Se añadirá un chat flotante global a StoryCraft AI sin sustituir ninguna pantalla, ruta, simulación o estilo existente. El botón se monta una sola vez en `MainLayout`; el panel conserva su historial al cerrarse, **Nuevo chat** limpia el contexto y mantiene el panel abierto, **Eliminar** confirma, borra el contexto y cierra el panel, y **Cancelar** aborta solo el turno activo conservando el historial y el contexto anteriores. Recargar la página inicia un chat vacío: no hay recuperación desde el navegador.
 
-El chat usa una cadena real React → `/api/analista` → FastAPI → LangChain/MCP → OpenCode Server v2 → proveedor `opencode`, con cuatro herramientas MCP de solo lectura ejecutadas por el backend. El modelo se selecciona con `OPENCODE_MODEL_ID`; FastAPI no conecta directamente a proveedores de IA.
+El chat usa una cadena real React → `/api/analista` → FastAPI → LangChain/MCP → OpenCode Server v2 → provider/model configurados, con cuatro herramientas MCP de solo lectura ejecutadas por el backend. El provider predeterminado es `opencode`; `OPENCODE_PROVIDER_ID` y `OPENCODE_MODEL_ID` permiten elegir explícitamente otra combinación que OpenCode anuncie y habilite. FastAPI no conecta directamente a proveedores de IA.
 
 La cancelación, el timeout total de 90 s, el reinicio y la eliminación invalidan por identidad y generación antes de abortar. El backend no incorpora al contexto un turno cancelado, expirado, fallido o descartado; el frontend además ignora respuestas tardías por `requestEpoch` y `request_id`. Langfuse v5 recibe trazas correlacionadas y enmascaradas; si no está disponible, el chat sigue funcionando y el health/UI muestran diagnóstico degradado.
 
