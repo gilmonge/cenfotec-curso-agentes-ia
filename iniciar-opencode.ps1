@@ -1,6 +1,6 @@
-# Iniciar OpenCode Server 2.1.2 usando la clave del .env local.
-# Guardar este archivo en la raiz del repositorio, junto a .env.
-# No imprime la clave ni modifica la configuracion global de OpenCode.
+# Iniciar OpenCode Server 2.1.2 con el .env local de STORYCRAFT AI.
+# Colocar en la raiz del repositorio como iniciar-opencode.ps1.
+# No imprime el password ni modifica la configuracion global.
 
 $ErrorActionPreference = 'Stop'
 
@@ -48,16 +48,22 @@ if ($existingListener) {
     throw 'El puerto 4096 ya tiene un servidor escuchando. Detenlo antes de iniciar otra instancia de OpenCode.'
 }
 
-# El password es visible solo como variable de entorno del proceso local y sus hijos.
-# Al finalizar, restaurar el valor previo para no dejarlo expuesto en la terminal.
+# IMPORTANTE: OpenCode debe arrancar desde la raiz del proyecto para cargar
+# el opencode.jsonc y el prompt del agente analista correspondientes.
 $previousPassword = [Environment]::GetEnvironmentVariable('OPENCODE_SERVER_PASSWORD', 'Process')
 try {
     [Environment]::SetEnvironmentVariable('OPENCODE_SERVER_PASSWORD', $password, 'Process')
-    Write-Host 'Iniciando OpenCode Server 2.1.2 en http://127.0.0.1:4096 ...'
-    Write-Host 'Detener con Ctrl+C. Conservar esta terminal abierta mientras usas el agente.'
-    & $opencodeExe serve --hostname 127.0.0.1 --port 4096
-    if ($LASTEXITCODE -ne 0) {
-        throw "OpenCode termino con codigo $LASTEXITCODE."
+    Push-Location -LiteralPath $projectRoot
+    try {
+        Write-Host "Iniciando OpenCode Server 2.1.2 desde $projectRoot en http://127.0.0.1:4096 ..."
+        Write-Host 'Detener con Ctrl+C. Conservar esta terminal abierta mientras usas el agente.'
+        & $opencodeExe serve --hostname 127.0.0.1 --port 4096
+        if ($LASTEXITCODE -ne 0) {
+            throw "OpenCode termino con codigo $LASTEXITCODE."
+        }
+    }
+    finally {
+        Pop-Location
     }
 }
 finally {
