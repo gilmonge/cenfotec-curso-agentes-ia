@@ -1,10 +1,10 @@
 # Especificación funcional — Chat flotante del Agente Analista
 
 **Identificador propuesto:** 001-chat-flotante-analista  
-**Proyecto:** StoryCraft AI — Popular Seguros (prototipo académico)  
+**Proyecto:** Historias de Usuario (prototipo académico)  
 **Estado:** Propuesta para revisión con Spec Kit; no implementada  
 **Rama de trabajo recomendada:** `feat/chat-agente-analista` (desde `main`)  
-**Fuente de requisitos:** Definición de Agentes Popular Seguros (22 de octubre de 2026), prototipo de historias de usuario y requisitos adicionales del equipo.
+**Fuente de requisitos:** Definición de Agentes del proyecto (22 de octubre de 2026), prototipo de historias de usuario y requisitos adicionales del equipo.
 
 ## 1. Objetivo
 
@@ -24,7 +24,7 @@ Este cambio **añade** una capacidad real de IA; no modifica automáticamente el
 
 ### US-01 (P1) — Chat accesible sin abandonar la pantalla
 
-Como usuario de StoryCraft AI quiero abrir, minimizar y volver a abrir un chat flotante en la esquina inferior derecha para consultar al agente sin interrumpir el flujo de trabajo actual.
+Como usuario de Historias de Usuario quiero abrir, minimizar y volver a abrir un chat flotante en la esquina inferior derecha para consultar al agente sin interrumpir el flujo de trabajo actual.
 
 **Escenarios:**
 1. Dado que navego por cualquier ruta, cuando presiono el botón de chat, entonces se abre el panel sin cambiar de página.
@@ -109,7 +109,7 @@ Como integrante del equipo quiero trazas correlacionadas en Langfuse y estados c
 | Elemento | Definición del agente |
 |---|---|
 | **P — Performance** | Vacíos detectados antes de redactar, utilidad de las preguntas, tiempo reducido, menos cambios después de grooming, satisfacción del analista y cero datos inventados. |
-| **E — Environment** | StoryCraft AI web, analistas y Product Owner, fuentes simuladas, servicio Python, servidor OpenCode local. |
+| **E — Environment** | Historias de Usuario web, analistas y Product Owner, fuentes simuladas, servicio Python, servidor OpenCode local. |
 | **A — Actuators** | Consultar herramientas MCP permitidas, clasificar datos, generar preguntas, actualizar análisis; **sin aprobar/redactar HU ni escribir sobre sistemas reales**. |
 | **S — Sensors** | Texto del usuario y respuestas de Negocio, correcciones, resultados de herramientas y contexto de sesión. |
 
@@ -135,7 +135,7 @@ Como integrante del equipo quiero trazas correlacionadas en Langfuse y estados c
 
 - Implementar Redactor-Revisor, Asesor Técnico o Gestor de Cambios.
 - Automatizar generación/aprobación de HU en el Stepper existente.
-- Conectar con Azure DevOps, iTop, correo, repositorios de código reales, internet o bases productivas.
+- Conectar con gestores de tareas e incidentes, correo, repositorios de código reales, internet o bases productivas.
 - Chat multusuario, autenticación productiva, persistencia histórica permanente, subida de adjuntos, voz, streaming token a token, sistema multiagente.
 - Cambios directos a `main` o merges automáticos.
 

@@ -1,6 +1,9 @@
 <!--
 Sync Impact Report
 ==================
+Enmienda 1.0.0 → 1.0.1 (PATCH, 2026-10-29): se unifica el nombre del proyecto como «Historias de Usuario»
+(antes StoryCraft AI) sin cambiar principios ni reglas; specs 001 y 002 y contratos alineados.
+
 Versión: 0.0.0 (scaffold sin completar) → 1.0.0
 Tipo de bump: ratificación inaugural (MAJOR inicial sobre un documento sin reglas de equipo).
 Motivo: el archivo previo era la plantilla genérica de Spec Kit con marcadores sin resolver;
@@ -31,7 +34,7 @@ Secciones eliminadas:
 - Ninguna.
 
 Seguimientos pendientes:
-- TODO(SOURCE_DOC): el documento "Definición Agentes Proyecto Popular Seguros..."
+- TODO(SOURCE_DOC): el documento "Definición de Agentes del Proyecto Historias de Usuario..."
   (22 de octubre de 2026) no está presente en el repositorio. La constitución se derivó de
   specs/001-chat-flotante-analista/spec.md (que lo cita y resume), del prompt del Analista y
   de requerimientos_prototipo_historias_usuario.md. Verificar y ajustar cuando se aporte el
@@ -42,9 +45,9 @@ Seguimientos pendientes:
   una constitución ratificada previamente.
 -->
 
-# StoryCraft AI — Popular Seguros Constitution
+# Historias de Usuario — Constitución
 
-Constitución del proyecto académico **StoryCraft AI** para **Popular Seguros**. Aplica al
+Constitución del proyecto académico **Historias de Usuario**. Aplica al
 frontend React existente, a los servicios de agentes en Python y a toda la documentación,
 pruebas y configuración del repositorio. Las reglas son obligatorias y verificables.
 
@@ -133,8 +136,8 @@ credenciales sin hallazgos; `dist/` no contiene claves; la API no devuelve secre
 ### VI. Fidelidad del Rol Analista: PEAS y Semiautonomía Humana
 
 El Analista DEBE respetar el modelo PEAS acordado. **Performance:** detectar vacíos válidos,
-formular preguntas útiles y mantener en cero los datos inventados. **Environment:** StoryCraft
-AI, analistas y Negocio, fuentes simuladas y OpenCode local. **Actuators:** consultar solo las
+formular preguntas útiles y mantener en cero los datos inventados. **Environment:** la aplicación
+Historias de Usuario, analistas y Negocio, fuentes simuladas y OpenCode local. **Actuators:** consultar solo las
 herramientas permitidas, clasificar información, generar preguntas y actualizar el análisis; no
 aprueba alcance ni escribe en sistemas reales. **Sensors:** mensajes del usuario, respuestas de
 Negocio, correcciones humanas y resultados de herramientas. El agente es semiautónomo: DEBE
@@ -243,7 +246,7 @@ los health checks responden; no hay secretos en los ejemplos.
 
 ## Restricciones Técnicas y de Seguridad
 
-- **Naturaleza del proyecto:** prototipo académico y demostración local para Popular Seguros; no
+- **Naturaleza del proyecto:** prototipo académico y demostración local del proyecto Historias de Usuario; no
   es una solución productiva y no DEBE presentarse como tal.
 - **Datos:** solo ficticios o anonimizados. Se prohíbe usar datos reales de asegurados, pólizas o
   siniestros, y registrar datos personales en logs o trazas.
@@ -256,7 +259,7 @@ los health checks responden; no hay secretos en los ejemplos.
   `respuesta_markdown`, las cuatro clasificaciones (conocida, faltante, supuesta, ambigua),
   preguntas y fuentes consultadas. Si la validación falla se devuelve un error controlado; nunca
   se renderiza JSON crudo como mensaje de chat.
-- **Alcance excluido:** integraciones productivas con Azure DevOps, iTop, correo, repositorios
+- **Alcance excluido:** integraciones productivas con gestores de tareas e incidentes, correo, repositorios
   reales, internet o bases de datos; autenticación productiva; multiusuario; adjuntos; voz;
   streaming token a token; sistema multiagente; persistencia histórica permanente.
 - **Fuera de alcance del rol:** implementar el Redactor-Revisor, Asesor Técnico o Gestor de
@@ -317,4 +320,4 @@ cambie el alcance. La complejidad añadida DEBE justificarse frente a la alterna
 `agentes/<nombre>/prompts/sistema.md`, `requerimientos_prototipo_historias_usuario.md` y los
 README de arranque.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-26
+**Version**: 1.0.1 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-29

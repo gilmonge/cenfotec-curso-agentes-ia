@@ -2,7 +2,7 @@
 .opencode/
 
 # Dependencies
-node_modules/
+node_modules
 
 # Builds
 dist/
@@ -47,3 +47,7 @@ __pycache__/
 # Playwright
 test-results/
 playwright-report/
+
+# Repositorio de HU (memoria de largo plazo, datos locales)
+agentes/analista/data/*.db
+agentes/analista/data/*.db-*

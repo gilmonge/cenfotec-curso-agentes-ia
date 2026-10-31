@@ -1,9 +1,12 @@
-"""Read-only access to the small, fictitious MCP source fixtures."""
+"""Read-only access to the small, fictitious MCP source fixtures (glosario, estándares, checklist e historias)."""
 from __future__ import annotations
 
 import json
 from pathlib import Path
 from typing import Any
+
+from agentes.analista.memory.repositorio import load_memory_entries
+
 
 
 _SOURCE_ROOT = Path(__file__).resolve().parents[1] / "fuentes"
@@ -13,7 +16,6 @@ _FILES = {
     "estandares": "estandares.json",
     "checklist": "checklist_vacios.json",
 }
-
 
 def _load_fixture(key: str) -> list[dict[str, Any]]:
     if key not in _FILES:
@@ -32,4 +34,9 @@ def _load_fixture(key: str) -> list[dict[str, Any]]:
 
 def load_sources() -> dict[str, list[dict[str, Any]]]:
     """Load only named local fixtures; user input is never treated as a path."""
-    return {key: _load_fixture(key) for key in _FILES}
+    sources = {key: _load_fixture(key) for key in _FILES}
+    # Memoria de largo plazo: HU aprobadas y lecciones aprobadas por una persona (solo lectura).
+    stories, lessons = load_memory_entries()
+    sources["historias"] = sources["historias"] + stories
+    sources["checklist"] = sources["checklist"] + lessons
+    return sources

@@ -1,32 +1,266 @@
 [
   {
-    "id": "CHK-RN-01",
+    "id": "5af50ddd-acbf-4088-9ec4-be76087572d2",
     "categoria": "Reglas de negocio",
     "descripcion": "¿Qué regla determina el resultado para cada condición relevante?",
-    "terminos": ["regla", "condición", "resultado", "negocio"]
+    "terminos": [
+      "regla",
+      "condición",
+      "resultado",
+      "negocio"
+    ]
   },
   {
-    "id": "CHK-DAT-01",
+    "id": "0a8b5e59-f3a8-4b2c-b785-cf82806e9a96",
+    "categoria": "Reglas de negocio",
+    "descripcion": "¿Desde qué fecha aplica el cambio y qué pasa con los registros que ya existen, vigentes o vencidos?",
+    "terminos": [
+      "vigencia",
+      "renovación",
+      "vencimiento",
+      "fecha",
+      "plazo",
+      "periodo",
+      "desde",
+      "existente"
+    ]
+  },
+  {
+    "id": "ea88c639-9965-435d-8d9a-7f2eff955506",
+    "categoria": "Reglas de negocio",
+    "descripcion": "¿En qué estados del registro o trámite aplica y a qué estado pasa al terminar?",
+    "terminos": [
+      "estado",
+      "trámite",
+      "flujo",
+      "activa",
+      "cancelada",
+      "transición",
+      "registro"
+    ]
+  },
+  {
+    "id": "64a1bd7f-360e-4285-9be0-5932957f75d4",
     "categoria": "Datos requeridos",
     "descripcion": "¿Qué datos de entrada son obligatorios y quién los proporciona?",
-    "terminos": ["dato", "entrada", "obligatorio", "actor"]
+    "terminos": [
+      "dato",
+      "entrada",
+      "obligatorio",
+      "actor"
+    ]
   },
   {
-    "id": "CHK-VAL-01",
+    "id": "06d1d0db-5e7e-44fe-a36f-2c1a4a83d1f1",
+    "categoria": "Datos requeridos",
+    "descripcion": "¿Cuál es el nombre exacto, tipo de dato, formato, longitud y moneda de cada campo nuevo o modificado?",
+    "terminos": [
+      "campo",
+      "nombre",
+      "tipo",
+      "formato",
+      "longitud",
+      "moneda",
+      "monto",
+      "porcentaje",
+      "decimales",
+      "agregar",
+      "nuevo"
+    ]
+  },
+  {
+    "id": "808a0d32-1f0b-4e55-b415-c77d32c8ea64",
+    "categoria": "Datos requeridos",
+    "descripcion": "¿Cuál es el origen de las opciones de un selector o catálogo y cuál es el valor por defecto?",
+    "terminos": [
+      "catálogo",
+      "selector",
+      "opciones",
+      "lista",
+      "valor",
+      "origen"
+    ]
+  },
+  {
+    "id": "d6697d6a-6a8c-4c7c-b5e8-f634c822062a",
+    "categoria": "Datos requeridos",
+    "descripcion": "¿Qué documentos o adjuntos se requieren, con qué formato y tamaño máximo, y se cargan en modo Editar?",
+    "terminos": [
+      "adjunto",
+      "documento",
+      "archivo",
+      "formato",
+      "tamaño",
+      "cargar"
+    ]
+  },
+  {
+    "id": "a270d4ae-b532-49f7-be1e-c28331bbcfb3",
     "categoria": "Validaciones",
     "descripcion": "¿Qué validaciones se aplican y qué ocurre si una falla?",
-    "terminos": ["validación", "validar", "falla", "error"]
+    "terminos": [
+      "validación",
+      "validar",
+      "falla",
+      "error"
+    ]
   },
   {
-    "id": "CHK-EXC-01",
+    "id": "f4dd1108-9522-48be-993a-24bde7cb52d9",
+    "categoria": "Validaciones",
+    "descripcion": "¿Qué campos son obligatorios, en qué condiciones, y cuál es el mensaje de validación de cada uno?",
+    "terminos": [
+      "obligatorio",
+      "requerido",
+      "mensaje",
+      "campo",
+      "condición",
+      "vacío"
+    ]
+  },
+  {
+    "id": "69a1daae-ab4e-448e-a8f1-1c32f1b7264c",
+    "categoria": "Validaciones",
+    "descripcion": "¿Qué rango, mínimo, máximo y redondeo aplican a montos y porcentajes?",
+    "terminos": [
+      "monto",
+      "porcentaje",
+      "rango",
+      "mínimo",
+      "máximo",
+      "redondeo",
+      "tasa",
+      "comisión"
+    ]
+  },
+  {
+    "id": "336c3d6a-4513-46e3-ada8-1fec11599a94",
+    "categoria": "Validaciones",
+    "descripcion": "¿Qué identifica a un registro duplicado y qué se hace al encontrarlo: rechazar, actualizar u omitir?",
+    "terminos": [
+      "duplicado",
+      "único",
+      "repetido",
+      "clave",
+      "registro",
+      "identificación"
+    ]
+  },
+  {
+    "id": "55b2089e-ab19-4fd4-a958-087d8fe19620",
     "categoria": "Excepciones",
     "descripcion": "¿Qué excepciones cambian el flujo esperado?",
-    "terminos": ["excepción", "alternativo", "fallo", "flujo"]
+    "terminos": [
+      "excepción",
+      "alternativo",
+      "fallo",
+      "flujo"
+    ]
   },
   {
-    "id": "CHK-COM-01",
+    "id": "94f053d6-ae58-4fbc-81e2-2f4eb651b609",
+    "categoria": "Excepciones",
+    "descripcion": "¿Qué ocurre con los registros existentes que no cumplen la regla nueva (se recalculan, se migran o se ignoran)?",
+    "terminos": [
+      "existente",
+      "histórico",
+      "migración",
+      "recalcular",
+      "retroactivo",
+      "registros"
+    ]
+  },
+  {
+    "id": "2afc71b1-bfcd-421c-8ed4-6cee31323ee3",
+    "categoria": "Excepciones",
+    "descripcion": "¿Qué ocurre si falla el envío del correo o la integración, y quién debe enterarse?",
+    "terminos": [
+      "correo",
+      "envío",
+      "integración",
+      "falla",
+      "cola",
+      "notificación",
+      "reintento"
+    ]
+  },
+  {
+    "id": "da9e0a11-8060-4f29-b548-5d00e18df143",
     "categoria": "Comportamiento esperado",
     "descripcion": "¿Qué resultado observable espera la persona usuaria?",
-    "terminos": ["resultado", "usuario", "esperado", "pantalla"]
+    "terminos": [
+      "resultado",
+      "usuario",
+      "esperado",
+      "pantalla"
+    ]
+  },
+  {
+    "id": "9d8a1b7f-bad1-4303-ab57-4116722a8c12",
+    "categoria": "Comportamiento esperado",
+    "descripcion": "¿Qué roles pueden ver y ejecutar la funcionalidad y se necesita un permiso (acción con nombre y tag) nuevo?",
+    "terminos": [
+      "permiso",
+      "rol",
+      "perfil",
+      "acceso",
+      "botón",
+      "acción",
+      "ejecutar",
+      "usuario"
+    ]
+  },
+  {
+    "id": "3326981a-be74-4a5d-89a6-c7558d15b900",
+    "categoria": "Comportamiento esperado",
+    "descripcion": "¿Debe quedar registro en el histórico de cambios y quién puede consultarlo?",
+    "terminos": [
+      "histórico",
+      "historial",
+      "auditoría",
+      "bitácora",
+      "cambio",
+      "trazabilidad"
+    ]
+  },
+  {
+    "id": "fc64166d-76ca-4edf-96a4-3952333120af",
+    "categoria": "Comportamiento esperado",
+    "descripcion": "¿Qué confirmación, mensaje (modal o toast) y texto se muestra al guardar, actualizar o eliminar?",
+    "terminos": [
+      "confirmación",
+      "mensaje",
+      "guardar",
+      "actualizar",
+      "eliminar",
+      "toast",
+      "modal"
+    ]
+  },
+  {
+    "id": "0afe1c17-37de-40f0-8cec-222437012d30",
+    "categoria": "Comportamiento esperado",
+    "descripcion": "¿Qué criterios de aceptación con casos de ejemplo prueban que el resultado es el esperado?",
+    "terminos": [
+      "criterio",
+      "aceptación",
+      "prueba",
+      "caso",
+      "ejemplo",
+      "validar"
+    ]
+  },
+  {
+    "id": "8aa032e2-c02e-4f76-b14d-be0ba1e17f6b",
+    "categoria": "Comportamiento esperado",
+    "descripcion": "¿Qué pantallas o funciones relacionadas deben probarse como regresión después del cambio?",
+    "terminos": [
+      "prueba",
+      "regresión",
+      "pantalla",
+      "caso",
+      "relacionado",
+      "funcionalidad"
+    ]
   }
 ]

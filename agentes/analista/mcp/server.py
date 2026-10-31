@@ -12,7 +12,7 @@ from agentes.analista.mcp.tools import mcp
 
 
 def main() -> None:
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False)
 
 
 if __name__ == "__main__":

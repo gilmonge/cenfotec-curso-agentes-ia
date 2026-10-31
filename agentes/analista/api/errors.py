@@ -1,6 +1,8 @@
 """Translate private errors into the stable public REST envelope."""
 from __future__ import annotations
 
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -8,10 +10,13 @@ from fastapi.responses import JSONResponse
 from agentes.analista.core.conversation_store import StoreError
 from agentes.analista.core.models import ErrorCode, ErrorDetail, ErrorResponse, ValidationIssue
 from agentes.analista.core.orchestrator import OrchestrationError
+from agentes.analista.memory.repositorio import RepositorioError
+
+logger = logging.getLogger(__name__)
 
 
 def _status(code: ErrorCode) -> int:
-    if code in {ErrorCode.CONVERSATION_NOT_FOUND}:
+    if code in {ErrorCode.CONVERSATION_NOT_FOUND, ErrorCode.REPOSITORY_NOT_FOUND}:
         return 404
     if code in {ErrorCode.TURN_IN_PROGRESS, ErrorCode.REQUEST_ID_CONFLICT, ErrorCode.TURN_CANCELLED, ErrorCode.TURN_INVALIDATED}:
         return 409
@@ -38,8 +43,19 @@ def install_error_handlers(app: FastAPI) -> None:
         detail = ErrorDetail(code=exc.code, message=exc.message, retryable=exc.retryable)
         return JSONResponse(status_code=_status(exc.code), content=ErrorResponse(error=detail).model_dump(mode="json"))
 
+    @app.exception_handler(RepositorioError)
+    async def repositorio_error(_: Request, exc: RepositorioError) -> JSONResponse:
+        code = ErrorCode.REPOSITORY_NOT_FOUND if exc.not_found else ErrorCode.INVALID_REQUEST
+        detail = ErrorDetail(code=code, message=exc.message[:500], retryable=False)
+        return JSONResponse(status_code=_status(code), content=ErrorResponse(error=detail).model_dump(mode="json"))
+
     @app.exception_handler(OrchestrationError)
     async def orchestration_error(_: Request, exc: OrchestrationError) -> JSONResponse:
+        # Deja la causa en los logs del hosting: el código HTTP solo no dice qué falló.
+        logger.warning(
+            "turno_fallido",
+            extra={"event": "turno_fallido", "error_code": exc.code.value, "status": _status(exc.code)},
+        )
         detail = ErrorDetail(
             code=exc.code, message=str(exc), retryable=exc.retryable, retry_at=exc.retry_at,
         )

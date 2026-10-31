@@ -29,6 +29,12 @@ class AgentOutput(BaseModel):
     analisis: Analysis
     preguntas: list[AgentQuestionOutput] = Field(max_length=50)
     listo_para_redactor: bool
+    beneficios: list[str] = Field(default_factory=list, max_length=5)
+
+    @field_validator("beneficios")
+    @classmethod
+    def clean_benefits(cls, items: list[str]) -> list[str]:
+        return [item.strip()[:300] for item in items if isinstance(item, str) and item.strip()]
 
     @field_validator("respuesta_markdown")
     @classmethod

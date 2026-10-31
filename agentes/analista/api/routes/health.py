@@ -1,10 +1,10 @@
 """Health route for the local analyst service."""
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, Request
-from langchain.mcp import MCPAdapter
 
 from agentes.analista.core.models import (
     CheckStatus,
@@ -19,9 +19,11 @@ from agentes.analista.core.models import (
 from agentes.analista.core.opencode_client import OpenCodeClient, OpenCodeClientError, OpenCodeSettings
 from agentes.analista.core.opencode_compat import is_supported_opencode_version
 from agentes.analista.core.prompt_loader import PromptLoadError, load_prompt
-from agentes.analista.core.orchestrator import MCP_SERVER, EXPECTED_TOOLS
+from agentes.analista.core.orchestrator import EXPECTED_TOOLS
+from agentes.analista.mcp.tools import mcp as servidor_mcp
 
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -82,15 +84,16 @@ async def health(request: Request) -> HealthResponse:
             rejection_reason=str(exc),
         )
 
+    # Se verifica el registro de herramientas dentro del mismo proceso: lanzar un proceso hijo en cada
+    # consulta de salud consume ~90 MB y agota la memoria del plan gratuito (512 MB).
     mcp_check = McpCheck(status=CheckStatus.UNAVAILABLE, tools=[])
     try:
-        async with MCPAdapter(MCP_SERVER) as adapter:
-            tools = await adapter.list_tools()
-        names = {tool.name for tool in tools}
+        registered = await servidor_mcp.list_tools()
+        names = {tool.name for tool in registered}
         if names == EXPECTED_TOOLS:
             mcp_check = McpCheck(status=CheckStatus.OK, tools=[ToolName(name) for name in sorted(names)])
     except Exception:
-        pass
+        logger.warning("No se pudo verificar el registro de herramientas MCP", exc_info=True)
 
     langfuse_check = LangfuseCheck(status=CheckStatus(state.observability.health_status))
     checks = HealthChecks(opencode=opencode_check, mcp=mcp_check, langfuse=langfuse_check)

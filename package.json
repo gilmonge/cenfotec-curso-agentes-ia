@@ -8,9 +8,14 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "iniciar": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/entorno/iniciar-entorno.ps1",
+    "detener": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/entorno/detener-entorno.ps1"
   },
   "dependencies": {
+    "docx": "^9.15.0",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
     "lucide-react": "^0.344.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -27,6 +32,7 @@
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
     "jsdom": "26.1.0",
+    "jszip": "^3.10.2",
     "sass": "^1.71.1",
     "vite": "^5.1.6",
     "vitest": "3.2.7"

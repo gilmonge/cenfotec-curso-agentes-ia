@@ -47,8 +47,8 @@
 
 - [ ] **T025 [P1]** Añadir proxy Vite `/api/analista`→`http://127.0.0.1:8000`, conservando puerto 3000.
 - [ ] **T026 [P1]** Implementar `src/services/analystChatApi.js` con serialización, cancelación de espera, errores tipados.
-- [ ] **T027 [P1]** Implementar `useAnalystChat` (open/close, messages, loading, ids, errores y reset con invalidación tardía).
-- [ ] **T028 [P1]** Implementar Launcher, Window, Header, Messages y Composer con `lucide-react`, sin iconos de redes; montar globalmente una sola vez en `MainLayout.jsx`.
+- [ ] **T027 [P1]** Implementar `useAsistenteAnalista` (open/close, messages, loading, ids, errores y reset con invalidación tardía).
+- [ ] **T028 [P1]** Implementar Launcher, Window, Header, Messages y Composer con `lucide-react`, sin iconos de redes; montar globalmente una sola vez en `EnvolturaPaginaComponent.jsx`.
 - [ ] **T029 [P1]** Añadir SCSS propio y responsive para escritorio, tableta y móvil, sin modificar estética general.
 - [ ] **T030 [P1]** Implementar renderer Markdown GFM sin HTML crudo; probar listas, títulos, tablas, enlaces, bloques de código y ataques XSS.
 - [ ] **T031 [P1]** Bloquear envío concurrente incluso con Enter/doble clic; mostrar estado de carga y mensaje de fallo recuperable.

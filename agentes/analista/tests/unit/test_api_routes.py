@@ -207,18 +207,7 @@ async def test_health_reports_degraded_without_langfuse_and_checks_contracts(api
         async def select_model(self, _agent):
             return {"providerID": "opencode-go", "id": "glm-5.3-flash"}
 
-    class FakeAdapter:
-        async def __aenter__(self):
-            return self
-
-        async def __aexit__(self, *_args):
-            return None
-
-        async def list_tools(self):
-            return [SimpleNamespace(name=name) for name in health.EXPECTED_TOOLS]
-
     monkeypatch.setattr(health, "OpenCodeClient", FakeOpenCode)
-    monkeypatch.setattr(health, "MCPAdapter", lambda _server: FakeAdapter())
     response = await client.get("/api/analista/health")
 
     assert response.status_code == 200
@@ -255,18 +244,7 @@ async def test_health_degrades_for_unsupported_opencode_version(api_client, monk
         async def verify_agent(self, _agent):
             pytest.fail("No debe verificar el agente en una versión incompatible")
 
-    class FakeAdapter:
-        async def __aenter__(self):
-            return self
-
-        async def __aexit__(self, *_args):
-            return None
-
-        async def list_tools(self):
-            return [SimpleNamespace(name=name) for name in health.EXPECTED_TOOLS]
-
     monkeypatch.setattr(health, "OpenCodeClient", FakeOpenCode)
-    monkeypatch.setattr(health, "MCPAdapter", lambda _server: FakeAdapter())
     response = await client.get("/api/analista/health")
 
     assert response.status_code == 200
@@ -308,18 +286,7 @@ async def test_health_exposes_configured_model_and_exact_selection_rejection(api
                 "OpenCode no anuncia el modelo 'opencode-go/glm-5.3-flash'.",
             )
 
-    class FakeAdapter:
-        async def __aenter__(self):
-            return self
-
-        async def __aexit__(self, *_args):
-            return None
-
-        async def list_tools(self):
-            return [SimpleNamespace(name=name) for name in health.EXPECTED_TOOLS]
-
     monkeypatch.setattr(health, "OpenCodeClient", FakeOpenCode)
-    monkeypatch.setattr(health, "MCPAdapter", lambda _server: FakeAdapter())
     response = await client.get("/api/analista/health")
 
     assert response.status_code == 200

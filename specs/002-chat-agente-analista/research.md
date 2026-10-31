@@ -32,7 +32,7 @@ La especificación `specs/002-chat-agente-analista/spec.md` y la Constitución v
 | OpenCode objetivo observado | `2.0.27` | API v2; PID, ejecutable, autenticación y API verificados por T001 |
 | Frontend | React 18.2, Vite 5.1.6, React Router 6.22, JavaScript, SCSS | Sin migración de stack |
 | Pruebas frontend | No existían dependencias ni script de prueba | Se añade Vitest + RTL + jsdom como devDependencies |
-| Persistencia existente | `localStorage` solo para historias (`storycraft_user_stories`) | No se toca ni se reutiliza para el chat |
+| Persistencia existente | `localStorage` solo para historias (`historias_usuario_prototipo`) | No se toca ni se reutiliza para el chat |
 | Prompt del Analista | `agentes/analista/prompts/sistema.md`, versión editorial 1.0.0 | Se carga desde archivo; no se hardcodea |
 | Langfuse local | No se asumió configurado | El modo deshabilitado debe funcionar y mostrarse como degradado |
 | Git | Rama `feat/chat-agente-analista`; sin commits de la funcionalidad | No se hicieron escrituras Git durante la planificación |
@@ -65,7 +65,7 @@ La comprobación inicial asumió API v1 y resultó incorrecta para la instancia 
 | D-10 | REST bloqueante por turno (`POST /mensajes`) con timeout total de 90 s y aborto | El cliente necesita una respuesta o un error explícito; no hay streaming | SSE/WebSocket; fuera de alcance |
 | D-11 | `request_id` UUID generado por el cliente e idempotencia por solicitud | Evita duplicados ante doble envío o corte de red | Idempotencia por texto; dos mensajes iguales podrían ser legítimos |
 | D-12 | Cancelar, reiniciar y eliminar invalidan por identidad y generación antes de abortar | Las respuestas tardías se descartan sin depender del tiempo | Ignorar solo en la UI; el backend conservaría contexto contaminado |
-| D-13 | Montar un único `AnalystChat` en `MainLayout` | Todas las rutas existentes lo heredan sin duplicarlo ni cambiar rutas | Montarlo en cada página; riesgo de múltiples estados |
+| D-13 | Montar un único `AsistenteAnalistaComponent` en `EnvolturaPaginaComponent` | Todas las rutas existentes lo heredan sin duplicarlo ni cambiar rutas | Montarlo en cada página; riesgo de múltiples estados |
 | D-14 | `react-markdown` + `remark-gfm` con `skipHtml`, lista blanca y `urlTransform` | GFM seguro, sin HTML crudo ni `rehype-raw` | `dangerouslySetInnerHTML`; prohibido |
 | D-15 | Vitest + React Testing Library + jsdom | Pruebas focalizadas de UI, estados y XSS sin cambiar el stack de producción | No tener pruebas; incumple la constitución |
 | D-16 | Sin persistencia del chat en navegador; recarga inicia vacío | Requisito explícito y minimiza exposición | `sessionStorage`; también persistiría datos |
@@ -221,7 +221,7 @@ No se usa `create_agent` ni un modelo de chat simulado: el valor de LangChain es
 
 ## 11. Capa frontend
 
-- Un único componente `AnalystChat` montado al final de `MainLayout`; el launcher es fijo abajo a la derecha, con `aria-expanded`/`aria-controls`.
+- Un único componente `AsistenteAnalistaComponent` montado al final de `EnvolturaPaginaComponent`; el launcher es fijo abajo a la derecha, con `aria-expanded`/`aria-controls`.
 - El panel se mantiene montado al cerrarse para conservar mensajes/estado; cerrar no aborta. Nuevo chat limpia y mantiene abierto; Eliminar confirma y cierra.
 - Estado explícito: `idle`, `sending`, `cancelling`, `error`, `confirm-delete`, `deleting`, `resetting`; el estado de salud es independiente.
 - `requestEpoch` + `activeRequestId` + `AbortController` para descartar respuestas tardías. Cancelar/Nuevo/Eliminar incrementan la época inmediatamente.

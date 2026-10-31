@@ -1,0 +1,45 @@
+// Página de Ayuda: listas de elementos con título, texto y puntos.
+.ayuda-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+.ayuda-item {
+  &__titulo {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+    margin-bottom: 0.2rem;
+
+    &--aparte { margin-top: 1.5rem; }
+  }
+
+  &__texto {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+
+  &__puntos {
+    margin: 0.4rem 0 0;
+    padding-left: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+  }
+}
+
+.ayuda-ejemplo {
+  display: block;
+  width: 100%;
+  max-width: 46rem;
+  margin: 0.75rem auto 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+}

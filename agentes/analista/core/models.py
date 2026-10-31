@@ -78,6 +78,7 @@ class ErrorCode(StrEnum):
     MESSAGE_EMPTY = "MESSAGE_EMPTY"
     MESSAGE_TOO_LONG = "MESSAGE_TOO_LONG"
     CONVERSATION_NOT_FOUND = "CONVERSATION_NOT_FOUND"
+    REPOSITORY_NOT_FOUND = "REPOSITORY_NOT_FOUND"
     TURN_IN_PROGRESS = "TURN_IN_PROGRESS"
     TURN_CANCELLED = "TURN_CANCELLED"
     TURN_INVALIDATED = "TURN_INVALIDATED"
@@ -178,6 +179,7 @@ class AgentTurnResponse(ContractModel):
     preguntas: list[Question] = Field(max_length=50)
     fuentes_consultadas: list[SourceConsultation] = Field(max_length=4)
     listo_para_redactor: bool
+    beneficios: list[str] = Field(default_factory=list, max_length=5)
     limitaciones: list[str] = Field(max_length=10)
     duracion_ms: int = Field(ge=0)
     prompt_version: str = Field(min_length=1, max_length=40)
@@ -188,6 +190,13 @@ class AgentTurnResponse(ContractModel):
         if not value.strip():
             raise ValueError("La respuesta Markdown no puede estar vacía")
         return value
+
+    @field_validator("beneficios")
+    @classmethod
+    def validate_benefits(cls, items: list[str]) -> list[str]:
+        if any(not item.strip() or len(item) > 300 for item in items):
+            raise ValueError("Cada beneficio debe tener entre 1 y 300 caracteres")
+        return items
 
     @field_validator("limitaciones")
     @classmethod
