@@ -13,7 +13,7 @@ export class AnalystApiError extends Error {
   }
 }
 
-async function request(path, { method = 'GET', body, signal, keepalive = false } = {}) {
+export async function request(path, { method = 'GET', body, signal, keepalive = false } = {}) {
   let response;
   try {
     response = await fetch(`${API_BASE}${path}`, {
@@ -23,7 +23,7 @@ async function request(path, { method = 'GET', body, signal, keepalive = false }
         'Content-Type': 'application/json',
       },
       body: body === undefined ? undefined : JSON.stringify(body),
-      credentials: 'omit',
+      credentials: 'same-origin',
       cache: 'no-store',
       keepalive,
       signal,

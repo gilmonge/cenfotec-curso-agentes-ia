@@ -236,7 +236,7 @@ $conversationId = $conv.conversation_id
 $requestId = [guid]::NewGuid().ToString()
 $payload = @{
   request_id = $requestId
-  message = 'Como analista de Popular Seguros necesito que el sistema permita registrar una solicitud de póliza y avisar al cliente cuando esté lista. No está claro qué datos son obligatorios ni cuál es el plazo de respuesta.'
+  message = 'Como analista del proyecto Historias de Usuario necesito que el sistema permita registrar una solicitud de póliza y avisar al cliente cuando esté lista. No está claro qué datos son obligatorios ni cuál es el plazo de respuesta.'
 } | ConvertTo-Json
 
 $response = Invoke-RestMethod `
@@ -404,7 +404,7 @@ Get-NetTCPConnection -LocalPort 3000,4096,8000 -ErrorAction SilentlyContinue
 - Sin secretos en el bundle; sin llamadas del navegador a OpenCode/Langfuse.
 - Sin `localStorage`/`sessionStorage` para el chat.
 - El agente es de solo lectura: no redacta ni aprueba historias de usuario.
-- Los datos de fuentes son ficticios/anonimizados; no se usan datos reales de Popular Seguros.
+- Los datos de fuentes son ficticios/anonimizados; no se usan datos reales del negocio.
 - El chat no reemplaza el Stepper ni las pantallas existentes.
 
 ## 16. Orden recomendado de arranque

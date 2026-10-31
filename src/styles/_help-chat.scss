@@ -1,0 +1,175 @@
+.help-chat {
+  position: fixed;
+  z-index: 999;
+  right: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+  width: min(24rem, calc(100vw - 2rem));
+  font-family: inherit;
+}
+
+.help-chat-launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: #e8710a;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(51, 51, 51, 0.24);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover { background: #c75f05; }
+  &:focus-visible { outline: 3px solid var(--color-secondary-border); outline-offset: 3px; }
+}
+
+.help-chat-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: min(32rem, calc(100dvh - 6.5rem));
+  min-height: 18rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border-dark);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  box-shadow: 0 20px 55px rgba(51, 51, 51, 0.24);
+
+  &[hidden] { display: none !important; }
+}
+
+.help-chat-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+
+  h2 { margin: 0; font-size: 1.05rem; color: var(--color-text-primary); }
+}
+
+.help-chat-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+
+  &:focus-visible { outline: 3px solid var(--focus-color); outline-offset: 2px; }
+}
+
+.help-chat-panel__messages {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  overflow-y: auto;
+}
+
+.help-chat-message {
+  max-width: 92%;
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.8rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+
+  p { margin: 0; }
+  ol { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+  li { margin-bottom: 0.25rem; }
+
+  &--ayuda { align-self: flex-start; background: var(--color-bg); color: var(--color-text-primary); }
+  &--persona { align-self: flex-end; background: #6f3fa0; color: #fff; }
+}
+
+.help-chat-panel__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--color-border);
+
+  button {
+    min-height: 2.25rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--color-secondary-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover { background: var(--color-secondary-light); }
+    &:focus-visible { outline: 3px solid var(--focus-color); outline-offset: 2px; }
+  }
+}
+
+.help-chat-panel__form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem 0.9rem;
+
+  input {
+    flex: 1;
+    min-width: 0;
+    min-height: 2.5rem;
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 0.6rem;
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    font: inherit;
+  }
+
+  button {
+    width: 2.75rem;
+    border: 0;
+    border-radius: 0.6rem;
+    background: #6f3fa0;
+    color: #fff;
+    cursor: pointer;
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+}
+
+// En la pantalla de creación ya existe el botón del Analista en la misma esquina: se apila encima.
+body:has(.analyst-chat) .help-chat {
+  bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 640px) {
+  .help-chat {
+    right: 0.75rem;
+    width: calc(100vw - 1.5rem);
+  }
+  .help-chat-panel { height: min(30rem, calc(100dvh - 8.5rem)); }
+  .help-chat-launcher span { display: none; }
+  .help-chat-launcher { width: 3rem; padding: 0; justify-content: center; }
+  .help-chat-message { max-width: 100%; }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .help-chat-panel { height: calc(100dvh - 6rem); min-height: 10rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-chat-launcher { transition: none; }
+}

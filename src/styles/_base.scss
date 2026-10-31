@@ -10,18 +10,20 @@ body {
   font-family: $font-family;
   background-color: $color-bg;
   color: $color-text-primary;
+  font-size: 1rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-  color: $color-primary;
+  color: $color-primary-text;
   text-decoration: none;
   transition: color $transition-fast;
 
   &:hover {
-    color: $color-primary-hover;
+    color: $color-primary-text-hover;
+    text-decoration: underline;
   }
 }
 
@@ -31,4 +33,17 @@ button, input, select, textarea {
 
 code, pre {
   font-family: $font-mono;
+}
+
+// Foco visible en todo control interactivo (contorno de al menos 2 px y contraste 3:1)
+:focus-visible {
+  outline: $focus-ring;
+  outline-offset: $focus-ring-offset;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

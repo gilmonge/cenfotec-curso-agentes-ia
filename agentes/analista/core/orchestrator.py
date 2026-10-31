@@ -181,7 +181,7 @@ async def _execute_tools(query: str, trace: Any = None) -> tuple[list[dict[str, 
     except OrchestrationError:
         raise
     except Exception as exc:
-        logger.warning("mcp_call_failed", extra={"event": "mcp_call_failed", "error_code": "MCP_UNAVAILABLE"})
+        logger.warning("mcp_call_failed", extra={"event": "mcp_call_failed", "error_code": "MCP_UNAVAILABLE"}, exc_info=True)
         raise OrchestrationError(ErrorCode.MCP_UNAVAILABLE, "No fue posible consultar las fuentes autorizadas.", retryable=True) from exc
 
     observations: list[dict[str, Any]] = []
@@ -272,6 +272,7 @@ def _to_response(
         preguntas=questions,
         fuentes_consultadas=sources[:4],
         listo_para_redactor=ready,
+        beneficios=output.beneficios,
         limitaciones=limitations[:10],
         duracion_ms=duration_ms,
         prompt_version=load_prompt().version,

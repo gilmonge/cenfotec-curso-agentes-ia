@@ -7,8 +7,8 @@
 ## 1. Inventario verificado en `main`
 
 - Vite 5, React 18, React Router 6, JavaScript y SCSS.
-- `src/App.jsx` anida rutas dentro de `src/layouts/MainLayout.jsx`: ubicación apropiada para montar un solo componente flotante global.
-- `src/pages/NewUserStory.jsx` usa análisis y generación simulada mediante `setTimeout`; **no alterar** en esta funcionalidad.
+- `src/App.jsx` anida rutas dentro de `src/components/EnvolturaPagina/EnvolturaPaginaComponent.jsx`: ubicación apropiada para montar un solo componente flotante global.
+- `src/components/HistoriaUsuario/CrearHistoriaUsuarioComponent.jsx` usa análisis y generación simulada mediante `setTimeout`; **no alterar** en esta funcionalidad.
 - `vite.config.js` expone el frontend en puerto 3000; añadir proxy `/api/analista` hacia el backend local, conservando la configuración actual.
 - `.gitignore` ya excluye `.env` y `.env.*`, con excepción `.env.example`, pero en el árbol revisado **no** excluye `.venv/`, `__pycache__/`, `*.pyc` y `.pytest_cache/`: añadir estas exclusiones para proteger el trabajo Python.
 - `.gitignore` también excluye **toda** la carpeta `.opencode/`: habrá que añadir excepciones concretas o cambiar ese patrón para poder versionar los comandos de Spec Kit para los compañeros.
@@ -17,9 +17,9 @@
 ## 2. Arquitectura lógica
 
 ```text
-Navegador (StoryCraft AI, React:3000)
+Navegador (Historias de Usuario, React:3000)
   ├─ ChatLauncher / ChatWindow / ChatMessage / ChatComposer
-  ├─ hook useAnalystChat: estado, abort controller, requestId, generación actual
+  ├─ hook useAsistenteAnalista: estado, abort controller, requestId, generación actual
   ├─ ReactMarkdown + remark-gfm (sin rehype-raw)
   └─ fetch('/api/analista/...')
         │ (proxy Vite:3000 -> FastAPI:8000)
@@ -76,14 +76,13 @@ agentes/
         ├── test_seguridad.py
         └── test_integracion_mock_opencode.py
 src/
-├── components/analista/
-│   ├── AnalystChat.jsx
-│   ├── AnalystChatHeader.jsx
-│   ├── AnalystChatMessages.jsx
-│   ├── AnalystChatComposer.jsx
-│   └── AnalystMarkdown.jsx
-├── hooks/useAnalystChat.js
-├── services/analystChatApi.js
+├── components/AsistenteAnalista/
+│   ├── AsistenteAnalistaComponent.jsx
+│   ├── LanzadorAsistenteComponent.jsx
+│   ├── PanelAsistenteComponent.jsx      # encabezado, mensajes y composer
+│   └── MarkdownAsistenteComponent.jsx
+├── hooks/useAsistenteAnalista.js
+├── services/analystApi.js
 └── styles/_analyst-chat.scss
 ```
 
@@ -197,7 +196,7 @@ Respuesta 200 (ejemplo de forma; **contenido generado dinámicamente, no hardcod
 
 ## 7. UX y Markdown
 
-- Montar `<AnalystChat />` una vez en `src/layouts/MainLayout.jsx`, fuera de `<Outlet />`.
+- Montar `<AsistenteAnalistaComponent />` una vez en `src/components/EnvolturaPagina/EnvolturaPaginaComponent.jsx`, fuera de `<Outlet />`.
 - Icono Lucide `MessageCircle`; encabezado con nombre, botón `X` para cerrar y `Trash2` o `RotateCcw` con etiqueta para nuevo chat.
 - Sin avatar de identidad real, sin redes sociales y sin leyenda "online" si el health check no lo confirma.
 - Tamaño escritorio sugerido 380–420px ancho / 500–620px alto, limitado por viewport; móvil `calc(100vw - 24px)` y altura adaptativa; respetar safe areas.

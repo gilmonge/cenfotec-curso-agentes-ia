@@ -36,11 +36,16 @@ function validSource(source) {
     && Number.isInteger(source.duracion_ms) && source.duracion_ms >= 0;
 }
 
+const RESPONSE_KEYS = [
+  'conversation_id', 'request_id', 'turn_id', 'estado', 'respuesta_markdown', 'analisis',
+  'preguntas', 'fuentes_consultadas', 'listo_para_redactor', 'limitaciones', 'duracion_ms', 'prompt_version',
+];
+
 export function isValidAnalystResponse(value) {
-  if (!hasExactKeys(value, [
-    'conversation_id', 'request_id', 'turn_id', 'estado', 'respuesta_markdown', 'analisis',
-    'preguntas', 'fuentes_consultadas', 'listo_para_redactor', 'limitaciones', 'duracion_ms', 'prompt_version',
-  ])) return false;
+  // `beneficios` es opcional: lo propone el agente y la persona analista lo edita.
+  const withBenefits = value && typeof value === 'object' && Object.hasOwn(value, 'beneficios');
+  if (!hasExactKeys(value, withBenefits ? [...RESPONSE_KEYS, 'beneficios'] : RESPONSE_KEYS)) return false;
+  if (withBenefits && !textList(value.beneficios, 5, 300)) return false;
   if (![value.conversation_id, value.request_id, value.turn_id].every((id) => typeof id === 'string' && UUID4.test(id))) return false;
   if (value.estado !== 'completado') return false;
   if (typeof value.respuesta_markdown !== 'string' || value.respuesta_markdown.trim().length < 1 || Array.from(value.respuesta_markdown).length > 50_000) return false;

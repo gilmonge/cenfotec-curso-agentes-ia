@@ -129,6 +129,19 @@ def _tokens(value: str) -> set[str]:
     return set(re.findall(r"[^\W_]+", ascii_folded, flags=re.UNICODE))
 
 
+# Palabras vacías: sin ellas, un glosario o checklist grande coincidiría con cualquier consulta por «de», «la», «con»...
+_STOPWORDS = frozenset((
+    "a al algo ante aun como con contra cual cuando cada de del desde donde e el ella ellas ellos en entre era es esa ese eso esta este esto "
+    "estos fue ha han hasta hay la las le les lo los mas me mi muy ni no nos o para pero por que se segun ser si sin sobre son su sus te "
+    "tiene tienen todo tras un una uno unos y ya "
+    "debe deben puede pueden hacer hace"
+).split())
+
+
+def _content_tokens(value: str) -> set[str]:
+    return _tokens(value) - _STOPWORDS
+
+
 def _validate_query(consulta: str) -> set[str]:
     if not isinstance(consulta, str) or not 1 <= len(consulta) <= 4000 or not consulta.strip():
         raise ValueError("consulta debe contener entre 1 y 4.000 caracteres no vacíos")
@@ -145,7 +158,7 @@ def _matches(items: list[dict], query_tokens: set[str], text_keys: tuple[str, ..
     for index, item in enumerate(items):
         terms = set(item.get("terminos", []))
         text = " ".join(str(item.get(key, "")) for key in text_keys)
-        score = len(query_tokens & (_tokens(text) | _tokens(" ".join(terms))))
+        score = len((query_tokens - _STOPWORDS) & (_content_tokens(text) | _content_tokens(" ".join(terms))))
         if score:
             ranked.append((score, index, item))
     ranked.sort(key=lambda entry: (-entry[0], entry[1]))
@@ -158,7 +171,7 @@ def consultar_glosario(consulta: _Consulta, limite: _Limite = 5) -> GlossaryResu
     tokens = _validate_query(consulta)
     _validate_limit(limite)
     found = _matches(_SOURCES["glosario"], tokens, ("termino", "definicion"), limite)
-    entries = [GlossaryEntry.model_validate({**item}) for item in found]
+    entries = [GlossaryEntry.model_validate({key: item[key] for key in GlossaryEntry.model_fields}) for item in found]
     return GlossaryResult(definiciones=entries, total=len(entries), origen="simulado", contenido_no_confiable=True)
 
 
@@ -198,7 +211,7 @@ def aplicar_checklist_vacios(consulta: _Consulta, limite: _Limite = 5) -> Checkl
                 id=item["id"],
                 descripcion=item["descripcion"],
                 aplica=True,
-                evidencia="Coincidencia de términos en la consulta; requiere validación humana.",
+                evidencia=item.get("evidencia", "Coincidencia de términos en la consulta; requiere validación humana."),
             )
         )
     categories = [ChecklistCategory(categoria=category, items=items) for category, items in grouped.items() if items]

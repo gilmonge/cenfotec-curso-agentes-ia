@@ -4,20 +4,1190 @@
     "titulo": "Mensajes de validación",
     "regla": "Definir el dato que se valida, la condición esperada y el mensaje para cada resultado.",
     "referencia": "Estándar ficticio de validación v1",
-    "terminos": ["validación", "dato", "mensaje", "resultado"]
+    "terminos": [
+      "validación",
+      "dato",
+      "mensaje",
+      "resultado"
+    ]
   },
   {
     "id": "STD-REF-002",
     "titulo": "Fechas y plazos",
     "regla": "Aclarar zona horaria, fecha inicial, fecha final y responsable de confirmar el plazo.",
     "referencia": "Estándar ficticio de reglas temporales v1",
-    "terminos": ["fecha", "plazo", "vigencia", "tiempo"]
+    "terminos": [
+      "fecha",
+      "plazo",
+      "vigencia",
+      "tiempo"
+    ]
   },
   {
     "id": "STD-REF-003",
     "titulo": "Excepciones de negocio",
     "regla": "Describir cada excepción, su condición de activación y el comportamiento esperado.",
     "referencia": "Estándar ficticio de excepciones v1",
-    "terminos": ["excepción", "condición", "comportamiento"]
+    "terminos": [
+      "excepción",
+      "condición",
+      "comportamiento"
+    ]
+  },
+  {
+    "id": "CODI-01",
+    "titulo": "Nombres en singular",
+    "regla": "variables, métodos y propiedades llevan nombre en singular, no en plural (por ejemplo `listaCliente`, no `clientes`). Preguntar cuando: el requerimiento introduce entidades o listas nuevas. Pregunta: \"¿Cómo se llama la entidad o concepto de negocio en singular, para nombrarlo de forma consistente?\"",
+    "referencia": "contexto-codigo-equipo",
+    "terminos": [
+      "nombre",
+      "entidad",
+      "lista",
+      "variable",
+      "propiedad",
+      "método",
+      "campo",
+      "nuevo",
+      "modelo"
+    ]
+  },
+  {
+    "id": "CODI-02",
+    "titulo": "Sin bloques catch vacíos",
+    "regla": "un bloque catch no puede estar vacío ni contener solo un comentario; debe al menos registrar un log. Preguntar cuando: el requerimiento describe una operación que puede fallar (integración, carga, envío). Pregunta: \"¿Qué debe pasar y qué se debe registrar cuando la operación falla, y quién debe enterarse?\"",
+    "referencia": "contexto-codigo-equipo",
+    "terminos": [
+      "error",
+      "falla",
+      "excepción",
+      "log",
+      "registro",
+      "integración",
+      "carga",
+      "envío",
+      "reintento",
+      "bitácora"
+    ]
+  },
+  {
+    "id": "CODI-03",
+    "titulo": "Clases de la carpeta Services",
+    "regla": "toda clase de la carpeta Services se considera un servicio y su nombre, tanto de clase como de archivo, termina en \"Service\". Preguntar cuando: el requerimiento implica una lógica de negocio nueva o reutilizable. Pregunta: \"¿Esta lógica ya existe en otro servicio o es una responsabilidad nueva con su propio nombre?\"",
+    "referencia": "contexto-codigo-equipo",
+    "terminos": [
+      "servicio",
+      "lógica",
+      "negocio",
+      "proceso",
+      "cálculo",
+      "regla",
+      "backend",
+      "api"
+    ]
+  },
+  {
+    "id": "MODU-01",
+    "titulo": "Mapa de módulos",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] la funcionalidad de este análisis se agrupa en tres módulos: Pólizas (madre, hija, endosos, cancelaciones, vencimientos), Personas (físicas, jurídicas y sus relaciones) y Seguridad (roles, usuarios y permisos). Preguntar cuando: el requerimiento no indica el módulo. Pregunta: \"¿En qué módulo y submódulo se ubica la funcionalidad y se necesita una opción de menú nueva?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "módulo",
+      "submódulo",
+      "menú",
+      "pantalla",
+      "pólizas",
+      "personas",
+      "seguridad"
+    ]
+  },
+  {
+    "id": "MODU-02",
+    "titulo": "Estados de póliza y endoso",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] pólizas y endosos tienen catálogos de estado propios, y un cambio puede depender del estado o crear uno nuevo. Preguntar cuando: el requerimiento depende del estado de un registro. Pregunta: \"¿En qué estados aplica y se necesita un estado nuevo?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "estado",
+      "póliza",
+      "endoso",
+      "activa",
+      "cancelada",
+      "renovada",
+      "pendiente",
+      "trámite"
+    ]
+  },
+  {
+    "id": "MODU-03",
+    "titulo": "Endosos y requisitos",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] los endosos tienen tipos y requisitos asociados; un cambio puede afectar el tipo, los requisitos solicitados y el estado resultante. Preguntar cuando: el requerimiento toca endosos. Pregunta: \"¿A qué tipos de endoso aplica y cambian los requisitos?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "endoso",
+      "tipo",
+      "requisito",
+      "aumento",
+      "disminución",
+      "asegurado",
+      "producto",
+      "moneda"
+    ]
+  },
+  {
+    "id": "MODU-04",
+    "titulo": "Pólizas madre e hijas",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] las pólizas colectivas (madre) agrupan pólizas individuales (hijas) que pueden heredar sus condiciones; un cambio puede aplicar a la madre, a las hijas o a ambas. Preguntar cuando: el requerimiento modifica un dato de la póliza. Pregunta: \"¿Aplica a la madre, a las hijas o a ambas y la hija puede modificar el valor heredado?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "póliza",
+      "madre",
+      "hija",
+      "colectiva",
+      "individual",
+      "herencia",
+      "tipo de póliza"
+    ]
+  },
+  {
+    "id": "MODU-05",
+    "titulo": "Personas físicas y jurídicas",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] las personas pueden ser físicas o jurídicas; cada tipo tiene datos obligatorios, identificación y validaciones propias. Preguntar cuando: el cambio agrega o modifica un dato de la persona. Pregunta: \"¿El campo aplica a persona física, jurídica o ambas, es obligatorio y se valida?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "persona",
+      "física",
+      "jurídica",
+      "identificación",
+      "cédula",
+      "dimex",
+      "pasaporte",
+      "campo",
+      "validación"
+    ]
+  },
+  {
+    "id": "MODU-06",
+    "titulo": "Relación entre personas y pólizas",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] una persona puede ser tomador, asegurado, beneficiario o agente de una póliza, y puede tener varios roles; también puede relacionarse con otras personas (representante, apoderado). Preguntar cuando: el requerimiento vincula personas con pólizas. Pregunta: \"¿Qué rol cumple la persona, puede tener varios y qué pasa con las pólizas existentes si cambia la relación?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "persona",
+      "tomador",
+      "asegurado",
+      "beneficiario",
+      "agente",
+      "relación",
+      "representante",
+      "póliza"
+    ]
+  },
+  {
+    "id": "MODU-07",
+    "titulo": "Seguridad: roles y permisos",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] el acceso se controla por roles y usuarios; cada acción se registra con nombre y tag y se asigna a roles. Preguntar cuando: el requerimiento agrega una pantalla, botón o proceso. Pregunta: \"¿Qué acciones nuevas se registran y a qué roles se asignan?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "rol",
+      "usuario",
+      "acción",
+      "tag",
+      "permiso",
+      "seguridad",
+      "acceso",
+      "botón",
+      "pantalla"
+    ]
+  },
+  {
+    "id": "MODU-08",
+    "titulo": "Seguridad: usuarios y acceso",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] los usuarios tienen estado (activo, inactivo o bloqueado), sesión y reglas de acceso; los cambios de usuarios y roles deben quedar registrados. Preguntar cuando: el requerimiento toca el ingreso, la sesión, el bloqueo o la administración de usuarios. Pregunta: \"¿Qué estados y mensajes de acceso cambian y quién puede administrarlos?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "usuario",
+      "sesión",
+      "contraseña",
+      "bloqueo",
+      "ingreso",
+      "acceso",
+      "activo",
+      "inactivo",
+      "administrador"
+    ]
+  },
+  {
+    "id": "MODU-09",
+    "titulo": "Catálogos y configuración",
+    "regla": "[CONTEXTO simulado, no es regla de negocio confirmada] los catálogos (tipos de póliza, aseguradoras, ramos, tipos de identificación) alimentan selectores y reglas de varias pantallas. Preguntar cuando: el cambio involucra una lista de opciones o una configuración. Pregunta: \"¿Quién administra el catálogo y qué pasa con los registros que usan una opción inactivada?\"",
+    "referencia": "contexto-modulos: Contexto simulado del curso",
+    "terminos": [
+      "catálogo",
+      "aseguradora",
+      "ramo",
+      "tipo",
+      "selector",
+      "opciones",
+      "configuración",
+      "inactivar"
+    ]
+  },
+  {
+    "id": "SIM-PSN-01",
+    "titulo": "Tipo de persona",
+    "regla": "[SIMULADO, confirmar con Negocio] la persona física y la jurídica tienen datos obligatorios distintos; un campo nuevo debe indicar a cuál aplica. Preguntar cuando: se agrega o modifica un dato de la persona. Pregunta: \"¿El dato aplica a persona física, jurídica o ambas y es obligatorio en cada caso?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "persona",
+      "física",
+      "jurídica",
+      "obligatorio",
+      "campo",
+      "tipo",
+      "dato"
+    ]
+  },
+  {
+    "id": "SIM-PSN-02",
+    "titulo": "Identificación de personas",
+    "regla": "[SIMULADO, confirmar con Negocio] el tipo de identificación (cédula, DIMEX, pasaporte, cédula jurídica) define longitud, formato y validación; un tipo incorrecto puede romper búsquedas y duplicar personas. Preguntar cuando: el requerimiento captura o valida identificación. Pregunta: \"¿Qué tipos de identificación se aceptan, con qué formato y qué se hace con registros con tipo incorrecto?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "identificación",
+      "cédula",
+      "dimex",
+      "pasaporte",
+      "documento",
+      "persona",
+      "formato",
+      "longitud"
+    ]
+  },
+  {
+    "id": "SIM-PSN-03",
+    "titulo": "Duplicados de personas",
+    "regla": "[SIMULADO, confirmar con Negocio] una misma persona no debe registrarse dos veces; hay que definir qué campos identifican a un duplicado y qué se hace al detectarlo. Preguntar cuando: el requerimiento crea o importa personas. Pregunta: \"¿Qué identifica a un duplicado y se rechaza, se actualiza o se unifica?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "duplicado",
+      "único",
+      "repetido",
+      "persona",
+      "identificación",
+      "unificar",
+      "clave"
+    ]
+  },
+  {
+    "id": "SIM-PSN-04",
+    "titulo": "Datos de contacto",
+    "regla": "[SIMULADO, confirmar con Negocio] una persona puede tener varios correos, teléfonos o direcciones; hay que definir cuál es el principal y qué formato se valida. Preguntar cuando: el requerimiento captura datos de contacto. Pregunta: \"¿Cuántos puede tener, cuál es el principal y qué formato se valida?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "contacto",
+      "correo",
+      "teléfono",
+      "dirección",
+      "domicilio",
+      "principal",
+      "formato",
+      "persona"
+    ]
+  },
+  {
+    "id": "SIM-PSN-05",
+    "titulo": "Relaciones de la persona",
+    "regla": "[SIMULADO, confirmar con Negocio] una persona puede relacionarse con pólizas (tomador, asegurado, beneficiario, agente) y con otras personas (representante, apoderado); la relación puede tener vigencia. Preguntar cuando: el requerimiento vincula o desvincula personas. Pregunta: \"¿Qué relaciones se permiten, con qué vigencia y qué pasa al desvincular?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "relación",
+      "tomador",
+      "asegurado",
+      "beneficiario",
+      "agente",
+      "representante",
+      "apoderado",
+      "persona",
+      "póliza"
+    ]
+  },
+  {
+    "id": "SIM-SEG-01",
+    "titulo": "Permisos por rol",
+    "regla": "[SIMULADO, confirmar con Negocio] toda funcionalidad nueva necesita definir qué roles la ven y la ejecutan; las acciones se asignan por nombre y tag de acción. Preguntar cuando: hay una pantalla, botón o proceso nuevo. Pregunta: \"¿Qué roles pueden ver, ejecutar y aprobar esta funcionalidad y se necesita un permiso nuevo?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "permiso",
+      "rol",
+      "perfil",
+      "acceso",
+      "usuario",
+      "autorizar",
+      "aprobar",
+      "ejecutar",
+      "ver",
+      "seguridad"
+    ]
+  },
+  {
+    "id": "SIM-SEG-02",
+    "titulo": "Acceso denegado",
+    "regla": "[SIMULADO, confirmar con Negocio] cuando una persona usuaria intenta entrar sin permiso hay que definir el mensaje, el destino y si el intento se registra. Preguntar cuando: el requerimiento restringe una pantalla o acción. Pregunta: \"¿Qué ve la persona sin permiso y se registra el intento?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "acceso",
+      "denegado",
+      "sin permiso",
+      "mensaje",
+      "intento",
+      "seguridad",
+      "registro",
+      "redirección"
+    ]
+  },
+  {
+    "id": "SIM-SEG-03",
+    "titulo": "Sesión, bloqueo y contraseña",
+    "regla": "[SIMULADO, confirmar con Negocio] el ingreso se rige por reglas de contraseña, vencimiento de sesión y bloqueo por intentos fallidos; sus mensajes no deben revelar si el usuario existe. Preguntar cuando: el requerimiento toca el ingreso o la cuenta. Pregunta: \"¿Qué reglas de contraseña, vencimiento y bloqueo aplican y qué mensaje se muestra?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "sesión",
+      "contraseña",
+      "bloqueo",
+      "intentos",
+      "ingreso",
+      "autenticación",
+      "vencimiento",
+      "usuario",
+      "desbloqueo"
+    ]
+  },
+  {
+    "id": "SIM-SEG-04",
+    "titulo": "Administración de usuarios y roles",
+    "regla": "[SIMULADO, confirmar con Negocio] crear, inactivar o cambiar el rol de un usuario es una operación sensible: debe limitarse a ciertos roles y quedar registrada. Preguntar cuando: el requerimiento administra usuarios o roles. Pregunta: \"¿Quién puede hacerlo, qué se registra y qué pasa con las sesiones activas del usuario afectado?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "usuario",
+      "rol",
+      "crear",
+      "inactivar",
+      "asignar",
+      "administrador",
+      "auditoría",
+      "sesión"
+    ]
+  },
+  {
+    "id": "SIM-SEG-05",
+    "titulo": "Datos personales",
+    "regla": "[SIMULADO, confirmar con Negocio] los datos personales deben mostrarse, exportarse y conservarse solo cuando el rol lo justifica; algunos pueden enmascararse. Preguntar cuando: la pantalla, el reporte o la exportación muestra datos de personas. Pregunta: \"¿Qué datos se muestran o enmascaran y qué roles pueden exportarlos?\"",
+    "referencia": "contexto-personas-seguridad-simulado: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "dato",
+      "personal",
+      "privacidad",
+      "enmascarar",
+      "exportar",
+      "reporte",
+      "rol",
+      "confidencial",
+      "persona"
+    ]
+  },
+  {
+    "id": "SIM-EST-01",
+    "titulo": "Estados de póliza o trámite",
+    "regla": "[SIMULADO, confirmar con Negocio] toda acción sobre una póliza o endoso depende de su estado; el requerimiento debe decir en qué estados aplica y a qué estado pasa el registro después. Preguntar cuando: el requerimiento modifica, cancela o procesa un registro. Pregunta: \"¿En qué estados del registro se permite la acción y a qué estado pasa al terminar?\"",
+    "referencia": "contexto-poliza-reglas-simuladas: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "estado",
+      "póliza",
+      "trámite",
+      "endoso",
+      "cancelada",
+      "activa",
+      "vigente",
+      "anulada",
+      "proceso",
+      "flujo",
+      "transición"
+    ]
+  },
+  {
+    "id": "SIM-VIG-01",
+    "titulo": "Vigencias y fechas de aplicación",
+    "regla": "[SIMULADO, confirmar con Negocio] los cambios sobre pólizas necesitan una fecha de entrada en vigor clara (inmediata, próxima renovación o fecha elegida) y una regla para fechas pasadas. Preguntar cuando: aparecen vigencia, renovación, vencimiento o plazo. Pregunta: \"¿Desde qué fecha aplica el cambio, y qué pasa con pólizas ya vencidas o por vencer?\"",
+    "referencia": "contexto-poliza-reglas-simuladas: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "vigencia",
+      "renovación",
+      "vencimiento",
+      "plazo",
+      "fecha",
+      "aplica",
+      "desde",
+      "póliza",
+      "periodo"
+    ]
+  },
+  {
+    "id": "SIM-POL-01",
+    "titulo": "Jerarquía madre e hija",
+    "regla": "[SIMULADO, confirmar con Negocio] un dato de la póliza colectiva (madre) puede heredarse a las pólizas individuales (hijas); hay que decir si la hija puede sobrescribirlo y si el cambio recalcula las hijas existentes. Preguntar cuando: el cambio toca un dato de una póliza con hijas. Pregunta: \"¿El dato se hereda, puede modificarse en la hija y se actualizan las hijas ya emitidas?\"",
+    "referencia": "contexto-poliza-reglas-simuladas: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "póliza",
+      "madre",
+      "hija",
+      "colectiva",
+      "individual",
+      "herencia",
+      "hereda",
+      "sobrescribir"
+    ]
+  },
+  {
+    "id": "SIM-POL-02",
+    "titulo": "Número y nomenclatura de póliza",
+    "regla": "[SIMULADO, confirmar con Negocio] el número de póliza sigue un formato definido por tipo de póliza o aseguradora; cambiarlo no debe invalidar los números ya emitidos ni crear duplicados. Preguntar cuando: el requerimiento cambia la numeración o el formato. Pregunta: \"¿Cambia la máscara del número, desde cuándo aplica y qué pasa con los números existentes?\"",
+    "referencia": "contexto-poliza-reglas-simuladas: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "número",
+      "nomenclatura",
+      "formato",
+      "máscara",
+      "consecutivo",
+      "póliza",
+      "tipo de póliza",
+      "duplicado"
+    ]
+  },
+  {
+    "id": "SIM-POL-03",
+    "titulo": "Endosos, renovaciones y cancelaciones",
+    "regla": "[SIMULADO, confirmar con Negocio] estas operaciones cambian las condiciones, la vigencia o el estado de una póliza y pueden recalcular la prima. Preguntar cuando: el requerimiento afecta endosos, renovaciones o cancelaciones. Pregunta: \"¿Qué condiciones se recalculan, desde qué fecha y qué estado queda en la póliza?\"",
+    "referencia": "contexto-poliza-reglas-simuladas: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "endoso",
+      "renovación",
+      "cancelación",
+      "prima",
+      "vigencia",
+      "estado",
+      "recálculo",
+      "póliza"
+    ]
+  },
+  {
+    "id": "SIM-HIS-01",
+    "titulo": "Histórico de cambios",
+    "regla": "[SIMULADO, confirmar con Negocio] los cambios sobre datos sensibles de negocio suelen requerir registrar quién cambió qué y cuándo, en qué módulo y sección. Preguntar cuando: el requerimiento modifica datos de póliza, persona o configuración. Pregunta: \"¿El cambio debe quedar en el histórico, con qué campos y quién puede consultarlo?\"",
+    "referencia": "contexto-poliza-reglas-simuladas: Simulado (confirmar con Negocio)",
+    "terminos": [
+      "histórico",
+      "historial",
+      "bitácora",
+      "auditoría",
+      "cambio",
+      "registro",
+      "quién",
+      "cuándo",
+      "trazabilidad"
+    ]
+  },
+  {
+    "id": "ADJU-01",
+    "titulo": "Carga de adjuntos solo en modo Editar",
+    "regla": "cargar adjuntos solo está disponible con el registro en modo Editar; no en la creación inicial, ni en consulta, ni en pantallas sin edición habilitada. Preguntar cuando: el requerimiento pide adjuntar documentos al crear un registro. Pregunta: \"¿Los documentos son obligatorios desde la creación? Si es así, hay que decidir si se aprueba una excepción al estándar.\"",
+    "referencia": "contexto-ui-adjuntos-reportes-correos",
+    "terminos": [
+      "adjunto",
+      "adjuntar",
+      "archivo",
+      "documento",
+      "cargar",
+      "subir",
+      "crear",
+      "editar",
+      "anexo"
+    ]
+  },
+  {
+    "id": "ADJU-02",
+    "titulo": "Modal de adjuntos",
+    "regla": "se accede con la acción \"Ver Adjuntos\" de la tabla. La modal lista nombre, tipo, tamaño, fecha y acciones: Descargar y, cuando corresponda, Eliminar. Antes de elegir el archivo se informan formatos y tamaño máximo, y se muestra progreso y mensaje claro ante rechazo o fallo. Preguntar cuando: se definen documentos requeridos. Pregunta: \"¿Qué formatos y tamaño máximo se permiten, quién puede eliminar un adjunto y cuántos documentos se admiten?\"",
+    "referencia": "contexto-ui-adjuntos-reportes-correos",
+    "terminos": [
+      "adjunto",
+      "formato",
+      "tamaño",
+      "descargar",
+      "eliminar",
+      "pdf",
+      "documento",
+      "límite",
+      "archivo"
+    ]
+  },
+  {
+    "id": "ADJU-03",
+    "titulo": "Tooltips",
+    "regla": "se usan en selectores, botones de acciones de tabla y botones de reportes (Excel, PDF, actualizar). Aparecen con cursor y con foco de teclado, son breves y accionables (\"Descargar reporte en Excel\") y no esconden información esencial. No aplican a etiquetas ni texto estático. Preguntar cuando: el requerimiento agrega botones de acción o selectores. Pregunta: \"¿Qué texto breve describe cada acción?\"",
+    "referencia": "contexto-ui-adjuntos-reportes-correos",
+    "terminos": [
+      "tooltip",
+      "ayuda",
+      "botón",
+      "selector",
+      "acción",
+      "reporte",
+      "ícono"
+    ]
+  },
+  {
+    "id": "ADJU-04",
+    "titulo": "Reportes en Excel",
+    "regla": "se aplican los filtros antes de generar; encabezados en negrita y a la izquierda; mismo orden de columnas que la consulta; fechas, montos y porcentajes en formato Proyecto Contexto. Preguntar cuando: se pide un reporte o exportación. Pregunta: \"¿Qué filtros son obligatorios antes de exportar, qué columnas incluye y quién puede descargarlo?\"",
+    "referencia": "contexto-ui-adjuntos-reportes-correos",
+    "terminos": [
+      "reporte",
+      "excel",
+      "exportar",
+      "exportación",
+      "descargar",
+      "filtro",
+      "columnas",
+      "xlsx"
+    ]
+  },
+  {
+    "id": "ADJU-05",
+    "titulo": "Reportes en PDF",
+    "regla": "encabezado institucional de la empresa, título descriptivo y fecha de generación; datos en tabla con bordes visibles y encabezados en negrita; alineación según el estándar de tablas; identidad gráfica institucional. Preguntar cuando: se pide un documento imprimible o un PDF. Pregunta: \"¿Qué título, encabezado y datos lleva el PDF y quién lo genera?\"",
+    "referencia": "contexto-ui-adjuntos-reportes-correos",
+    "terminos": [
+      "pdf",
+      "reporte",
+      "documento",
+      "imprimir",
+      "constancia",
+      "certificado",
+      "carta",
+      "encabezado"
+    ]
+  },
+  {
+    "id": "ADJU-06",
+    "titulo": "Correos automáticos",
+    "regla": "asunto con el formato institucional \"[Sistema] - [Asunto del correo] - [Empresa]\", contenido que describa acción, estado y siguiente paso, firma corporativa con aviso de confidencialidad vigente y logo oficial de Proyecto Contexto al final, texto alternativo en imágenes y sin información esencial solo en color. Preguntar cuando: el requerimiento notifica por correo. Pregunta: \"¿Quién recibe el correo, qué evento lo dispara, qué dice el asunto y el cuerpo, y qué pasa si el envío falla o el mensaje es muy grande?\"",
+    "referencia": "contexto-ui-adjuntos-reportes-correos",
+    "terminos": [
+      "correo",
+      "email",
+      "notificación",
+      "asunto",
+      "firma",
+      "enviar",
+      "destinatario",
+      "aviso",
+      "cola"
+    ]
+  },
+  {
+    "id": "BOTO-01",
+    "titulo": "Botón Crear",
+    "regla": "en pantallas de consulta que permiten crear registros, \"Crear\" va arriba a la derecha. Preguntar cuando: el requerimiento agrega la creación de un registro. Pregunta: \"¿Quién puede crear registros y desde qué pantalla se inicia?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "crear",
+      "nuevo",
+      "registro",
+      "agregar",
+      "botón",
+      "consulta"
+    ]
+  },
+  {
+    "id": "BOTO-02",
+    "titulo": "Guardar y Cancelar",
+    "regla": "en creación y edición, los botones principales son \"Guardar\" y \"Cancelar\", al pie del formulario y centrados. En consulta o detalle, las acciones también van al pie y centradas. Preguntar cuando: el requerimiento cambia el flujo de guardado. Pregunta: \"¿Qué ocurre al cancelar con cambios sin guardar y qué se guarda al presionar Guardar?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "guardar",
+      "cancelar",
+      "formulario",
+      "edición",
+      "creación",
+      "botón",
+      "cambios"
+    ]
+  },
+  {
+    "id": "BOTO-03",
+    "titulo": "Una sola acción primaria",
+    "regla": "debe existir una única acción primaria dominante por contexto. Preguntar cuando: el requerimiento propone varias acciones en una pantalla. Pregunta: \"¿Cuál es la acción principal de la pantalla y cuáles son secundarias?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "acción",
+      "primaria",
+      "botón",
+      "pantalla",
+      "flujo"
+    ]
+  },
+  {
+    "id": "BOTO-04",
+    "titulo": "Acciones destructivas",
+    "regla": "etiqueta explícita, color de advertencia y confirmación previa (eliminar, anular). Preguntar cuando: se elimina, anula o revierte algo. Pregunta: \"¿Se puede deshacer, deja huella en el histórico y quién puede hacerlo?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "eliminar",
+      "anular",
+      "borrar",
+      "cancelar póliza",
+      "revertir",
+      "destructiva",
+      "histórico"
+    ]
+  },
+  {
+    "id": "BOTO-05",
+    "titulo": "Íconos con etiqueta",
+    "regla": "no usar íconos sin etiqueta o tooltip cuando su significado pueda ser ambiguo. Preguntar cuando: se proponen botones solo de ícono. Pregunta: \"¿Qué texto describe la acción del ícono?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "ícono",
+      "icono",
+      "botón",
+      "tooltip",
+      "acción"
+    ]
+  },
+  {
+    "id": "BOTO-06",
+    "titulo": "Estados del botón",
+    "regla": "definir normal, hover, foco, presionado, deshabilitado y cargando. Preguntar cuando: un botón ejecuta un proceso largo o puede estar deshabilitado. Pregunta: \"¿Bajo qué condiciones se deshabilita el botón y qué se muestra mientras se procesa?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "deshabilitado",
+      "cargando",
+      "procesando",
+      "botón",
+      "estado",
+      "habilitar"
+    ]
+  },
+  {
+    "id": "BOTO-07",
+    "titulo": "Nomenclatura de acciones registradas",
+    "regla": "toda acción registrada en el sistema lleva un nombre descriptivo con el módulo (por ejemplo \"Completar trámite endoso lote - Trámite\") y un tag en minúsculas con guiones (por ejemplo \"completar-tramite-endoso-lote-tramite\"). Se evitan nombres genéricos. Esa pareja nombre/tag es la que se asigna como permiso a los roles. Preguntar cuando: el requerimiento agrega un botón, proceso o menú nuevo. Pregunta: \"¿Qué nombre y tag de acción se registran, y a qué roles se asigna el permiso?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "acción",
+      "permiso",
+      "rol",
+      "tag",
+      "nombre",
+      "módulo",
+      "botón",
+      "proceso",
+      "seguridad",
+      "trámite",
+      "endoso"
+    ]
+  },
+  {
+    "id": "BOTO-08",
+    "titulo": "Etiquetas de acción: verbo + objeto",
+    "regla": "las acciones expresan verbo + objeto y, si hace falta, el módulo. Evitar \"Procesar\", \"Ejecutar\", \"Aceptar\", \"Borrar\" y \"Reporte\" sin contexto; usar por ejemplo \"Guardar trámite\", \"Confirmar actualización\", \"Eliminar adjunto\", \"Descargar reporte en PDF\". Preguntar cuando: el requerimiento nombra botones de forma genérica. Pregunta: \"¿Qué texto exacto llevará el botón (verbo + objeto)?\"",
+    "referencia": "contexto-ui-botones-acciones",
+    "terminos": [
+      "botón",
+      "etiqueta",
+      "procesar",
+      "ejecutar",
+      "aceptar",
+      "borrar",
+      "reporte",
+      "nombre",
+      "texto"
+    ]
+  },
+  {
+    "id": "FORM-01",
+    "titulo": "Etiquetas persistentes",
+    "regla": "cada campo tiene una etiqueta visible y permanente; el placeholder no sustituye la etiqueta. Preguntar cuando: el requerimiento agrega un campo y no indica el nombre exacto que verá el usuario. Pregunta: \"¿Cuál es el nombre (etiqueta) del campo en pantalla?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "campo",
+      "etiqueta",
+      "nombre",
+      "formulario",
+      "placeholder",
+      "agregar",
+      "nuevo"
+    ]
+  },
+  {
+    "id": "FORM-02",
+    "titulo": "Selectores con \"Seleccione...\"",
+    "regla": "todo selector (select/dropdown) muestra \"Seleccione...\" mientras no exista una selección válida. Preguntar cuando: se agrega o cambia un selector o catálogo. Pregunta: \"¿Cuál es el origen de las opciones del selector y hay un valor por defecto distinto de 'Seleccione...'?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "selector",
+      "select",
+      "dropdown",
+      "catálogo",
+      "lista",
+      "opciones",
+      "combo"
+    ]
+  },
+  {
+    "id": "FORM-03",
+    "titulo": "Campos requeridos",
+    "regla": "el campo obligatorio se identifica junto a la etiqueta con el ícono de información, y al guardar sin completarlo se muestra el mensaje de validación debajo del campo. Si hay varios campos pendientes se avisa además con un mensaje general. Preguntar cuando: el requerimiento no dice si el campo es obligatorio, o en qué condiciones lo es. Pregunta: \"¿El campo es obligatorio siempre o solo bajo ciertas condiciones? ¿Cuál es el texto del mensaje cuando falta?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "requerido",
+      "obligatorio",
+      "opcional",
+      "validación",
+      "mensaje",
+      "vacío",
+      "completar"
+    ]
+  },
+  {
+    "id": "FORM-04",
+    "titulo": "Checkbox y radio",
+    "regla": "los checkbox y radio se alinean a la izquierda en creación, edición y consulta, con área clicable mínima de 44 x 44 px. Preguntar cuando: se agregan opciones de selección múltiple o única. Pregunta: \"¿La opción es de selección única (radio) o múltiple (checkbox) y cuál es su valor inicial?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "checkbox",
+      "radio",
+      "casilla",
+      "marcar",
+      "opción",
+      "sí",
+      "no"
+    ]
+  },
+  {
+    "id": "FORM-05",
+    "titulo": "Moneda",
+    "regla": "si un campo muestra moneda, el símbolo o código va visible junto a la etiqueta y se mantiene consistente. Preguntar cuando: el requerimiento maneja montos sin decir la moneda. Pregunta: \"¿En qué moneda se expresa el monto (colones, dólares) y puede cambiar por póliza?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "moneda",
+      "colones",
+      "dólares",
+      "monto",
+      "prima",
+      "importe",
+      "símbolo"
+    ]
+  },
+  {
+    "id": "FORM-06",
+    "titulo": "Campos de solo lectura",
+    "regla": "los campos de solo lectura se distinguen visualmente sin reducir el contraste del contenido. Preguntar cuando: un campo se muestra pero no se edita en algún modo. Pregunta: \"¿En qué modos (creación, edición, consulta) el campo es editable y quién puede modificarlo?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "lectura",
+      "editable",
+      "consulta",
+      "modo",
+      "bloqueado",
+      "deshabilitado",
+      "permiso"
+    ]
+  },
+  {
+    "id": "FORM-07",
+    "titulo": "Formato de fechas",
+    "regla": "formato único y visible; para Costa Rica dd/mm/aaaa. Preguntar cuando: el requerimiento usa fechas (vigencia, vencimiento, emisión). Pregunta: \"¿Qué fecha exacta se usa como inicio y fin, y qué pasa si la fecha es anterior o posterior a hoy?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "fecha",
+      "vigencia",
+      "vencimiento",
+      "emisión",
+      "plazo",
+      "inicio",
+      "fin",
+      "calendario"
+    ]
+  },
+  {
+    "id": "FORM-08",
+    "titulo": "Precisión numérica",
+    "regla": "montos con 2 decimales y porcentajes con 4 decimales, mostrados y almacenados así. Formato Proyecto Contexto: punto para miles y coma para decimales (1.250.000,50). Montos y porcentajes se alinean a la derecha. Preguntar cuando: aparece un monto, tasa, comisión o porcentaje. Pregunta: \"¿Cuántos decimales y qué regla de redondeo aplican, y existe un mínimo, máximo o rango permitido?\"",
+    "referencia": "contexto-ui-formularios",
+    "terminos": [
+      "monto",
+      "porcentaje",
+      "decimal",
+      "redondeo",
+      "tasa",
+      "comisión",
+      "prima",
+      "deducible",
+      "número",
+      "importe"
+    ]
+  },
+  {
+    "id": "IDEN-01",
+    "titulo": "Consistencia entre módulos",
+    "regla": "un mismo componente conserva apariencia, posición, etiqueta y comportamiento en todos los módulos; los componentes repetidos se consolidan en una biblioteca compartida y las excepciones se documentan con justificación, responsable y fecha. Preguntar cuando: el requerimiento propone un patrón visual distinto al de otros módulos. Pregunta: \"¿Existe un módulo con el mismo comportamiento que debamos replicar o es una excepción aprobada?\"",
+    "referencia": "contexto-ui-identidad-accesibilidad",
+    "terminos": [
+      "pantalla",
+      "módulo",
+      "componente",
+      "diseño",
+      "nuevo",
+      "patrón",
+      "consistencia",
+      "interfaz"
+    ]
+  },
+  {
+    "id": "IDEN-02",
+    "titulo": "Colores institucionales",
+    "regla": "primario #F36C21 (acciones destacadas y énfasis), secundario #6F3FA0 (navegación, tablas y acentos), texto #333333, fondo neutro #F4F4F4, error #D93025, éxito #2E7D32. Error y éxito siempre acompañados de ícono o texto, nunca solo color. Preguntar cuando: el requerimiento pide estados, semáforos o alertas por color. Pregunta: \"¿Qué texto o ícono acompaña a cada color de estado?\"",
+    "referencia": "contexto-ui-identidad-accesibilidad",
+    "terminos": [
+      "color",
+      "estado",
+      "semáforo",
+      "alerta",
+      "ícono",
+      "marca",
+      "rojo",
+      "verde",
+      "naranja",
+      "morado"
+    ]
+  },
+  {
+    "id": "IDEN-03",
+    "titulo": "Tipografía",
+    "regla": "Aptos, Segoe UI o la fuente institucional aprobada, máximo dos familias; texto base de al menos 14 px con interlineado mínimo de 1,4; jerarquía descendente de títulos y sin títulos completos en mayúscula salvo rótulos breves. Preguntar cuando: se agrega texto largo o se cambia el estilo de títulos. Pregunta: \"¿Qué jerarquía de títulos y textos de ayuda lleva la pantalla?\"",
+    "referencia": "contexto-ui-identidad-accesibilidad",
+    "terminos": [
+      "fuente",
+      "tipografía",
+      "texto",
+      "título",
+      "tamaño",
+      "mayúscula"
+    ]
+  },
+  {
+    "id": "A11Y-01",
+    "titulo": "Contraste y foco visible",
+    "regla": "contraste mínimo 4,5:1 para texto normal y 3:1 para texto grande y componentes gráficos; todo control interactivo muestra un contorno de foco de al menos 2 px con contraste 3:1; el orden de tabulación sigue el orden visual y botones y menús se activan con Enter o espacio. Preguntar cuando: se agregan controles, colores personalizados o interacciones. Pregunta: \"¿Cómo se opera esta función solo con teclado?\"",
+    "referencia": "contexto-ui-identidad-accesibilidad",
+    "terminos": [
+      "contraste",
+      "foco",
+      "teclado",
+      "tabulación",
+      "accesibilidad",
+      "wcag",
+      "control",
+      "botón"
+    ]
+  },
+  {
+    "id": "A11Y-02",
+    "titulo": "Responsive y zoom",
+    "regla": "conformidad WCAG 2.2 AA; objetivo táctil mínimo 24 x 24 px (44 x 44 px en controles principales); reflujo sin pérdida a 320 px, zoom hasta 200 % sin bloquear; los errores se asocian al campo y se anuncian a tecnologías de asistencia. Preguntar cuando: el requerimiento se usará en tablet o móvil. Pregunta: \"¿En qué dispositivos se usa esta pantalla y qué datos son esenciales en pantallas pequeñas?\"",
+    "referencia": "contexto-ui-identidad-accesibilidad",
+    "terminos": [
+      "móvil",
+      "tablet",
+      "responsive",
+      "zoom",
+      "táctil",
+      "dispositivo",
+      "pantalla",
+      "lector"
+    ]
+  },
+  {
+    "id": "IDEN-04",
+    "titulo": "Estructura de pantalla",
+    "regla": "encabezado con identidad institucional, menú lateral con módulo seleccionado visible (color, peso o indicador), título y contexto del registro arriba, secciones lógicas sin desplazamiento horizontal y pie con la versión del sistema cuando aplique. Preguntar cuando: el requerimiento crea un módulo o submódulo. Pregunta: \"¿Dónde aparece en el menú, con qué nombre y qué roles lo ven?\"",
+    "referencia": "contexto-ui-identidad-accesibilidad",
+    "terminos": [
+      "menú",
+      "módulo",
+      "submódulo",
+      "navegación",
+      "pantalla",
+      "sección",
+      "título",
+      "nuevo módulo"
+    ]
+  },
+  {
+    "id": "MENS-01",
+    "titulo": "Errores bloqueantes en modal",
+    "regla": "los errores bloqueantes se muestran en una ventana modal con título, descripción y una acción de cierre o recuperación. Preguntar cuando: el requerimiento define una validación que impide continuar. Pregunta: \"¿Qué texto exacto se muestra al usuario y qué puede hacer para recuperarse?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "error",
+      "mensaje",
+      "bloqueo",
+      "validación",
+      "falla",
+      "rechazo",
+      "modal"
+    ]
+  },
+  {
+    "id": "MENS-02",
+    "titulo": "Toast para información y éxito",
+    "regla": "información, progreso y confirmación exitosa se muestran con toast arriba a la derecha; el éxito puede cerrarse solo entre 5 y 8 segundos y los errores permanecen hasta atenderse. Preguntar cuando: se pide \"notificar\" o \"avisar\" al usuario. Pregunta: \"¿El aviso es informativo (toast) o requiere atención inmediata (modal), y qué dice?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "toast",
+      "notificación",
+      "aviso",
+      "éxito",
+      "confirmación",
+      "informativo",
+      "progreso"
+    ]
+  },
+  {
+    "id": "MENS-03",
+    "titulo": "Validación junto al campo",
+    "regla": "el mensaje de validación aparece junto al campo y, si hay varios errores, un resumen general. Preguntar cuando: hay validaciones de formato o de negocio. Pregunta: \"¿Cuándo se valida (al salir del campo o al guardar) y qué mensaje se muestra por cada caso?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "validación",
+      "campo",
+      "formato",
+      "regla",
+      "mensaje",
+      "inválido",
+      "error"
+    ]
+  },
+  {
+    "id": "MENS-04",
+    "titulo": "Contenido de los mensajes",
+    "regla": "indicar qué ocurrió, por qué importa y qué debe hacer el usuario; sin códigos técnicos sin explicación. Preguntar cuando: el requerimiento cita mensajes técnicos o genéricos. Pregunta: \"¿Cuál es el mensaje en lenguaje de negocio y la acción sugerida?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "mensaje",
+      "texto",
+      "redacción",
+      "error",
+      "usuario",
+      "técnico"
+    ]
+  },
+  {
+    "id": "MENS-05",
+    "titulo": "Confirmación de acciones",
+    "regla": "crear, modificar, eliminar, anular o abandonar un formulario con cambios exige una modal de confirmación que nombra la acción y el registro afectado (\"¿Está seguro de que desea actualizar la póliza 12345?\"). Preguntar cuando: el requerimiento cambia datos del sistema. Pregunta: \"¿Se solicita confirmación y qué texto muestra? ¿Se registra quién y cuándo lo confirmó?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "confirmar",
+      "confirmación",
+      "crear",
+      "actualizar",
+      "modificar",
+      "eliminar",
+      "anular",
+      "salir",
+      "póliza",
+      "registro"
+    ]
+  },
+  {
+    "id": "MENS-06",
+    "titulo": "Uso de modales",
+    "regla": "las modales se reservan para decisiones, datos asociados o información que requiere atención inmediata. Consultar o crear información relacionada desde una modal se hace con una nueva modal; se evita más de una modal anidada. Preguntar cuando: el requerimiento agrega una ventana emergente. Pregunta: \"¿Es una decisión o dato asociado? ¿Se abre desde otra modal?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "modal",
+      "ventana",
+      "emergente",
+      "popup",
+      "anidada",
+      "detalle",
+      "asociado"
+    ]
+  },
+  {
+    "id": "MENS-07",
+    "titulo": "Modal en modo consulta",
+    "regla": "en modo consulta todo se ve en solo lectura y los botones de crear, editar y eliminar de tablas relacionadas se ocultan o deshabilitan; solo quedan acciones permitidas en consulta (generar documentos, enviar correos). Preguntar cuando: el requerimiento tiene pantallas de detalle o consulta. Pregunta: \"¿Qué acciones siguen disponibles en modo consulta y para qué roles?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "consulta",
+      "detalle",
+      "solo lectura",
+      "modal",
+      "modo",
+      "editar",
+      "deshabilitar"
+    ]
+  },
+  {
+    "id": "MENS-08",
+    "titulo": "Modal con secciones o pestañas",
+    "regla": "en creación, todas las secciones forman un único registro y se guardan con \"Guardar\" al pie. En edición, lo asociado a una sección (crear, modificar o eliminar registros relacionados) se guarda de inmediato, y \"Guardar\" solo aplica a cambios en la información principal. Preguntar cuando: el requerimiento tiene pestañas o secciones. Pregunta: \"¿Qué se persiste al instante en edición y qué requiere Guardar?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "pestaña",
+      "sección",
+      "guardar",
+      "edición",
+      "creación",
+      "modal",
+      "registro asociado"
+    ]
+  },
+  {
+    "id": "MENS-09",
+    "titulo": "Información de auditoría",
+    "regla": "la información de auditoría del registro (quién y cuándo) solo se muestra en modo consulta. Preguntar cuando: el requerimiento pide trazabilidad o historial. Pregunta: \"¿Qué datos de auditoría se muestran, en qué modo, y se requiere histórico de cambios por campo?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "auditoría",
+      "historial",
+      "histórico",
+      "trazabilidad",
+      "bitácora",
+      "usuario",
+      "fecha",
+      "cambios"
+    ]
+  },
+  {
+    "id": "MENS-10",
+    "titulo": "Foco y cierre de modales",
+    "regla": "al abrir una modal el foco pasa a ella y se mantiene contenido; al cerrar vuelve al control de origen. Esc cierra solo si no hay riesgo de perder información. Preguntar cuando: la modal tiene un formulario con datos. Pregunta: \"¿Qué ocurre si el usuario cierra con cambios sin guardar?\"",
+    "referencia": "contexto-ui-mensajes-modales",
+    "terminos": [
+      "modal",
+      "foco",
+      "cerrar",
+      "escape",
+      "teclado",
+      "cambios",
+      "accesibilidad"
+    ]
+  },
+  {
+    "id": "TABL-01",
+    "titulo": "Encabezados",
+    "regla": "encabezados en Capitalized Case, breves y descriptivos. Preguntar cuando: se agregan columnas. Pregunta: \"¿Cuál es el nombre exacto de cada columna nueva y de qué dato proviene?\"",
+    "referencia": "contexto-ui-tablas",
+    "terminos": [
+      "tabla",
+      "columna",
+      "encabezado",
+      "listado",
+      "grilla",
+      "agregar"
+    ]
+  },
+  {
+    "id": "TABL-02",
+    "titulo": "Alineación por tipo de dato",
+    "regla": "texto y fechas a la izquierda; montos y porcentajes a la derecha (también su encabezado); Sí/No y checkbox al centro. Preguntar cuando: se agrega una columna sin decir su tipo de dato. Pregunta: \"¿La columna es texto, fecha, monto, porcentaje o indicador Sí/No?\"",
+    "referencia": "contexto-ui-tablas",
+    "terminos": [
+      "columna",
+      "alineación",
+      "monto",
+      "porcentaje",
+      "fecha",
+      "tipo",
+      "dato",
+      "listado"
+    ]
+  },
+  {
+    "id": "TABL-03",
+    "titulo": "Paginación",
+    "regla": "toda tabla muestra paginación, aunque tenga pocos registros. Preguntar cuando: el requerimiento trae una consulta o listado nuevo. Pregunta: \"¿Cuál es el volumen esperado de registros y el tamaño de página?\"",
+    "referencia": "contexto-ui-tablas",
+    "terminos": [
+      "paginación",
+      "página",
+      "registros",
+      "consulta",
+      "listado",
+      "volumen",
+      "resultados"
+    ]
+  },
+  {
+    "id": "TABL-04",
+    "titulo": "Tabla sin resultados",
+    "regla": "mostrar centrado \"No hay registro de datos para mostrar.\" con el logotipo de Proyecto Contexto discreto como fondo. Preguntar cuando: la consulta puede devolver cero registros. Pregunta: \"¿Hay un mensaje distinto para cuando no hay resultados o se aplica el estándar?\"",
+    "referencia": "contexto-ui-tablas",
+    "terminos": [
+      "sin resultados",
+      "vacío",
+      "no hay registros",
+      "consulta",
+      "filtro",
+      "búsqueda"
+    ]
+  },
+  {
+    "id": "TABL-05",
+    "titulo": "Ordenamiento",
+    "regla": "no hay orden predeterminado; solo se define cuando existe un criterio de negocio, indicando columna y dirección. Preguntar cuando: el requerimiento habla de \"ordenar\" o \"mostrar primero\". Pregunta: \"¿Qué criterio de negocio define el orden, por qué columna y en qué dirección?\"",
+    "referencia": "contexto-ui-tablas",
+    "terminos": [
+      "orden",
+      "ordenar",
+      "ordenamiento",
+      "primero",
+      "reciente",
+      "ascendente",
+      "descendente"
+    ]
+  },
+  {
+    "id": "TABL-06",
+    "titulo": "Acciones por fila",
+    "regla": "acciones agrupadas por fila, con tooltip y orden constante: consultar, editar, adjuntos, eliminar. Preguntar cuando: se agrega una acción a las filas. Pregunta: \"¿Qué rol puede ejecutarla, en qué estados del registro está disponible y requiere confirmación?\"",
+    "referencia": "contexto-ui-tablas",
+    "terminos": [
+      "acción",
+      "fila",
+      "botón",
+      "consultar",
+      "editar",
+      "eliminar",
+      "adjuntos",
+      "permiso",
+      "rol"
+    ]
+  },
+  {
+    "id": "TABL-07",
+    "titulo": "Adaptabilidad",
+    "regla": "en pantallas estrechas se priorizan columnas y se permite vista de detalle sin romper el diseño. Preguntar cuando: la tabla tiene muchas columnas. Pregunta: \"¿Qué columnas son indispensables en pantallas pequeñas?\"",
+    "referencia": "contexto-ui-tablas",
+    "terminos": [
+      "columnas",
+      "móvil",
+      "tablet",
+      "pantalla",
+      "responsive",
+      "detalle"
+    ]
   }
 ]

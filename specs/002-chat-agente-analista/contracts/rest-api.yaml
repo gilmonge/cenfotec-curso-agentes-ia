@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: StoryCraft AI — API del Chat del Agente Analista
+  title: Historias de Usuario — API del Chat del Agente Analista
   version: 1.0.0
   description: >-
     Contrato REST del backend local del chat. El backend es la autoridad del
@@ -8,7 +8,7 @@ info:
     navegador solo consume esta API a través de /api/analista; nunca contacta
     OpenCode, MCP o Langfuse. Todas las respuestas son JSON salvo 204.
   contact:
-    name: StoryCraft AI — Popular Seguros
+    name: Historias de Usuario
 servers:
   - url: http://127.0.0.1:8000/api/analista
     description: Backend local (también accesible por el proxy Vite /api/analista)
@@ -201,6 +201,16 @@ components:
             limitaciones.
           items:
             $ref: '#/components/schemas/SourceConsultation'
+        beneficios:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+            minLength: 1
+            maxLength: 300
+          description: >-
+            Beneficios esperados propuestos por el agente a partir del requerimiento y
+            de las respuestas confirmadas. Opcional; la persona analista puede editarlos.
         listo_para_redactor:
           type: boolean
           description: >-

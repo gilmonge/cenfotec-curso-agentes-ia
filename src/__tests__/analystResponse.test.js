@@ -22,6 +22,13 @@ describe('analyst response validation', () => {
     expect(isValidAnalystResponse(validResponse)).toBe(true);
   });
 
+  it('accepts optional benefits proposed by the agent and rejects invalid ones', () => {
+    expect(isValidAnalystResponse({ ...validResponse, beneficios: ['Trazabilidad de bloqueos'] })).toBe(true);
+    expect(isValidAnalystResponse({ ...validResponse, beneficios: [] })).toBe(true);
+    expect(isValidAnalystResponse({ ...validResponse, beneficios: ['a', 'b', 'c', 'd', 'e', 'f'] })).toBe(false);
+    expect(isValidAnalystResponse({ ...validResponse, beneficios: [''] })).toBe(false);
+  });
+
   it('rejects incomplete payloads and never returns partial content', () => {
     expect(isValidAnalystResponse({ ...validResponse, analisis: { conocida: [] } })).toBe(false);
     let raised;

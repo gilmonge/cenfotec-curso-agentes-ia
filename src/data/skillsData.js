@@ -39,9 +39,9 @@ export const skillsData = [
       {
         title: 'Datos nulos y defensivos',
         items: [
-          'Los componentes toleran props vacías con valores por defecto (como hace AnalysisCard con analysis || {}).',
-          'Las páginas con :id manejan historia inexistente con EmptyState y botón para volver.',
-          'Listas vacías muestran EmptyState, no una grilla vacía.',
+          'Los componentes toleran props vacías con valores por defecto (como hace TarjetaAnalisisComponent con analysis || {}).',
+          'Las páginas con :id manejan historia inexistente con EstadoVacioComponent y botón para volver.',
+          'Listas vacías muestran EstadoVacioComponent, no una grilla vacía.',
           'Acceso a propiedades anidadas con encadenamiento opcional (story?.criteria?.length).'
         ]
       },
@@ -58,7 +58,7 @@ export const skillsData = [
         title: 'Timeouts y cancelación',
         items: [
           'Los setTimeout de las simulaciones se limpian al desmontar el componente.',
-          'Salir del Stepper durante un proceso no produce actualizaciones de estado sobre un componente desmontado.',
+          'Salir del asistente por pasos durante un proceso no produce actualizaciones de estado sobre un componente desmontado.',
           'Preparación para IA real: existe un tiempo máximo de espera y el usuario ve un mensaje si se excede.'
         ]
       },
@@ -114,7 +114,7 @@ export const skillsData = [
     ],
     whenNotToUse: [
       'Manejo de errores, reintentos, timeouts o fallback → usar error-handling-resilience-review.',
-      'Componentes puramente visuales sin lógica (ej. Badge, Card, PageTitle).',
+      'Componentes puramente visuales sin lógica (ej. InsigniaComponent, TarjetaComponent, TituloPaginaComponent).',
       'Revisión de estilos SCSS, diseño o responsive.',
       'Cumplimiento funcional contra el documento de requerimientos.'
     ],
@@ -136,7 +136,7 @@ export const skillsData = [
         items: [
           'Existe un generador de IDs (crypto.randomUUID() con fallback).',
           'Cada flujo de creación o edición inicia un operationId y lo propaga a todos sus logs.',
-          'El operationId se conserva entre pasos del Stepper (estado del flujo, no una variable local de cada paso).',
+          'El operationId se conserva entre pasos del asistente (estado del flujo, no una variable local de cada paso).',
           'Si en el futuro hay llamadas HTTP, el ID se envía en un header (X-Correlation-Id).'
         ]
       },
@@ -144,7 +144,7 @@ export const skillsData = [
         title: 'Trazas de operaciones',
         items: [
           'Las operaciones simuladas registran inicio y fin (analysis.started / analysis.completed).',
-          'Se registra el paso actual del Stepper al avanzar o retroceder.',
+          'Se registra el paso actual del asistente al avanzar o retroceder.',
           'Se registran las acciones clave del usuario: guardar, editar, abrir historia.'
         ]
       },

@@ -1,22 +1,481 @@
 [
   {
-    "termino": "plazo de atención",
-    "definicion": "Intervalo objetivo para responder una solicitud, sujeto a confirmación del área responsable.",
-    "fuente": "Glosario simulado v1"
+    "termino": "póliza",
+    "definicion": "Contrato de seguro que establece coberturas, vigencia, prima y condiciones entre la aseguradora y la persona asegurada o tomadora.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "contrato",
+      "seguro",
+      "cobertura",
+      "vigencia",
+      "prima"
+    ]
+  },
+  {
+    "termino": "póliza madre",
+    "definicion": "Póliza colectiva que agrupa a varias personas o riesgos y de la que se derivan las pólizas hijas; define las condiciones que estas pueden heredar.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "colectiva",
+      "grupo",
+      "herencia",
+      "hereda",
+      "hija",
+      "madre"
+    ]
+  },
+  {
+    "termino": "póliza hija",
+    "definicion": "Póliza individual asociada a una póliza madre; hereda sus condiciones y puede tener datos propios según lo permita la configuración.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "individual",
+      "madre",
+      "colectiva",
+      "asegurado",
+      "hereda",
+      "hija"
+    ]
+  },
+  {
+    "termino": "tipo de póliza",
+    "definicion": "Clasificación configurable de las pólizas por producto y aseguradora; define coberturas, tarifas, formato del número y valores por defecto que heredan las pólizas.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "producto",
+      "ramo",
+      "aseguradora",
+      "tarifa",
+      "formato",
+      "nomenclatura",
+      "herencia"
+    ]
+  },
+  {
+    "termino": "ramo",
+    "definicion": "Línea de negocio de seguros a la que pertenece un producto (por ejemplo vida, automóvil o incendio).",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "línea",
+      "producto",
+      "seguro",
+      "tipo de póliza",
+      "aseguradora"
+    ]
+  },
+  {
+    "termino": "aseguradora",
+    "definicion": "Entidad que emite la póliza y asume el riesgo asegurado; puede tener su propia configuración de productos y contactos.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "compañía",
+      "emisor",
+      "producto",
+      "contacto"
+    ]
+  },
+  {
+    "termino": "agente y corredor de seguros",
+    "definicion": "Intermediario autorizado que ofrece, gestiona o da seguimiento a las pólizas según el acuerdo con la aseguradora.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "intermediario",
+      "agente",
+      "corredor",
+      "cartera"
+    ]
+  },
+  {
+    "termino": "persona física y persona jurídica",
+    "definicion": "Tipos de persona del sistema: la persona física se identifica con cédula, DIMEX o pasaporte; la jurídica, con cédula jurídica; los datos y validaciones requeridos difieren.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "cliente",
+      "persona",
+      "física",
+      "jurídica",
+      "identificación",
+      "cédula",
+      "dimex",
+      "pasaporte"
+    ]
+  },
+  {
+    "termino": "asegurado",
+    "definicion": "Persona sobre quien recae la cobertura de la póliza; puede coincidir o no con quien contrata el seguro.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "persona",
+      "cobertura",
+      "tomador",
+      "contratante",
+      "cliente"
+    ]
   },
   {
     "termino": "beneficiario",
-    "definicion": "Persona designada para recibir un beneficio cuando se cumplen las condiciones aplicables.",
-    "fuente": "Glosario simulado v1"
+    "definicion": "Persona designada para recibir un beneficio cuando se cumplen las condiciones aplicables; se registra con su parentesco y porcentaje.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "designado",
+      "beneficio",
+      "persona",
+      "parentesco",
+      "porcentaje"
+    ]
+  },
+  {
+    "termino": "cobertura",
+    "definicion": "Riesgo o evento que el seguro protege, con sus límites y condiciones; puede estar activa o inactiva y vinculada a un tipo de póliza.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "riesgo",
+      "protección",
+      "límite",
+      "activa",
+      "inactiva",
+      "tipo de cobertura"
+    ]
+  },
+  {
+    "termino": "prima",
+    "definicion": "Monto que se paga por el seguro; se calcula con la tarifa y puede variar por moneda, frecuencia de pago y condiciones de la póliza.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "monto",
+      "tarifa",
+      "pago",
+      "moneda",
+      "costo",
+      "cálculo"
+    ]
   },
   {
     "termino": "vigencia",
-    "definicion": "Periodo durante el cual una condición o servicio puede estar activo; las fechas deben confirmarse.",
-    "fuente": "Glosario simulado v1"
+    "definicion": "Periodo durante el cual una póliza o condición está activa; sus fechas de inicio y fin deben confirmarse y determinan renovaciones y vencimientos.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "periodo",
+      "fecha",
+      "inicio",
+      "fin",
+      "renovación",
+      "vencimiento",
+      "plazo"
+    ]
   },
   {
     "termino": "deducible",
-    "definicion": "Monto definido en una póliza que puede corresponder al asegurado bajo condiciones contractuales.",
-    "fuente": "Glosario simulado v1"
+    "definicion": "Monto definido en una póliza que corresponde al asegurado antes de que opere la cobertura, bajo las condiciones contractuales.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "monto",
+      "asegurado",
+      "cobertura",
+      "condición",
+      "contrato"
+    ]
+  },
+  {
+    "termino": "renovación",
+    "definicion": "Continuación de una póliza por un nuevo periodo de vigencia, con las condiciones originales o ajustadas.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "vigencia",
+      "vencimiento",
+      "nuevo periodo",
+      "póliza",
+      "fecha"
+    ]
+  },
+  {
+    "termino": "vencimiento",
+    "definicion": "Fin de la vigencia de una póliza; puede requerir gestión de renovación.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "vigencia",
+      "fin",
+      "renovación",
+      "fecha",
+      "aseguradora",
+      "periodo"
+    ]
+  },
+  {
+    "termino": "cancelación",
+    "definicion": "Terminación anticipada de una póliza por un motivo registrado; cambia su estado y puede afectar los saldos y reportes de la póliza.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "motivo",
+      "estado",
+      "anular",
+      "terminar",
+      "póliza",
+      "cancelada",
+      "rehabilitar"
+    ]
+  },
+  {
+    "termino": "rehabilitación de póliza",
+    "definicion": "Reactivación de una póliza cancelada o suspendida bajo las condiciones definidas.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "reactivar",
+      "cancelada",
+      "estado",
+      "póliza",
+      "hija"
+    ]
+  },
+  {
+    "termino": "estado de la póliza",
+    "definicion": "Situación en que se encuentra la póliza (por ejemplo activa, cancelada o vencida); condiciona qué acciones y trámites se permiten.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "activa",
+      "cancelada",
+      "vencida",
+      "trámite",
+      "flujo",
+      "estado"
+    ]
+  },
+  {
+    "termino": "número de póliza y nomenclatura",
+    "definicion": "Identificador de la póliza que sigue un formato o máscara definidos por el tipo de póliza; un cambio de formato no debe alterar los números ya emitidos.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "formato",
+      "máscara",
+      "consecutivo",
+      "prefijo",
+      "número",
+      "nomenclatura"
+    ]
+  },
+  {
+    "termino": "herencia de datos",
+    "definicion": "Mecanismo por el que la póliza hija toma valores de la póliza madre o del tipo de póliza; hay que definir cuáles campos se heredan y si pueden sobrescribirse.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "hereda",
+      "madre",
+      "hija",
+      "tipo de póliza",
+      "valor por defecto",
+      "sobrescribir"
+    ]
+  },
+  {
+    "termino": "trámite",
+    "definicion": "Proceso con estados y responsables que modifica o crea algo sobre una póliza o una persona, como un endoso.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "proceso",
+      "estado",
+      "endoso",
+      "flujo"
+    ]
+  },
+  {
+    "termino": "endoso",
+    "definicion": "Modificación a una póliza vigente (por ejemplo cambio de datos, cobertura o valores) que se tramita con tipo, requisitos y formalizador.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "modificación",
+      "cambio",
+      "trámite",
+      "requisito",
+      "póliza",
+      "formalizador"
+    ]
+  },
+  {
+    "termino": "frecuencia de pago y periodicidad",
+    "definicion": "Cada cuánto se paga la prima (mensual, trimestral, anual, etc.); determina las fechas de pago y de próximo pago.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "pago",
+      "mensual",
+      "anual",
+      "fecha",
+      "próximo pago",
+      "periodicidad"
+    ]
+  },
+  {
+    "termino": "moneda",
+    "definicion": "Divisa en la que se expresa un monto (colones o dólares); debe respetarse en primas y demás montos para no registrar el valor en otra moneda.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "colones",
+      "dólares",
+      "monto",
+      "tipo de cambio",
+      "prima"
+    ]
+  },
+  {
+    "termino": "histórico de cambios",
+    "definicion": "Registro de qué se modificó, quién lo hizo y cuándo, con valores anterior y nuevo, disponible para consulta según permisos.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "historial",
+      "auditoría",
+      "bitácora",
+      "cambio",
+      "trazabilidad",
+      "usuario"
+    ]
+  },
+  {
+    "termino": "catálogo",
+    "definicion": "Lista de valores configurables que alimenta selectores y reglas; agregar, inactivar o renombrar opciones puede afectar los registros existentes.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "selector",
+      "opciones",
+      "lista",
+      "valor",
+      "maestro",
+      "detalle",
+      "inactivar"
+    ]
+  },
+  {
+    "termino": "plazo de atención",
+    "definicion": "Intervalo objetivo para responder una solicitud, sujeto a confirmación del área responsable; puede contarse en días hábiles.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "plazo",
+      "días hábiles",
+      "respuesta",
+      "solicitud",
+      "atención",
+      "sla"
+    ]
+  },
+  {
+    "termino": "tomador",
+    "definicion": "Persona que contrata la póliza y asume sus obligaciones, como el pago de la prima; puede ser distinta del asegurado.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "tomador",
+      "contratante",
+      "póliza",
+      "persona",
+      "asegurado"
+    ]
+  },
+  {
+    "termino": "datos de contacto",
+    "definicion": "Correo, teléfono y dirección con los que se localiza a una persona; una persona puede tener varios y uno se marca como principal.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "contacto",
+      "correo",
+      "teléfono",
+      "dirección",
+      "domicilio",
+      "principal",
+      "persona"
+    ]
+  },
+  {
+    "termino": "dato personal",
+    "definicion": "Información que identifica o permite identificar a una persona; su visualización, exportación y conservación deben limitarse según el rol y la normativa aplicable.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "dato",
+      "personal",
+      "privacidad",
+      "confidencial",
+      "persona",
+      "exportar",
+      "enmascarar"
+    ]
+  },
+  {
+    "termino": "rol",
+    "definicion": "Conjunto de permisos que se asigna a los usuarios para definir qué pantallas ven y qué acciones ejecutan.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "rol",
+      "perfil",
+      "permiso",
+      "usuario",
+      "acceso",
+      "seguridad"
+    ]
+  },
+  {
+    "termino": "permiso y acción",
+    "definicion": "Capacidad de ejecutar una función concreta (ver, crear, editar, eliminar, aprobar); cada acción se registra con nombre y tag y se asigna a uno o más roles.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "permiso",
+      "acción",
+      "tag",
+      "botón",
+      "rol",
+      "ejecutar",
+      "seguridad"
+    ]
+  },
+  {
+    "termino": "usuario",
+    "definicion": "Cuenta con la que una persona accede al sistema; tiene estado (activo, inactivo o bloqueado) y uno o más roles.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "usuario",
+      "cuenta",
+      "acceso",
+      "activo",
+      "inactivo",
+      "bloqueado",
+      "rol"
+    ]
+  },
+  {
+    "termino": "autenticación y sesión",
+    "definicion": "Verificación de la identidad de la persona usuaria al ingresar y control del tiempo que permanece activa su sesión.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "autenticación",
+      "sesión",
+      "contraseña",
+      "ingreso",
+      "login",
+      "vencimiento",
+      "bloqueo",
+      "seguridad"
+    ]
+  },
+  {
+    "termino": "bloqueo de usuario",
+    "definicion": "Restricción temporal o permanente del acceso de un usuario, por ejemplo tras intentos fallidos o por decisión de un administrador.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "bloqueo",
+      "bloqueado",
+      "intentos",
+      "usuario",
+      "acceso",
+      "desbloqueo",
+      "seguridad"
+    ]
+  },
+  {
+    "termino": "persona relacionada",
+    "definicion": "Persona vinculada a otra (representante, apoderado, accionista, familiar); la relación tiene tipo y puede tener fecha de inicio y fin.",
+    "fuente": "Glosario simulado v2",
+    "terminos": [
+      "relacionado",
+      "representante",
+      "apoderado",
+      "accionista",
+      "relación",
+      "persona"
+    ]
   }
 ]

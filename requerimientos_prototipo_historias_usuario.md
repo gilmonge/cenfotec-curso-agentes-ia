@@ -477,8 +477,8 @@ No implementar:
 - API REST propia.
 - Base de datos.
 - Integración con Jira.
-- Integración con Azure DevOps.
-- Integración con iTop.
+- Integración con gestores de tareas.
+- Integración con gestores de incidentes.
 - Correos.
 - Repositorios.
 - Subida real de archivos.

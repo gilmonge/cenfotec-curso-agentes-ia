@@ -8,8 +8,8 @@
 }
 
 .header {
-  background-color: $color-surface;
-  border-bottom: 1px solid $color-border;
+  background-color: $color-secondary;
+  border-bottom: 4px solid $color-primary;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -30,24 +30,20 @@
     .brand-icon {
       width: 36px;
       height: 36px;
-      background: linear-gradient(135deg, $color-primary, $color-secondary);
-      color: #fff;
+      background: $color-primary;
+      color: $color-on-primary;
       border-radius: $radius-sm;
       @include flex-center;
       font-weight: 700;
       font-size: 1.1rem;
-      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 2px 4px rgba(26, 26, 26, 0.25);
     }
 
     .brand-text {
       font-size: 1.2rem;
       font-weight: 700;
-      color: $color-text-primary;
+      color: $color-on-secondary;
       letter-spacing: -0.02em;
-
-      span {
-        color: $color-primary;
-      }
     }
   }
 
@@ -69,23 +65,62 @@
     border-radius: $radius-sm;
     font-size: 0.9rem;
     font-weight: 500;
-    color: $color-text-secondary;
+    color: $color-on-secondary;
     transition: all $transition-fast;
 
     &:hover {
-      background-color: $color-surface-hover;
-      color: $color-text-primary;
+      background-color: rgba(255, 255, 255, 0.16);
+      color: $color-on-secondary;
     }
 
+    &:focus-visible {
+      outline-color: $color-on-secondary;
+    }
+
+    // Estado activo: peso, fondo e indicador inferior (no solo color)
     &.active {
-      background-color: $color-primary-light;
-      color: $color-primary;
-      font-weight: 600;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: $color-on-secondary;
+      font-weight: 700;
+      box-shadow: inset 0 -3px 0 $color-primary;
     }
 
     @include mobile {
       padding: 0.4rem 0.6rem;
-      font-size: 0.825rem;
+      font-size: 0.875rem;
+
+      span {
+        display: none;
+      }
+    }
+  }
+
+  &__theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: $radius-sm;
+    background: transparent;
+    color: $color-on-secondary;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.16);
+    }
+
+    &:focus-visible {
+      outline-color: $color-on-secondary;
+    }
+
+    @include mobile {
+      margin-left: 0.25rem;
+      padding: 0.4rem 0.6rem;
 
       span {
         display: none;
@@ -99,10 +134,11 @@
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  // Espacio al final para que los botones flotantes de chat no tapen el último contenido.
+  padding: 2rem 1.5rem 6.5rem;
 
   @include mobile {
-    padding: 1.25rem 1rem;
+    padding: 1.25rem 1rem 6.5rem;
   }
 }
 
@@ -111,13 +147,14 @@
   border-top: 1px solid $color-border;
   padding: 1.5rem;
   text-align: center;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   color: $color-text-muted;
 
   &__inner {
     max-width: 1200px;
     margin: 0 auto;
     @include flex-between;
+    justify-content: center;
 
     @include mobile {
       flex-direction: column;

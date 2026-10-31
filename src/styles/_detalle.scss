@@ -1,0 +1,90 @@
+// Detalle de una HU: menú de secciones a la izquierda y una sección visible a la vez.
+.detalle-estado {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+
+  &__fuente { margin-left: auto; }
+}
+
+.detalle-layout {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.detalle-nav {
+  position: sticky;
+  top: 1rem;
+
+  &__lista {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--color-border);
+    border-left: 3px solid transparent;
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover { background: var(--color-surface-hover); }
+    &:focus-visible { outline: 2px solid var(--color-secondary-text); outline-offset: 2px; }
+
+    &--activa {
+      border-left-color: #f36c21;
+      color: var(--color-text-primary);
+      background: var(--color-surface-hover);
+    }
+  }
+
+  &__contador {
+    min-width: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: var(--color-bg);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+}
+
+.detalle-contenido { min-width: 0; }
+
+.detalle-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &[hidden] { display: none; }
+}
+
+@media (max-width: 768px) {
+  .detalle-layout { grid-template-columns: minmax(0, 1fr); }
+
+  .detalle-nav {
+    position: static;
+    overflow-x: auto;
+
+    &__lista { flex-direction: row; }
+    &__item { width: auto; white-space: nowrap; border-left-width: 1px; border-bottom: 3px solid transparent; }
+    &__item--activa { border-left-color: var(--color-border); border-bottom-color: #f36c21; }
+  }
+}

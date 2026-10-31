@@ -7,7 +7,7 @@
 **Status**: Draft
 
 **Input**: User description: "Crear el feature 'Chat flotante con Agente Analista de Requerimientos'
-para StoryCraft AI. El repositorio tiene React 18, Vite 5, JS, SCSS, React Router; no sustituir
+para Historias de Usuario. El repositorio tiene React 18, Vite 5, JS, SCSS, React Router; no sustituir
 pantallas existentes ni simular respuestas en el chat. Añadir botón flotante abajo a la derecha
 global, panel responsive con abrir/cerrar conservando historial, reiniciar/eliminar chat por
 separado, envío y recepción reales contra API Python, un mensaje en vuelo por conversación,
@@ -544,7 +544,7 @@ cambios después del grooming se difiere a una evaluación longitudinal con spri
 - Implementar el Agente Redactor-Revisor, el Agente Asesor Técnico o el Agente Gestor de Cambios.
 - Redactar, aprobar, priorizar o generar Historias de Usuario y criterios de aceptación desde el
   chat, o automatizar su generación en el Stepper existente.
-- Integrarse con Azure DevOps, iTop, bases de datos, correo, repositorios de código reales,
+- Integrarse con gestores de tareas e incidentes, bases de datos, correo, repositorios de código reales,
   internet o sistemas productivos.
 - Implementar un repositorio de HU de largo plazo; solo se consume como fuente simulada de lectura.
 - Autenticación productiva, multiusuario, roles, auditoría o administración de usuarios.
@@ -559,7 +559,7 @@ cambios después del grooming se difiere a una evaluación longitudinal con spri
 
 ## Assumptions
 
-- El usuario principal es un analista de requerimientos o Product Owner de Popular Seguros, y la
+- El usuario principal es un analista de requerimientos o Product Owner del proyecto Historias de Usuario, y la
   interfaz se usa en español durante una demostración local.
 - Solo el Agente Analista de Requerimientos se implementa en esta fase; los otros tres agentes de
   la definición quedan fuera de alcance.

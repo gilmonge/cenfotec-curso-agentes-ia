@@ -17,7 +17,7 @@
 
 ## Summary
 
-Se añadirá un chat flotante global a StoryCraft AI sin sustituir ninguna pantalla, ruta, simulación o estilo existente. El botón se monta una sola vez en `MainLayout`; el panel conserva su historial al cerrarse, **Nuevo chat** limpia el contexto y mantiene el panel abierto, **Eliminar** confirma, borra el contexto y cierra el panel, y **Cancelar** aborta solo el turno activo conservando el historial y el contexto anteriores. Recargar la página inicia un chat vacío: no hay recuperación desde el navegador.
+Se añadirá un chat flotante global a Historias de Usuario sin sustituir ninguna pantalla, ruta, simulación o estilo existente. El botón se monta una sola vez en `EnvolturaPaginaComponent`; el panel conserva su historial al cerrarse, **Nuevo chat** limpia el contexto y mantiene el panel abierto, **Eliminar** confirma, borra el contexto y cierra el panel, y **Cancelar** aborta solo el turno activo conservando el historial y el contexto anteriores. Recargar la página inicia un chat vacío: no hay recuperación desde el navegador.
 
 El chat usa una cadena real React → `/api/analista` → FastAPI → LangChain/MCP → OpenCode Server v2 → provider/model configurados, con cuatro herramientas MCP de solo lectura ejecutadas por el backend. El provider predeterminado es `opencode`; `OPENCODE_PROVIDER_ID` y `OPENCODE_MODEL_ID` permiten elegir explícitamente otra combinación que OpenCode anuncie y habilite. FastAPI no conecta directamente a proveedores de IA.
 
@@ -92,7 +92,7 @@ La implementación incluye pruebas focalizadas de API, concurrencia, reset/cance
 | VI. Rol Analista / PEAS | PASS por diseño; evidencia pendiente | Prompt, esquema, validación de readiness y pruebas adversariales; criterios PEAS obligatorios aún no medidos |
 | VII. Integraciones honestas | PASS condicionado a integración final | OpenCode `2.0.27`/API v2 y la compuerta T002 están comprobados; la prueba integrada completa sigue pendiente |
 | VIII. Read-only / mínimo privilegio | PASS | Permisos deny en OpenCode, allowlist MCP, loopback, sin shell/archivos/red, timeouts, 409 y aborto |
-| IX. No regresión | PASS por diseño | Cambios aditivos en `MainLayout`, SCSS, proxy y dependencias; no se tocan pantallas/simulaciones |
+| IX. No regresión | PASS por diseño | Cambios aditivos en `EnvolturaPaginaComponent`, SCSS, proxy y dependencias; no se tocan pantallas/simulaciones |
 | X. Pruebas focalizadas | PASS por diseño | Cinco frentes + contrato REST/MCP/OpenCode + prueba manual end-to-end |
 | XI. PowerShell | PASS por diseño | `quickstart.md` con instalación, arranque, health, pruebas y troubleshooting |
 
@@ -183,22 +183,15 @@ agentes/
     └── README.md
 
 src/
-├── components/analyst-chat/
-│   ├── AnalystChat.jsx
-│   ├── AnalystChatLauncher.jsx
-│   ├── AnalystChatPanel.jsx
-│   ├── AnalystMessageList.jsx
-│   ├── AnalystMessage.jsx
-│   ├── AnalystAnalysis.jsx
-│   ├── AnalystQuestions.jsx
-│   ├── AnalystSources.jsx
-│   ├── AnalystComposer.jsx
-│   ├── AnalystHealthBadge.jsx
-│   ├── AnalystDeleteDialog.jsx
-│   ├── AnalystMarkdown.jsx
+├── components/AsistenteAnalista/
+│   ├── AsistenteAnalistaComponent.jsx
+│   ├── LanzadorAsistenteComponent.jsx
+│   ├── PanelAsistenteComponent.jsx      # mensajes, análisis, preguntas, fuentes, composer y estado de salud
+│   ├── DialogoEliminarConversacionComponent.jsx
+│   ├── MarkdownAsistenteComponent.jsx
 │   └── __tests__/
 ├── hooks/
-│   └── useAnalystChat.js
+│   └── useAsistenteAnalista.js
 ├── services/
 │   └── analystApi.js
 ├── utils/
@@ -215,7 +208,7 @@ vitest.config.js
 
 | Archivo | Cambio | Riesgo controlado |
 |---|---|---|
-| `src/layouts/MainLayout.jsx` | Montar `<AnalystChat />` una vez | No cambia rutas ni layout existente |
+| `src/components/EnvolturaPagina/EnvolturaPaginaComponent.jsx` | Montar `<AsistenteAnalistaComponent />` una vez | No cambia rutas ni layout existente |
 | `src/styles/main.scss` | Importar `_analyst-chat.scss` | Solo estilos nuevos; variables/mixins existentes |
 | `vite.config.js` | Añadir proxy `/api/analista` → `127.0.0.1:8000` | Conserva puerto 3000 y `open: true` |
 | `package.json` / lockfile | Dependencias de Markdown, pruebas y scripts | Sin frameworks UI prohibidos |
@@ -224,7 +217,7 @@ vitest.config.js
 | `agentes/analista/prompts/sistema.md` | Ajustar la nota operativa final para exigir reinicio de OpenCode y backend | No cambia rol, misión ni JSON de salida |
 | `agentes/analista/README.md` | Crear guía del agente | Documentación |
 
-No se modifican `src/pages/NewUserStory.jsx`, `src/utils/storage.js`, las rutas, el Stepper, el Accordion, los datos mock ni las simulaciones existentes.
+No se modifican `src/components/HistoriaUsuario/CrearHistoriaUsuarioComponent.jsx`, `src/utils/storage.js`, las rutas, el Stepper, el Accordion, los datos mock ni las simulaciones existentes.
 
 ## Architecture and Integration
 
@@ -376,7 +369,7 @@ Reglas:
 
 ### Mount and UX
 
-- Un único `AnalystChat` al final de `MainLayout`; launcher fijo abajo a la derecha, `aria-expanded`/`aria-controls`.
+- Un único `AsistenteAnalistaComponent` al final de `EnvolturaPaginaComponent`; launcher fijo abajo a la derecha, `aria-expanded`/`aria-controls`.
 - El panel se mantiene montado al cerrarse; cerrar no desmonta el historial.
 - Ancho máximo en escritorio, ancho disponible en móvil; altura limitada para no cubrir el header/navegación; `safe-area-inset-bottom`.
 - No hay overflow horizontal a 360 px.
@@ -707,7 +700,7 @@ evidencias son resultados pendientes hasta que se ejecuten las tareas.
 ### Phase 5 — Frontend
 
 - Componentes, hook, API client, state machine, Markdown, tarjetas, health, errores, a11y, responsive, SCSS.
-- Proxy Vite y montaje en `MainLayout`; sin tocar pantallas.
+- Proxy Vite y montaje en `EnvolturaPaginaComponent`; sin tocar pantallas.
 - **Gate**: F-01–F-18 + build.
 
 ### Phase 6 — Observability
@@ -798,3 +791,5 @@ No se introducen TypeScript, framework UI, gestor de estado, base de datos, cola
 - `specs/002-chat-agente-analista/contracts/opencode-v2.md`
 - `specs/002-chat-agente-analista/quickstart.md`
 - OpenCode `2.0.27` API v2 (`GET /api/info` y OpenAPI oficial); LangChain 1.4.7; FastMCP 4.1.4; Langfuse 5.0.4; React Markdown 10; Remark GFM 4.
+
+**Nota de nomenclatura (actualizada):** los componentes se agrupan por funcionalidad en `src/components/<Funcionalidad>/`, con nombres en español, en singular y con sufijo `Component`; los hooks usan `use` + nombre en español (`useAsistenteAnalista`). Las vistas del panel (análisis, preguntas, fuentes, composer y estado de salud) se implementaron dentro de `PanelAsistenteComponent.jsx` en lugar de archivos separados.

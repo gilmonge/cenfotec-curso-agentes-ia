@@ -6,14 +6,14 @@ afterEach(() => {
 });
 
 describe('analystApi', () => {
-  it('requests health through the same-origin proxy without credentials or storage', async () => {
+  it('requests health through the same-origin proxy (sending the site access credentials) without storage', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: 'degraded' }), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
     const before = Object.keys(localStorage);
 
     await expect(analystApi.getHealth()).resolves.toEqual({ status: 'degraded' });
     expect(fetchMock).toHaveBeenCalledWith('/api/analista/health', expect.objectContaining({
-      credentials: 'omit',
+      credentials: 'same-origin',
       cache: 'no-store',
     }));
     expect(Object.keys(localStorage)).toEqual(before);
@@ -27,7 +27,7 @@ describe('analystApi', () => {
     await analystApi.sendMessage('3f0f5f7e-7d8a-4d3e-9f7a-1a2b3c4d5e6f', payload);
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/analista/conversaciones/3f0f5f7e-7d8a-4d3e-9f7a-1a2b3c4d5e6f/mensajes',
-      expect.objectContaining({ method: 'POST', body: JSON.stringify(payload), credentials: 'omit' }),
+      expect.objectContaining({ method: 'POST', body: JSON.stringify(payload), credentials: 'same-origin' }),
     );
   });
 
@@ -58,7 +58,7 @@ describe('analystApi', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/analista/conversaciones/conversation-id/cancelar',
-      expect.objectContaining({ keepalive: true, credentials: 'omit' }),
+      expect.objectContaining({ keepalive: true, credentials: 'same-origin' }),
     );
   });
 });
