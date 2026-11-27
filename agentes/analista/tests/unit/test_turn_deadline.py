@@ -7,7 +7,8 @@ from uuid import uuid4
 
 import pytest
 
-from agentes.analista.core import orchestrator
+from agentes.equipo.analista import analista_service as orchestrator
+from agentes.analista.core.ciclo_agente import ResultadoCiclo
 from agentes.analista.core.conversation_store import ConversationStore
 from agentes.analista.core.models import SendMessageRequest
 from agentes.analista.core.opencode_client import OpenCodeSettings
@@ -17,8 +18,8 @@ from agentes.analista.core.opencode_client import OpenCodeSettings
 async def test_total_turn_deadline_fails_turn_and_cleans_open_code_session(monkeypatch):
     lifecycle = []
 
-    async def isolated_tools(_query, _trace=None):
-        return [], [], []
+    async def isolated_tools(**_kwargs):
+        return ResultadoCiclo()
 
     class SlowOpenCodeClient:
         def __init__(self, **_kwargs):
@@ -56,7 +57,7 @@ async def test_total_turn_deadline_fails_turn_and_cleans_open_code_session(monke
         async def submit_prompt(self, _session_id, _prompt):
             await asyncio.Event().wait()
 
-    monkeypatch.setattr(orchestrator, "_execute_tools", isolated_tools)
+    monkeypatch.setattr(orchestrator, "_ejecutar_ciclo", isolated_tools)
     monkeypatch.setattr(orchestrator, "OpenCodeClient", SlowOpenCodeClient)
     monkeypatch.setattr(
         OpenCodeSettings, "from_environment", classmethod(lambda _cls: SimpleNamespace(turn_timeout_seconds=0.03))
@@ -78,8 +79,8 @@ async def test_total_turn_deadline_fails_turn_and_cleans_open_code_session(monke
 
 @pytest.mark.asyncio
 async def test_deadline_expiring_during_response_normalization_does_not_commit(monkeypatch):
-    async def isolated_tools(_query, _trace=None):
-        return [], [], []
+    async def isolated_tools(**_kwargs):
+        return ResultadoCiclo()
 
     class FastOpenCodeClient:
         async def __aenter__(self):
@@ -121,7 +122,7 @@ async def test_deadline_expiring_during_response_normalization_does_not_commit(m
         time.sleep(0.04)
         return original_normalizer(*args, **kwargs)
 
-    monkeypatch.setattr(orchestrator, "_execute_tools", isolated_tools)
+    monkeypatch.setattr(orchestrator, "_ejecutar_ciclo", isolated_tools)
     monkeypatch.setattr(orchestrator, "OpenCodeClient", FastOpenCodeClient)
     monkeypatch.setattr(orchestrator, "_to_response", slow_normalizer)
     monkeypatch.setattr(

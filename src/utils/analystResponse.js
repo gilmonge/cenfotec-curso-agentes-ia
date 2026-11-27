@@ -36,6 +36,23 @@ function validSource(source) {
     && Number.isInteger(source.duracion_ms) && source.duracion_ms >= 0;
 }
 
+const PLAN_ORIGINS = new Set(['modelo', 'predeterminado']);
+
+function validPlanQuery(query) {
+  return hasExactKeys(query, ['herramienta', 'consulta'])
+    && typeof query.herramienta === 'string' && query.herramienta.length > 0 && query.herramienta.length <= 60
+    && typeof query.consulta === 'string' && query.consulta.trim().length > 0 && Array.from(query.consulta).length <= 500;
+}
+
+function validPlanStep(step) {
+  return hasExactKeys(step, ['ronda', 'origen', 'razonamiento', 'consultas', 'asesor_consultado'])
+    && Number.isInteger(step.ronda) && step.ronda >= 1 && step.ronda <= 3
+    && PLAN_ORIGINS.has(step.origen)
+    && typeof step.razonamiento === 'string' && Array.from(step.razonamiento).length <= 800
+    && Array.isArray(step.consultas) && step.consultas.length <= 6 && step.consultas.every(validPlanQuery)
+    && typeof step.asesor_consultado === 'boolean';
+}
+
 const RESPONSE_KEYS = [
   'conversation_id', 'request_id', 'turn_id', 'estado', 'respuesta_markdown', 'analisis',
   'preguntas', 'fuentes_consultadas', 'listo_para_redactor', 'limitaciones', 'duracion_ms', 'prompt_version',
@@ -43,9 +60,22 @@ const RESPONSE_KEYS = [
 
 export function isValidAnalystResponse(value) {
   // `beneficios` es opcional: lo propone el agente y la persona analista lo edita.
-  const withBenefits = value && typeof value === 'object' && Object.hasOwn(value, 'beneficios');
-  if (!hasExactKeys(value, withBenefits ? [...RESPONSE_KEYS, 'beneficios'] : RESPONSE_KEYS)) return false;
+  // `plan_agente` es opcional: lo que el agente decidió consultar (autonomía visible).
+  const isObject = value && typeof value === 'object';
+  const withBenefits = isObject && Object.hasOwn(value, 'beneficios');
+  const withPlan = isObject && Object.hasOwn(value, 'plan_agente');
+  // `supuesto_validar_po` es opcional: vacíos que no se repreguntan a Negocio y que valida el PO.
+  const withSupuesto = isObject && Object.hasOwn(value, 'supuesto_validar_po');
+  const keys = [
+    ...RESPONSE_KEYS,
+    ...(withBenefits ? ['beneficios'] : []),
+    ...(withPlan ? ['plan_agente'] : []),
+    ...(withSupuesto ? ['supuesto_validar_po'] : []),
+  ];
+  if (!hasExactKeys(value, keys)) return false;
+  if (withSupuesto && !textList(value.supuesto_validar_po, 50, 1000)) return false;
   if (withBenefits && !textList(value.beneficios, 5, 300)) return false;
+  if (withPlan && (!Array.isArray(value.plan_agente) || value.plan_agente.length > 3 || !value.plan_agente.every(validPlanStep))) return false;
   if (![value.conversation_id, value.request_id, value.turn_id].every((id) => typeof id === 'string' && UUID4.test(id))) return false;
   if (value.estado !== 'completado') return false;
   if (typeof value.respuesta_markdown !== 'string' || value.respuesta_markdown.trim().length < 1 || Array.from(value.respuesta_markdown).length > 50_000) return false;

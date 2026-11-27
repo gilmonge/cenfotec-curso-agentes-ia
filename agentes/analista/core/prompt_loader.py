@@ -20,7 +20,7 @@ class PromptSnapshot:
 
 
 _VERSION = re.compile(r"^\*\*Versión editorial:\*\*\s*([0-9]+\.[0-9]+\.[0-9]+)\s*$", re.MULTILINE)
-DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "sistema.md"
+DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[2].parent / "agentes" / "equipo" / "analista" / "prompt.md"
 
 
 def load_prompt(path: str | Path = DEFAULT_PROMPT_PATH) -> PromptSnapshot:

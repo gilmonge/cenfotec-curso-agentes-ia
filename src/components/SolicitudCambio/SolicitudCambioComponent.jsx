@@ -8,9 +8,13 @@ import { CampoTextoComponent } from '../Comun/CampoTextoComponent';
 import { SelectorComponent } from '../Comun/SelectorComponent';
 import { AreaTextoComponent } from '../Comun/AreaTextoComponent';
 import { repositorioApi, repositorioErrorMessage } from '../../services/repositorioApi';
+import { getWorkflow, resumeWorkflow, startWorkflow, WorkflowApiError } from '../../services/workflowApi';
 import { construirRevision } from '../../utils/revisiones';
 import { rotuloCategoria } from '../../data/rotulosPregunta';
 import { SeccionesConPestanasComponent } from '../HistoriaUsuario/detalle/SeccionesConPestanasComponent';
+import { WorkflowInterruptionForm } from '../Comun/WorkflowInterruptionForm';
+import { WorkflowResultsPanel } from '../Comun/WorkflowResultsPanel';
+import '../Comun/workflow-panels.scss';
 
 // El valor interno no cambia (lo usa el checklist); la persona ve el rótulo en lenguaje natural.
 export const ROOT_CAUSES = [
@@ -31,8 +35,17 @@ export const SolicitudCambioComponent = ({ story }) => {
   const [loadError, setLoadError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [workflowSnapshot, setWorkflowSnapshot] = useState(null);
+  const [workflowError, setWorkflowError] = useState('');
+  const [workflowErrorStatus, setWorkflowErrorStatus] = useState(null);
+  const [workflowBusy, setWorkflowBusy] = useState(false);
+  const [manualFallback, setManualFallback] = useState(false);
+  const [approvedHu, setApprovedHu] = useState(null);
+  const workflowOperationRef = React.useRef(false);
+  const workflowControllerRef = React.useRef(null);
+  const submissionRef = React.useRef(false);
   const [sinVacio, setSinVacio] = useState(false);
-  const [form, setForm] = useState({ solicitud: '', causa_raiz: 'Reglas de negocio', pregunta_sugerida: '', terminos: '' });
+  const [form, setForm] = useState({ solicitud: '', clasificacion: 'aclaracion', causa_raiz: 'Reglas de negocio', pregunta_sugerida: '', terminos: '' });
 
   const loadChanges = useCallback(async () => {
     try {
@@ -44,6 +57,36 @@ export const SolicitudCambioComponent = ({ story }) => {
   }, [story.id]);
 
   useEffect(() => { void loadChanges(); }, [loadChanges]);
+  useEffect(() => () => workflowControllerRef.current?.abort(), []);
+
+  const callWorkflow = async (operation) => {
+    if (workflowOperationRef.current) return null;
+    workflowOperationRef.current = true;
+    workflowControllerRef.current?.abort();
+    const controller = new AbortController();
+    workflowControllerRef.current = controller;
+    setWorkflowBusy(true);
+    setWorkflowError('');
+    setWorkflowErrorStatus(null);
+    try {
+      return await operation(controller.signal);
+    } catch (cause) {
+      if (cause?.name === 'AbortError') return null;
+      setWorkflowError(cause instanceof WorkflowApiError ? cause.message : 'No se pudo comunicar con el workflow.');
+      setWorkflowErrorStatus(cause?.status || null);
+      return null;
+    } finally {
+      workflowOperationRef.current = false;
+      workflowControllerRef.current = null;
+      setWorkflowBusy(false);
+    }
+  };
+
+  const refreshWorkflow = async () => {
+    if (!workflowSnapshot?.workflow_id) return;
+    const result = await callWorkflow((signal) => getWorkflow(workflowSnapshot.workflow_id, { signal }));
+    if (result) setWorkflowSnapshot(result);
+  };
 
   const update = (field) => (event) => setForm((current) => ({ ...current, [field]: event.target.value }));
 
@@ -54,32 +97,81 @@ export const SolicitudCambioComponent = ({ story }) => {
       setSubmitError('Describa lo que pide Negocio.');
       return;
     }
-    if (!sinVacio && !form.pregunta_sugerida.trim()) {
-      setSubmitError('Escriba la pregunta que debió hacerse antes del grooming, o marque que no fue un vacío del análisis.');
-      return;
-    }
+    if (submissionRef.current) return;
+    submissionRef.current = true;
     setIsSending(true);
+    setSubmitError('');
+    setWorkflowError('');
+    setWorkflowErrorStatus(null);
     try {
+      if (!manualFallback) {
+        const approvedStories = await repositorioApi.listStories();
+        const realHu = approvedStories.find((item) => String(item.id) === String(story.id) && item.aprobada_en);
+        if (!realHu) {
+          setWorkflowError('La HU no aparece como aprobada en el Repositorio real. Compruebe que la HU aprobada esté sincronizada y vuelva a intentarlo.');
+          return;
+        }
+        setApprovedHu(realHu);
+        const snapshot = await callWorkflow((signal) => startWorkflow({
+          mode: 'post_grooming',
+          approved_story_id: realHu.id,
+          change_request: form.solicitud.trim(),
+        }, { signal }));
+        if (snapshot) {
+          setWorkflowSnapshot(snapshot);
+          return;
+        }
+        return;
+      }
+
       const terminos = form.terminos.split(',').map((term) => term.trim()).filter(Boolean).slice(0, 10);
-      const leccion = sinVacio ? {} : { causa_raiz: form.causa_raiz, pregunta_sugerida: form.pregunta_sugerida.trim(), terminos };
+      const needsLesson = form.clasificacion === 'cambio_alcance' && !sinVacio;
+      if (needsLesson && !form.pregunta_sugerida.trim()) {
+        setSubmitError('Escriba la pregunta que debió hacerse, o marque que no fue un vacío del análisis.');
+        return;
+      }
+      const leccion = needsLesson
+        ? { causa_raiz: form.causa_raiz, pregunta_sugerida: form.pregunta_sugerida.trim(), terminos }
+        : {};
       const solicitud = form.solicitud.trim();
-      await repositorioApi.registerChange({
-        hu_id: story.id,
-        solicitud,
-        clasificacion: 'cambio_alcance',
-        ...leccion,
-      });
-      // Un cambio de alcance siempre se analiza: se pasa directo al asistente sobre la misma HU.
-      analizarCambio(solicitud);
+      await repositorioApi.registerChange({ hu_id: story.id, solicitud, clasificacion: form.clasificacion, ...leccion });
+      if (form.clasificacion === 'cambio_alcance') analizarCambio(solicitud);
+      else {
+        setWorkflowError('La aclaración quedó registrada en el modo manual; no se abrió un análisis de alcance.');
+        await loadChanges();
+      }
     } catch (cause) {
-      setSubmitError(repositorioErrorMessage(cause));
+      if (manualFallback) setSubmitError(repositorioErrorMessage(cause));
+      else setWorkflowError(repositorioErrorMessage(cause));
     } finally {
+      submissionRef.current = false;
       setIsSending(false);
     }
   };
 
   const analizarCambio = (solicitud) => {
     navigate('/historias/nueva', { state: { prefill: construirRevision(story, solicitud), revisionDeId: story.id } });
+  };
+
+  const handleWorkflowResume = async (body) => {
+    if (!workflowSnapshot?.workflow_id || !body?.interrupt_id) return;
+    const updated = await callWorkflow((signal) => resumeWorkflow(workflowSnapshot.workflow_id, body, { signal }));
+    if (!updated) return;
+    const classification = workflowSnapshot.results?.change_recommendation?.recommendation;
+    setWorkflowSnapshot(updated);
+    if (body.kind === 'change_decision' && body.response?.decision === 'aplicar'
+      && classification === 'cambio_alcance'
+      && ['business_answers', 'po_approval'].includes(updated.interrupt?.kind)) {
+      navigate('/historias/nueva', {
+        state: {
+          workflowSnapshot: updated,
+          prefill: construirRevision(story, form.solicitud.trim()),
+          revisionDeId: story.id,
+        },
+      });
+    } else if (body.kind === 'change_decision') {
+      await loadChanges();
+    }
   };
 
   return (
@@ -94,65 +186,86 @@ export const SolicitudCambioComponent = ({ story }) => {
             contenido: (
               <TarjetaComponent
                 title="Después del grooming — Solicitudes de cambio"
-                subtitle="Un cambio de alcance siempre se vuelve a analizar: al registrar la solicitud se abre el análisis de la misma HU. Para corregir redacción o datos mal escritos use Editar."
+                subtitle="El Gestor de Cambios clasifica la solicitud con base en la HU aprobada real. Una decisión humana acepta, rechaza o devuelve la recomendación."
               >
-      <form onSubmit={handleSubmit}>
-        <AreaTextoComponent
-          label="Solicitud de cambio"
-          id="change-request"
-          required
-          rows={3}
-          value={form.solicitud}
-          onChange={update('solicitud')}
-          placeholder="Qué pide Negocio que cambie respecto a la HU aprobada..."
-          hint="Anonimice los datos personales antes de escribir."
-        />
+                {workflowSnapshot ? (
+                  <div>
+                    <AlertaComponent type="info" title="Workflow de cambio activo en memoria">
+                      El workflow usa un checkpoint temporal del backend. Si se reinicia el proceso, el checkpoint se pierde; consulte el estado o inicie otro flujo. No se guarda el identificador en localStorage.
+                      {approvedHu && <p>HU aprobada del Repositorio: <strong>{approvedHu.titulo}</strong> ({approvedHu.id})</p>}
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.6rem', flexWrap: 'wrap' }}>
+                        <BotonComponent variant="secondary" onClick={refreshWorkflow} disabled={workflowBusy}>Consultar estado</BotonComponent>
+                        <BotonComponent variant="secondary" onClick={() => setWorkflowSnapshot(null)} disabled={workflowBusy}>Iniciar solicitud nueva</BotonComponent>
+                      </div>
+                    </AlertaComponent>
 
-        <label style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start', margin: '0.5rem 0 1rem', fontSize: '0.95rem' }}>
-          <input id="change-sin-vacio" type="checkbox" checked={sinVacio} onChange={(event) => setSinVacio(event.target.checked)} style={{ marginTop: '0.2rem' }} />
-          <span>No fue un vacío del análisis: Negocio cambió de decisión</span>
-        </label>
+                    {workflowError && <AlertaComponent type={workflowErrorStatus === 404 ? 'warning' : 'danger'} title={workflowErrorStatus ? `Workflow: HTTP ${workflowErrorStatus}` : 'Workflow no disponible'}>{workflowError}{workflowErrorStatus === 404 && <p>El checkpoint no se recuperó; inicie un flujo nuevo.</p>}</AlertaComponent>}
+                    {workflowSnapshot.results?.change_recommendation && (
+                      <div className="workflow-results__card">
+                        <h3>Recomendación del Gestor de Cambios: {workflowSnapshot.results.change_recommendation.recommendation}</h3>
+                        <p><strong>Justificación:</strong> {workflowSnapshot.results.change_recommendation.rationale}</p>
+                        <h4>Comparación con la HU aprobada</h4>
+                        <ul>{workflowSnapshot.results.change_recommendation.comparison.map((item, index) => (
+                          <li key={`${item.approved_excerpt}-${index}`}><strong>HU:</strong> {item.approved_excerpt} · <strong>Solicitud:</strong> {item.request_excerpt} · {item.explanation}</li>
+                        ))}</ul>
+                        <h4>Impacto</h4>
+                        <ul>{workflowSnapshot.results.change_recommendation.impact.map((item) => <li key={item}>{item}</li>)}</ul>
+                        {!!workflowSnapshot.results.change_recommendation.uncertainties?.length && <><h4>Incertidumbres</h4><ul>{workflowSnapshot.results.change_recommendation.uncertainties.map((item) => <li key={item}>{item}</li>)}</ul></>}
+                        {!!workflowSnapshot.results.change_recommendation.lessons_proposed?.length && <><h4>Lecciones propuestas (no aprobadas)</h4><ul>{workflowSnapshot.results.change_recommendation.lessons_proposed.map((item, index) => <li key={`${item.suggested_question}-${index}`}>{item.suggested_question}</li>)}</ul></>}
+                      </div>
+                    )}
+                    <WorkflowResultsPanel results={workflowSnapshot.results} showStory={false} />
+                    {workflowSnapshot.interrupt?.kind === 'change_decision' ? (
+                      <WorkflowInterruptionForm interrupt={workflowSnapshot.interrupt} onResume={handleWorkflowResume} busy={workflowBusy} error={workflowError} />
+                    ) : workflowSnapshot.results?.change_persistence_result ? (
+                      <AlertaComponent type={workflowSnapshot.results.change_persistence_result.status === 'recorded' ? 'success' : 'warning'} title="Decisión registrada">
+                        {workflowSnapshot.results.completion_reason || workflowSnapshot.results.change_persistence_result.status}
+                      </AlertaComponent>
+                    ) : <AlertaComponent type="info" title="Workflow en ejecución">{workflowSnapshot.results?.completion_reason || `Etapa: ${workflowSnapshot.stage}.`}</AlertaComponent>}
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    <AlertaComponent type="info" title="Los workflows no se recuperan automáticamente">
+                      El identificador no se guarda en localStorage y el checkpoint vive en memoria del backend. Si perdió el estado, inicie una solicitud nueva; la interfaz no recupera checkpoints después de un reinicio.
+                    </AlertaComponent>
+                    {workflowError && <AlertaComponent type={workflowErrorStatus === 404 ? 'warning' : 'danger'} title={workflowErrorStatus ? `Workflow: HTTP ${workflowErrorStatus}` : 'Workflow no disponible'}>
+                      {workflowError}
+                      {!manualFallback && <div style={{ marginTop: '0.6rem' }}><BotonComponent type="button" variant="secondary" onClick={() => setManualFallback(true)}>Continuar en modo manual</BotonComponent></div>}
+                    </AlertaComponent>}
+                    {manualFallback && <AlertaComponent type="warning" title="Modo manual alternativo">
+                      La recomendación automática no se pudo obtener. Elija la clasificación según la solicitud. Las aclaraciones no requieren cambio de alcance; el análisis de revisión se abre solo para cambio_alcance.
+                    </AlertaComponent>}
+                    <AreaTextoComponent label="Solicitud de cambio" id="change-request" required rows={3} value={form.solicitud} onChange={update('solicitud')} placeholder="Qué pide Negocio que cambie respecto a la HU aprobada..." hint="Anonimice los datos personales antes de escribir." />
 
-        {!sinVacio && (
-          <>
-            <div className="grid-2">
-              <SelectorComponent
-                label="¿Qué no se preguntó a tiempo?"
-                id="change-cause"
-                required
-                options={ROOT_CAUSES}
-                value={form.causa_raiz}
-                onChange={update('causa_raiz')}
-                hint="El tipo de vacío que no se detectó antes de redactar la HU."
-              />
-              <CampoTextoComponent
-                label="Términos clave (opcional, separados por coma)"
-                id="change-terms"
-                value={form.terminos}
-                onChange={update('terminos')}
-                placeholder="Ej. endoso, vigencia"
-              />
-            </div>
-            <AreaTextoComponent
-              label="Pregunta que debió hacerse antes del grooming"
-              id="change-lesson"
-              required
-              rows={2}
-              value={form.pregunta_sugerida}
-              onChange={update('pregunta_sugerida')}
-              hint="Quedará como lección propuesta; solo entra al checklist si el Product Owner la aprueba en Lecciones."
-            />
-          </>
-        )}
+                    {manualFallback && <>
+                      <SelectorComponent
+                        label="Clasificación manual"
+                        id="change-classification"
+                        options={[{ value: 'aclaracion', label: 'Aclaración' }, { value: 'cambio_alcance', label: 'Cambio de alcance' }]}
+                        value={form.clasificacion}
+                        onChange={update('clasificacion')}
+                      />
+                      {form.clasificacion === 'cambio_alcance' && <>
+                        <label style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start', margin: '0.5rem 0 1rem', fontSize: '0.95rem' }}>
+                          <input id="change-sin-vacio" type="checkbox" checked={sinVacio} onChange={(event) => setSinVacio(event.target.checked)} style={{ marginTop: '0.2rem' }} />
+                          <span>No fue un vacío del análisis: Negocio cambió de decisión</span>
+                        </label>
+                        {!sinVacio && <div className="grid-2">
+                          <SelectorComponent label="¿Qué no se preguntó a tiempo?" id="change-cause" required options={ROOT_CAUSES} value={form.causa_raiz} onChange={update('causa_raiz')} />
+                          <CampoTextoComponent label="Términos clave (opcional, separados por coma)" id="change-terms" value={form.terminos} onChange={update('terminos')} placeholder="Ej. endoso, vigencia" />
+                        </div>}
+                        {!sinVacio && <AreaTextoComponent label="Pregunta que debió hacerse antes del grooming" id="change-lesson" required rows={2} value={form.pregunta_sugerida} onChange={update('pregunta_sugerida')} hint="Quedará propuesta; no se aprueba automáticamente." />}
+                      </>}
+                    </>}
 
-        {submitError && <AlertaComponent type="danger" title="No se pudo registrar">{submitError}</AlertaComponent>}
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-          <BotonComponent type="submit" variant="primary" icon={Send} disabled={isSending}>
-            {isSending ? 'Registrando...' : 'Registrar y analizar cambio'}
-          </BotonComponent>
-        </div>
-      </form>
+                    {submitError && <AlertaComponent type="danger" title="No se pudo registrar">{submitError}</AlertaComponent>}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                      <BotonComponent type="submit" variant="primary" icon={Send} disabled={isSending || workflowBusy}>
+                        {isSending || workflowBusy ? 'Iniciando...' : manualFallback ? 'Registrar decisión manual' : 'Analizar con Gestor de Cambios'}
+                      </BotonComponent>
+                    </div>
+                  </form>
+                )}
               </TarjetaComponent>
             ),
           },

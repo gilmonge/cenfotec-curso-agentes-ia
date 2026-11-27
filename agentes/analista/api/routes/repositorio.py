@@ -6,6 +6,8 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Path, Query, Request, Response, status
 from pydantic import BaseModel, ConfigDict, Field
 
+from agentes.analista.api.sesion import requiere_accion
+from agentes.seguridad.catalogo import ACCION
 from agentes.analista.memory.repositorio import RepositorioError, RepositorioHU, detect_personal_data
 
 router = APIRouter()
@@ -90,7 +92,8 @@ def _reject_personal_data(*texts: str) -> None:
         )
 
 
-@router.post("/repositorio/historias", response_model=HuOut, status_code=status.HTTP_201_CREATED)
+@router.post("/repositorio/historias", response_model=HuOut, status_code=status.HTTP_201_CREATED,
+             dependencies=[requiere_accion(ACCION.HISTORIA_APROBAR, ACCION.HISTORIA_EDITAR)])
 def guardar_historia(payload: HuIn, request: Request) -> dict:
     texts = [
         payload.titulo, payload.requerimiento, payload.historia.asA, payload.historia.iWant, payload.historia.soThat,
@@ -102,29 +105,31 @@ def guardar_historia(payload: HuIn, request: Request) -> dict:
     return _repo(request).guardar_hu(data)
 
 
-@router.get("/repositorio/historias", response_model=list[HuOut])
+@router.get("/repositorio/historias", response_model=list[HuOut], dependencies=[requiere_accion(ACCION.HISTORIA_VER)])
 def listar_historias(request: Request) -> list[dict]:
     return _repo(request).listar_hu()
 
 
-@router.delete("/repositorio/historias/{hu_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/repositorio/historias/{hu_id}", status_code=status.HTTP_204_NO_CONTENT,
+               dependencies=[requiere_accion(ACCION.HISTORIA_ELIMINAR)])
 def eliminar_historia(hu_id: Annotated[str, Path(pattern=_GUID)], request: Request) -> Response:
     _repo(request).eliminar_hu(hu_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/repositorio/cambios", response_model=CambioOut, status_code=status.HTTP_201_CREATED)
+@router.post("/repositorio/cambios", response_model=CambioOut, status_code=status.HTTP_201_CREATED,
+             dependencies=[requiere_accion(ACCION.CAMBIO_SOLICITAR)])
 def registrar_cambio(payload: CambioIn, request: Request) -> dict:
     _reject_personal_data(payload.solicitud, payload.pregunta_sugerida or "", *payload.terminos)
     return _repo(request).registrar_cambio(**payload.model_dump())
 
 
-@router.get("/repositorio/cambios")
+@router.get("/repositorio/cambios", dependencies=[requiere_accion(ACCION.HISTORIA_VER)])
 def listar_cambios(request: Request, hu_id: Annotated[str | None, Query(pattern=_GUID)] = None) -> list[dict]:
     return _repo(request).listar_cambios(hu_id)
 
 
-@router.get("/repositorio/lecciones")
+@router.get("/repositorio/lecciones", dependencies=[requiere_accion(ACCION.LECCION_VER)])
 def listar_lecciones(
     request: Request,
     estado: Annotated[Literal["propuesta", "aprobada", "rechazada"] | None, Query()] = None,
@@ -132,6 +137,6 @@ def listar_lecciones(
     return _repo(request).listar_lecciones(estado)
 
 
-@router.post("/repositorio/lecciones/{leccion_id}/decision")
+@router.post("/repositorio/lecciones/{leccion_id}/decision", dependencies=[requiere_accion(ACCION.LECCION_DECIDIR)])
 def decidir_leccion(leccion_id: Annotated[str, Path(pattern=_GUID)], payload: DecisionIn, request: Request) -> dict:
     return _repo(request).decidir_leccion(leccion_id, payload.decision)

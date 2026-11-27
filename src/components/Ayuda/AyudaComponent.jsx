@@ -5,6 +5,7 @@ import { TarjetaItemsAyudaComponent } from './TarjetaItemsAyudaComponent';
 import { AgenteAyudaComponent } from './AgenteAyudaComponent';
 import { EjemploHuAyudaComponent } from './EjemploHuAyudaComponent';
 import { EquipoAyudaComponent } from './EquipoAyudaComponent';
+import { ArquitecturaAyudaComponent } from './ArquitecturaAyudaComponent';
 import {
   ACCIONES_HISTORIA, NAVEGACION_ASISTENTE, PASOS_ASISTENTE, PENDIENTES, TECNOLOGIAS,
 } from '../../data/ayudaDocumentacion';
@@ -37,20 +38,21 @@ const SECCIONES = [
       />
     ),
   },
-  { id: 'agente', titulo: 'El agente Analista', contenido: <AgenteAyudaComponent /> },
+  { id: 'agente', titulo: 'Los agentes', contenido: <AgenteAyudaComponent /> },
   { id: 'ejemplo', titulo: 'Ejemplo de HU generada', contenido: <EjemploHuAyudaComponent /> },
   {
     id: 'tecnologias',
     titulo: 'Tecnologías',
     contenido: <TarjetaItemsAyudaComponent title="Con qué está hecha la aplicación" items={TECNOLOGIAS} />,
   },
+  { id: 'arquitectura', titulo: 'Arquitectura', contenido: <ArquitecturaAyudaComponent /> },
   {
     id: 'pendientes',
     titulo: 'Por definir',
     contenido: (
       <TarjetaItemsAyudaComponent
         title="Lo que falta definir"
-        subtitle="Propuestas y decisiones pendientes: aprobación, roles y usuarios, entre otras"
+        subtitle="Propuestas y decisiones pendientes: roles y permisos, usuarios y aviso al Product Owner, entre otras"
         items={PENDIENTES}
       />
     ),
@@ -62,7 +64,7 @@ export const AyudaComponent = () => (
   <div>
     <TituloPaginaComponent
       title="Centro de Ayuda y Documentación"
-      description="Cómo funciona el sistema de Historias de Usuario. Para dudas puntuales, use el chat de ayuda (botón naranja, abajo a la derecha)."
+      description="Cómo funciona el sistema de Historias de Usuario. Para dudas puntuales, use el chat de ayuda (botón «¿Cómo se usa?», abajo a la derecha)."
     />
     <SeccionesConPestanasComponent etiqueta="Secciones de la ayuda" inicial="asistente" secciones={SECCIONES} />
   </div>

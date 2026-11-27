@@ -20,7 +20,7 @@
   padding: 0.65rem 1rem;
   border: 0;
   border-radius: 999px;
-  background: #6f3fa0;
+  background: var(--color-primary);
   color: #fff;
   box-shadow: 0 8px 24px rgba(51, 51, 51, 0.24);
   font: inherit;
@@ -29,7 +29,7 @@
   transition: background-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 
   &:hover {
-    background: #5a3382;
+    background: var(--color-primary-hover);
     transform: translateY(-1px);
   }
 
@@ -104,7 +104,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 
-  button:last-child { border-color: #b3261e; background: #b3261e; color: #fff; }
+  button:last-child { border-color: var(--color-danger-text); background: var(--color-danger-text); color: #fff; }
 }
 
 .analyst-chat-panel__header {
@@ -365,16 +365,16 @@
   padding: 0.45rem 0.85rem;
   border: 0;
   border-radius: 0.65rem;
-  background: #6f3fa0;
+  background: var(--color-primary);
   color: #fff;
   font: inherit;
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
 
-  &:disabled { background: #666666; cursor: not-allowed; }
+  &:disabled { background: var(--color-text-muted); cursor: not-allowed; }
   &:focus-visible { outline: 3px solid var(--color-secondary-border); outline-offset: 2px; }
-  &--cancel { background: #b3261e; }
+  &--cancel { background: var(--color-danger-text); }
 }
 
 .analyst-chat-composer__error,

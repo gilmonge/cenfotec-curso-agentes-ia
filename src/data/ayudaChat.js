@@ -9,12 +9,12 @@ export const PREGUNTAS_AYUDA = [
     pregunta: '¿Cómo creo una historia?',
     texto: 'Para crear una historia de usuario:',
     pasos: [
-      'Entre a "Nueva Historia" en el menú superior.',
+      'Entre a "Nueva historia" en el menú superior.',
       'Complete el requerimiento: título, tipo de información, sistema, área solicitante y descripción.',
-      'Pulse el análisis para que el Agente Analista revise el requerimiento.',
-      'Responda las preguntas que genere el agente, con la información que le dé Negocio.',
-      'Revise el borrador (Como / Quiero / Para) y los criterios de aceptación.',
-      'Guarde la historia. Quedará en la lista de Historias de Usuario.',
+      'Pulse «Analizar Requerimiento» para que el Agente Analista lo revise.',
+      'Lleve a Negocio, en una sola ronda, las preguntas del Analista y las decisiones del Asesor Técnico, y registre las respuestas.',
+      'Revise la historia (Como / Quiero / Para) y los criterios que redactó el Redactor-Revisor.',
+      'El Product Owner la aprueba y queda en el Repositorio de HU.',
     ],
   },
   {
@@ -65,10 +65,22 @@ export const PREGUNTAS_AYUDA = [
       'Para corregir redacción o datos mal escritos use Editar: se guarda en el lugar y queda registrado quién y cuándo. Si Negocio pide algo distinto, use Solicitar cambio (ícono de acciones del listado, en historias aprobadas): se vuelve a analizar y, si faltó una pregunta, se propone una lección aprendida (LEC-001, LEC-002…) para análisis futuros.',
   },
   {
+    id: 'retomar',
+    pregunta: '¿Puedo dejar una historia a medias y seguir otro día?',
+    texto:
+      'Sí. Cada vez que el flujo espera una respuesta, el avance se guarda. Vaya a Historias de Usuario: arriba, en «En proceso», pulse Retomar y se abre en el paso donde quedó. En las preguntas puede usar «Guardar sin enviar» para dejar respuestas a medias.',
+  },
+  {
+    id: 'impacto',
+    pregunta: '¿Qué es el impacto en otros módulos?',
+    texto:
+      'El Asesor Técnico revisa el código del sistema justo después del primer análisis del Analista y explica, sin detalle técnico, qué otras funciones afecta el cambio (por ejemplo, una carga masiva o un reporte). Se muestra en el paso 3, junto con las decisiones que Negocio debe tomar, en la misma ronda que las preguntas del Analista. La historia se redacta después, ya con esos impactos como criterios.',
+  },
+  {
     id: 'datos',
     pregunta: '¿Puedo usar datos reales del negocio?',
     texto:
-      'No. Las fuentes del agente son simuladas o anonimizadas. Anonimice cualquier dato personal antes de escribirlo.',
+      'No. Las fuentes de los agentes y el código que revisa el Asesor Técnico son de ejemplo o anonimizados. Anonimice cualquier dato personal antes de escribirlo.',
   },
   {
     id: 'guardado',
@@ -76,10 +88,28 @@ export const PREGUNTAS_AYUDA = [
     texto:
       'En la base de datos del sistema, por lo que las ve todo el equipo desde cualquier navegador. El navegador solo guarda una copia temporal para mostrarlas más rápido.',
   },
+  {
+    id: 'arquitectura',
+    pregunta: '¿Cómo está construido el sistema?',
+    texto:
+      'Por capas (interfaz, API, orquestación, agentes, herramientas y datos) y con registros: cada agente es una carpeta con su definición, y las pantallas salen de un registro único. Así, agregar un agente o una pantalla se hace en un solo lugar. El detalle está en Ayuda → Arquitectura.',
+  },
+  {
+    id: 'pendientes',
+    pregunta: '¿Dónde veo lo que tengo por aprobar?',
+    texto:
+      'En Pendientes, en el menú: el número indica cuántas cosas esperan su decisión o tiene avisos sin leer. El Product Owner ve las historias por aprobar; quien creó una historia ve si fue aprobada, devuelta con su motivo o rechazada.',
+  },
+  {
+    id: 'mantenimiento',
+    pregunta: '¿Cómo doy permisos a una persona?',
+    texto:
+      'En Mantenimiento (solo para administradores). En Usuarios se busca a la persona y se le marcan sus roles; en Roles se elige un rol y se marcan sus acciones, por ejemplo Aprobar historia. El cambio aplica de inmediato. Solo quien tenga la acción de aprobar ve la opción Aprobar en el paso 5.',
+  },
 ];
 
 // Preguntas que se ofrecen como botones al abrir el chat.
-export const SUGERENCIA_INICIAL = ['crear', 'codigo', 'criterios', 'reanalisis'];
+export const SUGERENCIA_INICIAL = ['crear', 'retomar', 'impacto', 'codigo'];
 
 export const TEXTO_SIN_COINCIDENCIA =
   'No tengo una respuesta fija para eso. Este asistente solo responde las preguntas de la lista; elija una de ellas.';

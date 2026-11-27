@@ -1,4 +1,4 @@
-// Funciones puras que conectan el wizard "Nueva Historia" con el Agente Analista.
+// Funciones puras que conectan el wizard "Nueva historia" con el Agente Analista.
 // Traducen lo que escribe la persona a mensajes del agente y lo que responde el agente
 // a los datos que muestran los pasos 2 y 3.
 

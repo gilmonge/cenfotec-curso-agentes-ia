@@ -172,6 +172,10 @@ describe('AnalystChat shell', () => {
       listo_para_redactor: false,
       duracion_ms: 1250,
       prompt_version: '1.0.0',
+      plan_agente: [{
+        ronda: 1, origen: 'modelo', razonamiento: 'Confirmo el término póliza.',
+        consultas: [{ herramienta: 'consultar_glosario', consulta: 'póliza' }], asesor_consultado: true,
+      }],
     });
     renderAt('/');
 
@@ -189,6 +193,10 @@ describe('AnalystChat shell', () => {
     expect(screen.getByText(/Pendiente de aclaraciones/)).toBeInTheDocument();
     expect(screen.getByText(/consultar_glosario: 2 resultados · 8 ms/)).toBeInTheDocument();
     expect(screen.getByText(/Duración: 1250 ms/)).toBeInTheDocument();
+    expect(screen.getByText('Cómo trabajó el agente')).toBeInTheDocument();
+    expect(screen.getByText(/Confirmo el término póliza/)).toBeInTheDocument();
+    expect(screen.getByText(/Glosario de seguros: «póliza»/)).toBeInTheDocument();
+    expect(screen.getByText('Consultó al Asesor Técnico.')).toBeInTheDocument();
     expect(analystApi.createConversation).toHaveBeenCalledOnce();
     expect(analystApi.sendMessage).toHaveBeenCalledWith(
       '3f0f5f7e-7d8a-4d3e-9f7a-1a2b3c4d5e6f',

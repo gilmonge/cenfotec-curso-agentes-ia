@@ -1,0 +1,113 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+// Marca «Ciruela corporativa»: ajustes de componentes que se cargan después del resto para que la marca
+// mande. Reglas completas en docs/marca.md y en la skill «marca-diseno». No cambies colores aquí:
+// los colores son variables de _theme.scss.
+
+// Botones: peso medio, sin sombras de color. Una sola acción principal (btn--primary) por pantalla.
+.btn {
+  font-weight: 500;
+  min-height: 40px;
+  padding: 0.55rem 1rem;
+
+  &--primary:hover:not(:disabled) { box-shadow: none; }
+  &--outline { border-color: $color-border-dark; color: $color-text-primary; }
+  &--outline:hover:not(:disabled) { background-color: $color-surface-hover; }
+  &--sm { min-height: 32px; padding: 0.3rem 0.7rem; }
+  &--lg { min-height: 44px; padding: 0.7rem 1.4rem; }
+
+  // Táctil: al menos 44 px.
+  @include tablet { min-height: 44px; }
+}
+
+// Tarjetas: borde fino, radio 8, sin sombra al pasar el puntero (la estructura se siente, no se ve).
+.card, .metric-card {
+  border-radius: $radius-md;
+  box-shadow: none;
+
+  &:hover { box-shadow: none; }
+}
+
+.card__title { font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+
+// Insignias de estado: rectángulo suave, texto de 12 px, sin mayúsculas forzadas.
+.badge {
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.55rem;
+  text-transform: none;
+}
+
+// Campos: 40 px de alto, borde visible (3:1) y foco morado.
+.input, .select {
+  min-height: 40px;
+  border-radius: $radius-sm;
+
+  @include mobile { font-size: 16px; }
+}
+
+.textarea { border-radius: $radius-sm; @include mobile { font-size: 16px; } }
+
+.form-group label { font-size: 0.8125rem; font-weight: 500; }
+
+// Avisos: borde a la izquierda solo con el color del significado.
+.alert { border-radius: $radius-md; }
+
+// Indicador de pasos: barras planas, el activo en morado.
+.stepper {
+  box-shadow: none;
+  border-radius: $radius-md;
+
+  &__number { font-weight: 600; border-width: 1px; }
+  &__label { font-weight: 500; }
+  &__item--active .stepper__label { font-weight: 600; }
+}
+
+// Títulos de página.
+.page-title__heading { letter-spacing: -0.02em; }
+
+// Tablas de datos: encabezado claro, filas con divisor suave, números tabulares.
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+.mantenimiento__tabla th {
+  background-color: $color-surface-alt;
+  color: $color-text-muted;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+// Códigos (HU-POL-001, LEC-001): siempre en la fuente monoespaciada.
+.codigo, .hu-codigo { font-family: $font-mono; }
+
+// Inicio: bienvenida sobria.
+.tablero-bienvenida {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background-color: $color-surface;
+  border: 1px solid $color-border;
+  border-left: 3px solid $color-primary;
+  border-radius: 0 $radius-md $radius-md 0;
+
+  &__titulo { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 0.25rem; }
+  &__texto { font-size: 0.9rem; color: $color-text-secondary; }
+}
+
+// Ventanas modales: radio 12, sombra solo para separar del fondo.
+.modal-content { border-radius: $radius-lg; }
+
+// Móvil: los botones flotantes de chat suben sobre la barra inferior del menú.
+@include mobile {
+  .help-chat { bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); }
+  body:has(.analyst-chat) .help-chat { bottom: calc(9rem + env(safe-area-inset-bottom, 0px)); }
+  .analyst-chat { bottom: 5rem; }
+  .footer { padding-bottom: 5.5rem; }
+}

@@ -254,6 +254,25 @@ class ConversationStore:
             turn = self._get_active_turn(record, turn_id, generation)
             turn.opencode_session_id = session_id
 
+    async def restaurar(self, conversation_id: UUID, mensaje: str, respuesta: AgentTurnResponse) -> None:
+        """Siembra una conversación nueva con el último turno de un flujo retomado.
+
+        La conversación del Analista vive en memoria con expiración. Cuando un flujo se retoma otro día, el
+        backend crea una conversación nueva y le devuelve el análisis y las preguntas guardadas en el flujo,
+        para que el Analista continúe con el mismo contexto.
+        """
+        async with self._guard(conversation_id) as record:
+            now = self._now()
+            record.context_turns = [CompletedTurn(
+                turn_id=respuesta.turn_id, request_id=respuesta.request_id, message=mensaje[:4000] or "(sin texto)",
+                response=respuesta.model_copy(deep=True), completed_at=now,
+            )]
+            record.analysis = respuesta.analisis.model_copy(deep=True)
+            record.questions = [item.model_copy(deep=True) for item in respuesta.preguntas]
+            record.previous_summary = _summarize_state(record.analysis, record.questions)
+            record.turns_count = 1
+            self._touch(record, now)
+
     async def complete_turn(
         self,
         conversation_id: UUID,

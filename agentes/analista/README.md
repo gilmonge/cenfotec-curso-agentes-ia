@@ -1,6 +1,6 @@
 # Agente Analista de Requerimientos
 
-Backend local de solo lectura para la feature `002-chat-agente-analista`.
+Backend del Agente Analista y workflows multiagente LangGraph. Los workflows siguen en modo experimental en `feat/sistema-multiagente-rag`; T001/T002 continúan pendientes de ratificación formal.
 
 ## Arquitectura
 
@@ -65,3 +65,11 @@ node .\scripts\diagnostics\validate-feature-docs.mjs
 Los tests usan dobles para aislar errores y contratos; no equivalen a una generación real. Consulta el [progreso y la evidencia](../../specs/002-chat-agente-analista/evidence/implementation-progress.md) para los resultados actuales y bloqueantes de aceptación.
 
 Para detener servicios, usa `Ctrl+C` en sus terminales. El apagado del backend elimina las conversaciones que conserva en memoria.
+
+## Workflows experimentales y UI
+
+En `feat/sistema-multiagente-rag`, FastAPI también monta `POST /api/workflows`, `GET /api/workflows/{workflow_id}` y `POST /api/workflows/{workflow_id}/resume`. El runtime y sus checkpoints viven en memoria del proceso; después de reiniciar el backend hay que iniciar un flujo nuevo. React no conserva `workflow_id` en `localStorage` y envía el `interrupt_id` exacto al reanudar.
+
+Para la prueba manual, inicia OpenCode, FastAPI y Vite con `npm run iniciar`, abre `http://localhost:3000`, crea una HU y completa las respuestas de Negocio. Después, desde una HU aprobada, abre Solicitar cambio para probar post-grooming. El botón de decisión pide confirmación; la autenticación Basic compartida no demuestra la identidad individual del PO.
+
+Las pruebas de workflow y recuperación usan dobles y no contactan servicios externos. En esta rama, el backend experimental incluye recuperación Pinecone con fallback local y una CLI de ingesta; no se ha ejecutado ingesta real durante esta tarea. Las fuentes de demostración siguen siendo ficticias. La configuración de Pinecone vive exclusivamente en el entorno del backend: no declares búsquedas Pinecone cuando el resultado indique `backend=local` o `backend=none`, y no configures secretos en el frontend. Consulta [la guía del paquete de conocimiento](../conocimiento/README.md).

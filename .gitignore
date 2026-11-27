@@ -51,3 +51,10 @@ playwright-report/
 # Repositorio de HU (memoria de largo plazo, datos locales)
 agentes/analista/data/*.db
 agentes/analista/data/*.db-*
+
+# Repositorio de código del Asesor Técnico (se descarga al arrancar; no se versiona)
+repositorio_codigo/
+.repositorio_codigo_*/
+
+# Entorno virtual local
+.venv/

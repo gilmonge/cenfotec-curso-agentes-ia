@@ -4,6 +4,7 @@ import { MarkdownAsistenteComponent } from './MarkdownAsistenteComponent';
 import { DialogoEliminarConversacionComponent } from './DialogoEliminarConversacionComponent';
 import { quotaRecoveryMessage, quotaRemainingSeconds } from '../../utils/quotaRecovery.js';
 import { rotuloCategoria } from '../../data/rotulosPregunta';
+import { PlanAgenteComponent } from '../Comun/PlanAgenteComponent';
 
 const MESSAGE_LIMIT = 4000;
 
@@ -74,6 +75,7 @@ function AnalysisDetails({ response }) {
           ))}</ul>
         </details>
       )}
+      <PlanAgenteComponent plan={response.plan_agente} />
       {response.fuentes_consultadas?.length > 0 && (
         <ul className="analyst-chat-message__sources" aria-label="Fuentes consultadas">
           {response.fuentes_consultadas.map((source) => (

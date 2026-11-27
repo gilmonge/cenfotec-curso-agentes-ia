@@ -18,6 +18,13 @@ vi.mock('../../../services/analystApi.js', () => ({
   },
 }));
 
+vi.mock('../../../services/workflowApi.js', () => ({
+  startWorkflow: vi.fn().mockRejectedValue(new Error('Workflow no configurado en la prueba legacy')),
+  getWorkflow: vi.fn(),
+  resumeWorkflow: vi.fn(),
+  WorkflowApiError: class WorkflowApiError extends Error {},
+}));
+
 vi.mock('../../../services/repositorioApi.js', async (importOriginal) => {
   const actual = await importOriginal();
   return {
@@ -109,7 +116,7 @@ describe('wizard conectado al Agente Analista', () => {
     expect(screen.getByText(/Glosario \(1\)/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Preguntas a Negocio \(1\)/i }));
-    expect(screen.getByText(/Quedan 1 preguntas pendientes/i)).toBeInTheDocument();
+    expect(screen.getByText(/Queda 1 pregunta pendiente/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Enviar respuestas al agente/i })).toBeDisabled();
 
     await user.type(screen.getByPlaceholderText(/Escriba aquí la respuesta de Negocio/i), 'Desde la próxima renovación');
@@ -120,7 +127,7 @@ describe('wizard conectado al Agente Analista', () => {
     expect(analystApi.createConversation).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole('button', { name: /Generar Historia de Usuario/i }));
-    expect(await screen.findByText(/Borrador simulado: edítelo antes de continuar/i, {}, { timeout: 4000 })).toBeInTheDocument();
+    expect((await screen.findAllByText(/Borrador simulado: edítelo antes de continuar/i, {}, { timeout: 4000 })).length).toBeGreaterThan(0);
     await user.click(screen.getByRole('button', { name: /Aprobación del Product Owner/i }));
 
     const approve = await screen.findByRole('button', { name: /Aprobar y guardar en el Repositorio/i });
@@ -140,20 +147,15 @@ describe('wizard conectado al Agente Analista', () => {
     const saved = stored.find((story) => story.id === payload.id);
     expect(saved.status).toBe('aprobada');
     expect(saved.repositorySynced).toBe(true);
-  });
+  }, 10000);
 
   it('no permite aprobar con preguntas pendientes y guarda un borrador', async () => {
     const user = userEvent.setup();
     renderAt('/historias/nueva');
     await analyzeRequirement(user);
     await user.click(screen.getByRole('button', { name: /Preguntas a Negocio/i }));
-    await user.click(screen.getByRole('button', { name: /Continuar con preguntas pendientes/i }));
-    await screen.findByText(/edítelo antes de continuar/i, {}, { timeout: 4000 });
-    await user.click(screen.getByRole('button', { name: /Aprobación del Product Owner/i }));
-
-    expect(await screen.findByText(/No se puede aprobar con preguntas pendientes/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Aprobar y guardar en el Repositorio/i })).toBeDisabled();
-    await user.click(screen.getByRole('button', { name: /Guardar borrador/i }));
+    expect(screen.getByRole('button', { name: /Generar Historia de Usuario/i })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: /Guardar borrador pendiente/i }));
     await waitFor(() => {
       const stored = JSON.parse(localStorage.getItem('historias_usuario_prototipo'));
       expect(stored[0].status).toBe('pendiente_de_informacion');
@@ -173,7 +175,7 @@ describe('wizard conectado al Agente Analista', () => {
     await user.click(screen.getByRole('button', { name: /Enviar respuestas al agente/i }));
     await screen.findByText(/No quedan vacíos relevantes/i);
     await user.click(screen.getByRole('button', { name: /Generar Historia de Usuario/i }));
-    await screen.findByText(/edítelo antes de continuar/i, {}, { timeout: 4000 });
+    await screen.findAllByText(/edítelo antes de continuar/i, {}, { timeout: 4000 });
     await user.click(screen.getByRole('button', { name: /Aprobación del Product Owner/i }));
     expect(screen.queryByText(/No se puede aprobar con preguntas pendientes/)).not.toBeInTheDocument();
     await user.click(await screen.findByRole('checkbox'));
@@ -229,9 +231,12 @@ describe('después del grooming', () => {
     renderAt('/historias/HU-950/solicitar-cambio');
     await screen.findByText(/Después del grooming — Solicitudes de cambio/i);
     await user.type(screen.getByLabelText(/Solicitud de cambio/i), 'Negocio pide aplicar también a endosos');
+    await user.click(screen.getByRole('button', { name: /Analizar con Gestor de Cambios/i }));
+    await user.click(await screen.findByRole('button', { name: /Continuar en modo manual/i }));
+    await user.selectOptions(screen.getByLabelText(/Clasificación manual/i), 'cambio_alcance');
     await user.selectOptions(screen.getByLabelText(/qué no se preguntó a tiempo/i), 'Datos requeridos');
     await user.type(screen.getByLabelText(/Pregunta que debió hacerse/i), '¿Aplica también a endosos?');
-    await user.click(screen.getByRole('button', { name: /Registrar y analizar cambio/i }));
+    await user.click(screen.getByRole('button', { name: /Registrar decisión manual/i }));
   }
 
   it('registra la solicitud de cambio de alcance y abre directo el análisis sobre la misma HU', async () => {
@@ -262,9 +267,12 @@ describe('después del grooming', () => {
     const user = userEvent.setup();
     renderAt('/historias/HU-950/solicitar-cambio');
     await user.type(await screen.findByLabelText(/Solicitud de cambio/i), 'Negocio decidió quitar el campo');
+    await user.click(screen.getByRole('button', { name: /Analizar con Gestor de Cambios/i }));
+    await user.click(await screen.findByRole('button', { name: /Continuar en modo manual/i }));
+    await user.selectOptions(screen.getByLabelText(/Clasificación manual/i), 'cambio_alcance');
     await user.click(screen.getByLabelText(/No fue un vacío del análisis/i));
     expect(screen.queryByLabelText(/Pregunta que debió hacerse/i)).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: /Registrar y analizar cambio/i }));
+    await user.click(screen.getByRole('button', { name: /Registrar decisión manual/i }));
     await waitFor(() => expect(repositorioApi.registerChange).toHaveBeenCalledWith({
       hu_id: 'HU-950', solicitud: 'Negocio decidió quitar el campo', clasificacion: 'cambio_alcance',
     }));
@@ -275,7 +283,10 @@ describe('después del grooming', () => {
     const user = userEvent.setup();
     renderAt('/historias/HU-950/solicitar-cambio');
     await user.type(await screen.findByLabelText(/Solicitud de cambio/i), 'Aplicar a endosos');
-    await user.click(screen.getByRole('button', { name: /Registrar y analizar cambio/i }));
+    await user.click(screen.getByRole('button', { name: /Analizar con Gestor de Cambios/i }));
+    await user.click(await screen.findByRole('button', { name: /Continuar en modo manual/i }));
+    await user.selectOptions(screen.getByLabelText(/Clasificación manual/i), 'cambio_alcance');
+    await user.click(screen.getByRole('button', { name: /Registrar decisión manual/i }));
     expect(await screen.findByText(/Escriba la pregunta que debió hacerse/i)).toBeInTheDocument();
     expect(repositorioApi.registerChange).not.toHaveBeenCalled();
   });
@@ -300,7 +311,7 @@ describe('después del grooming', () => {
 
     await user.click(screen.getByRole('button', { name: /Preguntas a Negocio/i }));
     await user.click(await screen.findByRole('button', { name: /Generar Historia de Usuario/i }));
-    expect(await screen.findByText(/Borrador simulado: edítelo antes de continuar/i, {}, { timeout: 4000 })).toBeInTheDocument();
+    expect((await screen.findAllByText(/Borrador simulado: edítelo antes de continuar/i, {}, { timeout: 4000 })).length).toBeGreaterThan(0);
     expect(screen.queryByRole('button', { name: /Guardar borrador/i })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /Aprobación del Product Owner/i }));
     expect(screen.queryByText(/No se puede aprobar con preguntas pendientes/)).not.toBeInTheDocument();

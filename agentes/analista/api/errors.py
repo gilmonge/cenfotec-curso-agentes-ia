@@ -9,13 +9,41 @@ from fastapi.responses import JSONResponse
 
 from agentes.analista.core.conversation_store import StoreError
 from agentes.analista.core.models import ErrorCode, ErrorDetail, ErrorResponse, ValidationIssue
-from agentes.analista.core.orchestrator import OrchestrationError
+from agentes.equipo.analista.analista_service import OrchestrationError
 from agentes.analista.memory.repositorio import RepositorioError
+from agentes.seguridad.repositorio_seguridad import SeguridadError
 
 logger = logging.getLogger(__name__)
 
 
+class WorkflowApiError(Exception):
+    """A sanitized workflow API error using the Analyst error envelope."""
+
+    def __init__(self, code: ErrorCode, message: str, *, status_code: int, retryable: bool = False) -> None:
+        super().__init__(message)
+        self.code = code
+        self.message = message[:500]
+        self.status_code = status_code
+        self.retryable = retryable
+
+
 def _status(code: ErrorCode) -> int:
+    if code == ErrorCode.WORKFLOW_NOT_FOUND:
+        return 404
+    if code == ErrorCode.WORKFLOW_NOT_WAITING:
+        return 409
+    if code in {ErrorCode.WORKFLOW_TIMEOUT, ErrorCode.TURN_TIMEOUT}:
+        return 504
+    if code in {ErrorCode.DEPENDENCY_UNAVAILABLE, ErrorCode.OPENCODE_UNAVAILABLE, ErrorCode.MCP_UNAVAILABLE}:
+        return 503
+    if code == ErrorCode.INVALID_INPUT:
+        return 400
+    if code == ErrorCode.SESION_REQUERIDA:
+        return 401
+    if code == ErrorCode.PERMISO_DENEGADO:
+        return 403
+    if code == ErrorCode.CONTRACT_INVALID:
+        return 422
     if code in {ErrorCode.CONVERSATION_NOT_FOUND, ErrorCode.REPOSITORY_NOT_FOUND}:
         return 404
     if code in {ErrorCode.TURN_IN_PROGRESS, ErrorCode.REQUEST_ID_CONFLICT, ErrorCode.TURN_CANCELLED, ErrorCode.TURN_INVALIDATED}:
@@ -38,6 +66,14 @@ def _status(code: ErrorCode) -> int:
 
 
 def install_error_handlers(app: FastAPI) -> None:
+    @app.exception_handler(WorkflowApiError)
+    async def workflow_api_error(_: Request, exc: WorkflowApiError) -> JSONResponse:
+        detail = ErrorDetail(code=exc.code, message=exc.message, retryable=exc.retryable)
+        return JSONResponse(
+            status_code=exc.status_code,
+            content=ErrorResponse(error=detail).model_dump(mode="json"),
+        )
+
     @app.exception_handler(StoreError)
     async def store_error(_: Request, exc: StoreError) -> JSONResponse:
         detail = ErrorDetail(code=exc.code, message=exc.message, retryable=exc.retryable)
@@ -47,6 +83,12 @@ def install_error_handlers(app: FastAPI) -> None:
     async def repositorio_error(_: Request, exc: RepositorioError) -> JSONResponse:
         code = ErrorCode.REPOSITORY_NOT_FOUND if exc.not_found else ErrorCode.INVALID_REQUEST
         detail = ErrorDetail(code=code, message=exc.message[:500], retryable=False)
+        return JSONResponse(status_code=_status(code), content=ErrorResponse(error=detail).model_dump(mode="json"))
+
+    @app.exception_handler(SeguridadError)
+    async def seguridad_error(_: Request, exc: SeguridadError) -> JSONResponse:
+        code = ErrorCode.REPOSITORY_NOT_FOUND if exc.no_encontrado else ErrorCode.INVALID_INPUT
+        detail = ErrorDetail(code=code, message=exc.mensaje[:500], retryable=False)
         return JSONResponse(status_code=_status(code), content=ErrorResponse(error=detail).model_dump(mode="json"))
 
     @app.exception_handler(OrchestrationError)

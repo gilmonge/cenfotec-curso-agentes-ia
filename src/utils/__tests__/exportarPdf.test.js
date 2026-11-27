@@ -40,14 +40,15 @@ describe('exportar PDF', () => {
     expect(() => construirPdf({})).not.toThrow();
   });
 
-  it('incluye la declaración de valor y solo el texto de las observaciones', () => {
+  it('incluye la declaración de valor y una fila por cada observación', () => {
     const conNotas = {
       ...historia,
       bitacora: [{ fecha: '2026-10-01', autor: 'Ana', texto: 'Nota uno' }, { fecha: '2026-10-02', autor: 'Luis', texto: 'Nota dos' }],
     };
     const contenido = armarContenido(conNotas);
     expect(contenido.declaracion).toEqual([['Como', 'analista'], ['Quiero', 'registrar'], ['Para', 'controlar']]);
-    expect(contenido.observaciones).toEqual(['Nota uno', 'Nota dos']);
+    expect(contenido.observaciones.map((fila) => fila.comentario)).toEqual(['Nota uno', 'Nota dos']);
+    expect(contenido.observaciones[0]).toMatchObject({ fecha: '2026-10-01', tipo: 'Nota', origen: 'Ana' });
     expect(armarContenido(historia).observaciones).toEqual([]);
   });
 
@@ -61,5 +62,18 @@ describe('exportar PDF', () => {
     const conNotas = { ...historia, bitacora: [{ fecha: '2026-10-01', autor: 'Ana', texto: 'Nota' }] };
     expect((await Packer.toBuffer(construirDocumento(conNotas))).byteLength).toBeGreaterThan(1000);
     expect((await Packer.toBuffer(construirDocumento({}))).byteLength).toBeGreaterThan(1000);
+  });
+
+  it('quita el «que» repetido en «Dado que» y exporta la bitácora como tabla', async () => {
+    const conImpacto = {
+      ...historia,
+      acceptanceCriteria: [{ given: 'que estoy en la pantalla', when: 'guardo', then: 'se acepta' }],
+      bitacora: [{ fecha: '2026-11-26', autor: 'Redactor-Revisor', tipo: 'dependencia', texto: 'Avisar.', estado: 'abierto' }],
+    };
+    const contenido = armarContenido(conImpacto);
+    expect(contenido.criterios[0].partes[0]).toEqual(['Dado que', 'estoy en la pantalla']);
+    expect(contenido.observaciones[0]).toMatchObject({ tipo: 'Dependencia', estado: 'Abierto' });
+    expect(() => construirPdf(conImpacto)).not.toThrow();
+    expect((await Packer.toBuffer(construirDocumento(conImpacto))).byteLength).toBeGreaterThan(1000);
   });
 });

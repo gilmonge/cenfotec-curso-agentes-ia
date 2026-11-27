@@ -1,20 +1,9 @@
-import base64
-
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from agentes.analista.api.acceso import (
-    AccesoBasico,
-    ConfiguracionAccesoError,
-    credenciales_desde_entorno,
-)
+from agentes.analista.api.acceso import ConfiguracionAccesoError, credenciales_desde_entorno
 from agentes.analista.api.estaticos import montar_frontend
-
-
-def _basic(usuario: str, clave: str) -> dict[str, str]:
-    token = base64.b64encode(f"{usuario}:{clave}".encode()).decode()
-    return {"Authorization": f"Basic {token}"}
 
 
 @pytest.fixture()
@@ -27,38 +16,19 @@ def dist(tmp_path, monkeypatch):
     return tmp_path
 
 
-def _app(con_acceso: bool) -> FastAPI:
+def _app(_con_acceso: bool = False) -> FastAPI:
     app = FastAPI()
 
     @app.get("/api/analista/ping")
     async def ping():
         return {"ok": True}
 
-    if con_acceso:
-        app.add_middleware(AccesoBasico, usuario="equipo", clave="clave-larga")
     assert montar_frontend(app) is True
     return app
 
 
-def test_sin_credenciales_la_ruta_privada_responde_401(dist):
-    cliente = TestClient(_app(True))
-    respuesta = cliente.get("/api/analista/ping")
-    assert respuesta.status_code == 401
-    assert "Basic" in respuesta.headers["www-authenticate"]
-    assert cliente.get("/", headers=_basic("equipo", "mala")).status_code == 401
-    assert cliente.get("/", headers={"Authorization": "Basic %%%"}).status_code == 401
-
-
-def test_con_credenciales_correctas_pasa_api_y_interfaz(dist):
-    cliente = TestClient(_app(True))
-    encabezado = _basic("equipo", "clave-larga")
-    assert cliente.get("/api/analista/ping", headers=encabezado).json() == {"ok": True}
-    assert "app" in cliente.get("/", headers=encabezado).text
-    assert cliente.get("/assets/app.js", headers=encabezado).status_code == 200
-
-
-def test_healthz_no_pide_credenciales(dist):
-    cliente = TestClient(_app(True))
+def test_healthz_responde(dist):
+    cliente = TestClient(_app())
     assert cliente.get("/healthz").json() == {"estado": "ok"}
 
 

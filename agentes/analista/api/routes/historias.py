@@ -6,6 +6,8 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Path, Request, Response, status
 
+from agentes.analista.api.sesion import requiere_accion
+from agentes.seguridad.catalogo import ACCION
 from agentes.analista.memory.repositorio import RepositorioError, RepositorioHU
 
 router = APIRouter()
@@ -18,12 +20,16 @@ def _repo(request: Request) -> RepositorioHU:
     return request.app.state.repositorio
 
 
-@router.get("/historias")
+@router.get("/historias", dependencies=[requiere_accion(ACCION.HISTORIA_VER)])
 def listar(request: Request) -> list[dict[str, Any]]:
     return _repo(request).listar_historias()
 
 
-@router.put("/historias/{historia_id}")
+# La historia de trabajo se guarda en cada paso: al crearla, responder, editarla o decidir sobre ella.
+@router.put("/historias/{historia_id}", dependencies=[requiere_accion(
+    ACCION.HISTORIA_CREAR, ACCION.HISTORIA_EDITAR, ACCION.HISTORIA_RESPONDER_NEGOCIO,
+    ACCION.HISTORIA_APROBAR, ACCION.HISTORIA_DEVOLVER, ACCION.HISTORIA_RECHAZAR,
+)])
 def guardar(
     historia_id: Annotated[str, Path(pattern=_ID)],
     request: Request,
@@ -36,7 +42,8 @@ def guardar(
     return _repo(request).guardar_historia(historia_id, datos)
 
 
-@router.delete("/historias/{historia_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/historias/{historia_id}", status_code=status.HTTP_204_NO_CONTENT,
+               dependencies=[requiere_accion(ACCION.HISTORIA_ELIMINAR)])
 def eliminar(historia_id: Annotated[str, Path(pattern=_ID)], request: Request) -> Response:
     _repo(request).eliminar_historia(historia_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

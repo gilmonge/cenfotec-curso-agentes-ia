@@ -32,7 +32,7 @@ if (response.ok && (response.headers.get('content-type') || '').includes('json')
   const agents = body?.data;
   const agent = Array.isArray(agents) ? agents.find((item) => item?.id === 'analista') : null;
   result.agent_found = Boolean(agent);
-  const localPrompt = (await fs.readFile(path.join(root, 'agentes/analista/prompts/sistema.md'), 'utf8')).trim();
+  const localPrompt = (await fs.readFile(path.join(root, 'agentes/equipo/analista/prompt.md'), 'utf8')).trim();
   const serverPrompt = typeof agent?.system === 'string' ? agent.system.trim() : '';
   result.system_loaded = Boolean(serverPrompt);
   result.exact_prompt_match = Boolean(serverPrompt && serverPrompt === localPrompt);

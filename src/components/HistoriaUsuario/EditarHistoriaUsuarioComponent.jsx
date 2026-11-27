@@ -11,6 +11,7 @@ import { InsigniaEstadoComponent } from '../Comun/InsigniaEstadoComponent';
 import { EVENTO_SINCRONIZADO, getStoryById, updateStory } from '../../utils/storage';
 import { buildRepositoryPayload, repositorioApi, repositorioErrorMessage } from '../../services/repositorioApi';
 import { bitacoraConNota, leerBitacora } from '../../utils/bitacora';
+import { BitacoraComponent } from './detalle/BitacoraComponent';
 import { camposEditados, registrarEdicion } from '../../utils/ediciones';
 import { SIN_IDENTIFICAR, leerNombreUsuario } from '../../utils/usuarioActual';
 import { CamposPlantillaComponent } from './CamposPlantillaComponent';
@@ -412,16 +413,9 @@ export const EditarHistoriaUsuarioComponent = () => {
       contenido: (
         <TarjetaComponent title="Observaciones y notas">
             {leerBitacora(story).length > 0 && (
-              <ul style={{ margin: '0 0 1rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {leerBitacora(story).map((nota, indice) => (
-                  <li key={indice} style={{ borderLeft: '3px solid var(--color-border)', paddingLeft: '0.75rem', fontSize: '0.9rem' }}>
-                    <span style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-                      {nota.fecha || 'Sin fecha'} · {nota.autor || SIN_IDENTIFICAR}
-                    </span>
-                    <span style={{ whiteSpace: 'pre-wrap' }}>{nota.texto}</span>
-                  </li>
-                ))}
-              </ul>
+              <div style={{ marginBottom: '1rem' }}>
+                <BitacoraComponent story={story} />
+              </div>
             )}
             <AreaTextoComponent
               label="Agregar nota"

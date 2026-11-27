@@ -1,0 +1,101 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+// Pendientes: lo que espera decisión (punto naranja de la marca) y avisos con el color de su significado.
+.pendientes {
+  &__bloque {
+    background-color: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    margin-bottom: 1.25rem;
+  }
+
+  &__titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid $color-border;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  &__cuenta { font-weight: 400; color: $color-text-muted; }
+  &__vacio { padding: 1rem; font-size: 0.875rem; color: $color-text-muted; }
+  &__lista { list-style: none; }
+
+  &__fila {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+
+    & + & { border-top: 1px solid $color-border; }
+  }
+
+  &__punto { width: 8px; height: 8px; flex: none; border-radius: 50%; background-color: $color-brand; }
+
+  &__icono {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 50%;
+    @include flex-center;
+
+    &--exito { background-color: $color-success-light; color: $color-success-text; }
+    &--advertencia { background-color: $color-warning-light; color: $color-warning-text; }
+    &--peligro { background-color: $color-danger-light; color: $color-danger-text; }
+  }
+
+  &__texto { flex: 1 1 240px; min-width: 0; }
+  &__nombre { font-size: 0.9rem; font-weight: 500; }
+  &__meta { font-size: 0.8rem; color: $color-text-muted; }
+  &__motivo { margin-top: 0.35rem; font-size: 0.85rem; color: $color-text-secondary; }
+  &__acciones { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+}
+
+// Contador junto a «Pendientes» en el menú (naranja: algo espera una decisión).
+.barra-lateral__contador {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: $radius-full;
+  background-color: $color-brand;
+  color: #1a1a1a;
+  font-size: 0.7rem;
+  font-weight: 600;
+  @include flex-center;
+
+  @include tablet {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 0;
+    padding: 0 4px;
+  }
+}
+
+.barra-lateral__enlace { position: relative; }
+
+@include mobile {
+  .barra-lateral__contador { top: 4px; right: calc(50% - 22px); }
+}
+
+// Aviso en Inicio cuando algo espera la decisión de la persona.
+.tablero-pendiente {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1.1rem;
+  background-color: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+
+  p { flex: 1 1 220px; font-size: 0.9rem; }
+}

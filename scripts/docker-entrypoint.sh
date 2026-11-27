@@ -29,6 +29,9 @@ fi
 
 # OpenCode debe arrancar desde la raíz del proyecto para cargar opencode.jsonc y el prompt.
 cd /app
+
+# El repositorio de código del Asesor y la carga del conocimiento en Pinecone los hace el backend
+# al arrancar, en segundo plano (agentes/conocimiento/sincronizacion.py).
 "${OPENCODE_BIN:-opencode}" serve --hostname 127.0.0.1 --port 4096 &
 PID_OPENCODE=$!
 

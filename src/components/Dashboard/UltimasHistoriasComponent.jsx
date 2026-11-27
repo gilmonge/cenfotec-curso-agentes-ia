@@ -23,7 +23,7 @@ export const UltimasHistoriasComponent = ({ stories, onVer, onVerTodas }) => {
       action={<BotonComponent variant="secondary" size="sm" onClick={onVerTodas}>Ver listado completo de historias</BotonComponent>}
     >
       {lista.length === 0 && (
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Todavía no hay historias. Use Crear para empezar con la primera.</p>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>Todavía no hay historias. Use Nueva historia para empezar con la primera.</p>
       )}
       <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column' }}>
         {lista.map((story) => (

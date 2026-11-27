@@ -29,6 +29,27 @@ describe('analyst response validation', () => {
     expect(isValidAnalystResponse({ ...validResponse, beneficios: [''] })).toBe(false);
   });
 
+  it('accepts the optional agent plan and rejects malformed plans', () => {
+    const paso = {
+      ronda: 1, origen: 'modelo', razonamiento: 'Hay un término de seguros por confirmar.',
+      consultas: [{ herramienta: 'consultar_glosario', consulta: 'plazo de gracia' }], asesor_consultado: true,
+    };
+    expect(isValidAnalystResponse({ ...validResponse, plan_agente: [paso] })).toBe(true);
+    expect(isValidAnalystResponse({ ...validResponse, plan_agente: [] })).toBe(true);
+    expect(isValidAnalystResponse({ ...validResponse, beneficios: ['Trazabilidad'], plan_agente: [paso] })).toBe(true);
+    expect(isValidAnalystResponse({ ...validResponse, plan_agente: [{ ...paso, origen: 'otro' }] })).toBe(false);
+    expect(isValidAnalystResponse({ ...validResponse, plan_agente: [{ ...paso, extra: 1 }] })).toBe(false);
+    expect(isValidAnalystResponse({ ...validResponse, plan_agente: [{ ...paso, consultas: [{ herramienta: 'x', consulta: ' ' }] }] })).toBe(false);
+    expect(isValidAnalystResponse({ ...validResponse, plan_agente: [paso, paso, paso, paso] })).toBe(false);
+  });
+
+  it('accepts optional assumptions for the Product Owner and rejects invalid ones', () => {
+    expect(isValidAnalystResponse({ ...validResponse, supuesto_validar_po: [] })).toBe(true);
+    expect(isValidAnalystResponse({ ...validResponse, supuesto_validar_po: ['Se supone: días naturales'] })).toBe(true);
+    expect(isValidAnalystResponse({ ...validResponse, supuesto_validar_po: [' '] })).toBe(false);
+    expect(isValidAnalystResponse({ ...validResponse, supuesto_validar_po: 'texto' })).toBe(false);
+  });
+
   it('rejects incomplete payloads and never returns partial content', () => {
     expect(isValidAnalystResponse({ ...validResponse, analisis: { conocida: [] } })).toBe(false);
     let raised;

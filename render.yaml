@@ -41,3 +41,37 @@ services:
         sync: false
       - key: LANGFUSE_BASE_URL
         value: https://us.cloud.langfuse.com
+      # La clave solo se configura en el panel de Render; sync:false la excluye del repositorio.
+      - key: PINECONE_API_KEY
+        sync: false
+      # Índice denso convencional: AWS us-east-1, 1024 dimensiones, cosine, multilingual-e5-large.
+      # Namespaces autorizados: glosario, estandares, checklist, hu_aprobadas, lecciones y codigo.
+      - key: PINECONE_INDEX_NAME
+        value: historias-usuario
+      - key: PINECONE_CLOUD
+        value: aws
+      - key: PINECONE_REGION
+        value: us-east-1
+      - key: PINECONE_DIMENSION
+        value: "1024"
+      - key: PINECONE_METRIC
+        value: cosine
+      - key: PINECONE_EMBEDDING_MODEL
+        value: multilingual-e5-large
+      # Carga automática: al arrancar crea el índice si falta y carga solo lo que cambió; al aprobar HU o
+      # lecciones las agrega. Con 0 se desactiva y la carga vuelve a ser manual (CLI de ingesta).
+      - key: PINECONE_SINCRONIZACION_AUTOMATICA
+        value: "1"
+      # Tiempo máximo por agente (segundos). Cada agente hace varias llamadas al modelo.
+      - key: ANALISTA_TURN_TIMEOUT_SECONDS
+        value: "180"
+      # Repositorio de código que revisa el Asesor Técnico (público, https, sin credenciales en la URL).
+      # Vacío: se usa el ejemplo incluido en ejemplos/polizas_demo.
+      - key: ASESOR_REPOSITORIO_URL
+        value: https://github.com/Yuvania/codigo-ejemplo-polizas.git
+      - key: ASESOR_REPOSITORIO_RAMA
+        value: main
+      # Transporte MCP entre cada agente y su servidor: memoria (mismo proceso, mismo protocolo MCP; evita
+      # arrancar un proceso por consulta en el plan gratuito) o stdio (proceso aparte).
+      - key: ANALISTA_MCP_TRANSPORTE
+        value: memoria

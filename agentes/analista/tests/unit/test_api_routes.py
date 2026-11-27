@@ -13,7 +13,7 @@ from agentes.analista.api import errors
 from agentes.analista.api.routes import conversations, health
 from agentes.analista.core.conversation_store import ConversationStore
 from agentes.analista.core.models import AgentTurnResponse, ErrorCode
-from agentes.analista.core.orchestrator import OrchestrationError
+from agentes.equipo.analista.analista_service import OrchestrationError
 from agentes.analista.core.observability import Observability
 from agentes.analista.core.prompt_loader import load_prompt
 

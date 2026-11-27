@@ -49,7 +49,7 @@ describe('legacy regression (Historias de Usuario)', () => {
   it('keeps the dashboard action navigating to the existing Stepper', async () => {
     const user = userEvent.setup();
     renderAt('/');
-    await user.click(screen.getByRole('button', { name: /^Crear$/i }));
+    await user.click(screen.getByRole('button', { name: /^Nueva historia$/i }));
     expect(await screen.findByRole('heading', { name: /Creación de Historia de Usuario/i })).toBeInTheDocument();
     expect(screen.getByText(/Paso 1/)).toBeInTheDocument();
   });

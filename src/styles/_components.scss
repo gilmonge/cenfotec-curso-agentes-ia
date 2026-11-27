@@ -1347,18 +1347,3 @@
   }
 }
 
-.header__user {
-  max-width: 130px;
-
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-.header__brand,
-.header__nav-link,
-.header__theme-toggle {
-  white-space: nowrap;
-}

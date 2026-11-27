@@ -1,0 +1,64 @@
+name: Feature 003 CI
+
+on:
+  push:
+    branches:
+      - main
+      - feat/sistema-multiagente-rag
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install Python requirements
+        run: python -m pip install -r agentes/analista/requirements.txt
+
+      - name: Check Python dependency consistency
+        run: python -m pip check
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run React browser E2E
+        run: npm run test:e2e
+
+      - name: Run complete Python test suite
+        run: python -m pytest
+
+      - name: Run Vitest
+        run: npm test -- --run
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Validate feature 003 documents
+        run: node scripts/diagnostics/validate-feature003-docs.mjs
+
+      - name: Build Docker image
+        run: docker build --tag feature003-ci .
+
+      - name: Smoke test Docker fixtures
+        run: docker run --rm feature003-ci python scripts/diagnostics/docker-fixture-smoke.py

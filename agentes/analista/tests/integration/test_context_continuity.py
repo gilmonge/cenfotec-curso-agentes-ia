@@ -4,7 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from agentes.analista.core import orchestrator
+from agentes.equipo.analista import analista_service as orchestrator
+from agentes.analista.core.ciclo_agente import ResultadoCiclo
 from agentes.analista.core.conversation_store import ConversationStore
 from agentes.analista.core.models import SendMessageRequest
 
@@ -46,8 +47,8 @@ async def test_multi_turn_state_and_questions_continue_without_crossing_conversa
     ]
     prompts = []
 
-    async def isolated_tools(_query, _trace=None):
-        return [], [], []
+    async def isolated_tools(**_kwargs):
+        return ResultadoCiclo()
 
     class IsolatedOpenCodeClient:
         async def __aenter__(self):
@@ -80,7 +81,7 @@ async def test_multi_turn_state_and_questions_continue_without_crossing_conversa
         async def wait_for_assistant(self, _session_id, *, deadline, after=None):
             return {"text": outputs.pop(0), "finish": "stop"}
 
-    monkeypatch.setattr(orchestrator, "_execute_tools", isolated_tools)
+    monkeypatch.setattr(orchestrator, "_ejecutar_ciclo", isolated_tools)
     monkeypatch.setattr(orchestrator, "OpenCodeClient", IsolatedOpenCodeClient)
     store = ConversationStore(prompt_version="1.0.0", prompt_hash="a" * 64)
     conversation = await store.create()

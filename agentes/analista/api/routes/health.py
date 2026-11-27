@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Request
 
+from agentes.analista.api.sesion import ruta_publica
 from agentes.analista.core.models import (
     CheckStatus,
     HealthChecks,
@@ -19,15 +20,18 @@ from agentes.analista.core.models import (
 from agentes.analista.core.opencode_client import OpenCodeClient, OpenCodeClientError, OpenCodeSettings
 from agentes.analista.core.opencode_compat import is_supported_opencode_version
 from agentes.analista.core.prompt_loader import PromptLoadError, load_prompt
-from agentes.analista.core.orchestrator import EXPECTED_TOOLS
-from agentes.analista.mcp.tools import mcp as servidor_mcp
+from agentes.analista.core.agent_registry import AgentId, allowed_mcp_tools
+from agentes.analista.mcp.tools import servidor_del_agente
+
+# Un servidor MCP por agente (salen del registro); cada uno debe exponer exactamente sus herramientas permitidas.
+SERVIDOR_POR_ROL = {agent_id: servidor_del_agente(agent_id) for agent_id in AgentId}
 
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get("/health", response_model=HealthResponse, dependencies=[ruta_publica])
 async def health(request: Request) -> HealthResponse:
     state = request.app.state
     prompt_status = CheckStatus.OK
@@ -88,10 +92,14 @@ async def health(request: Request) -> HealthResponse:
     # consulta de salud consume ~90 MB y agota la memoria del plan gratuito (512 MB).
     mcp_check = McpCheck(status=CheckStatus.UNAVAILABLE, tools=[])
     try:
-        registered = await servidor_mcp.list_tools()
-        names = {tool.name for tool in registered}
-        if names == EXPECTED_TOOLS:
-            mcp_check = McpCheck(status=CheckStatus.OK, tools=[ToolName(name) for name in sorted(names)])
+        coincide = True
+        for rol, servidor in SERVIDOR_POR_ROL.items():
+            registered = await servidor.list_tools()
+            if {tool.name for tool in registered} != set(allowed_mcp_tools(rol)):
+                coincide = False
+                logger.warning("mcp_servidor_inconsistente", extra={"event": "mcp_servidor_inconsistente", "agent": rol.value})
+        if coincide:
+            mcp_check = McpCheck(status=CheckStatus.OK, tools=sorted(ToolName))
     except Exception:
         logger.warning("No se pudo verificar el registro de herramientas MCP", exc_info=True)
 

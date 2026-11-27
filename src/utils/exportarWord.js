@@ -207,11 +207,29 @@ export function construirDocumento(historia) {
     ? contenido.criterios.flatMap((criterio, indice) => bloqueCriterio(criterio, indice, contenido.criterios.length))
     : [parrafo(PENDIENTE, { cursiva: true })];
 
-  // Como en la plantilla: al final, en página aparte y solo con el texto de cada nota.
+  // Como en la plantilla: al final, en página aparte; una fila por entrada de la bitácora.
+  const celdaTexto = (texto, ancho) => new TableCell({
+    borders: BORDES,
+    width: { size: ancho, type: WidthType.PERCENTAGE },
+    margins: { top: 60, bottom: 60, left: 100, right: 100 },
+    children: String(texto ?? '').split('\n').map((linea) => parrafo(linea)),
+  });
+  const ANCHO_COLUMNA = [13, 16, 17, 42, 12];
   const observaciones = contenido.observaciones.length > 0
     ? [
       new Paragraph({ pageBreakBefore: true, spacing: { after: 200 }, children: [new TextRun({ text: 'Observaciones adicionales', bold: true })] }),
-      ...contenido.observaciones.map((texto) => new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: texto })] })),
+      tabla([
+        new TableRow({
+          tableHeader: true,
+          children: ['Fecha', 'Tipo', 'Origen', 'Comentario', 'Estado'].map((texto, indice) => celda(texto, {
+            ancho: ANCHO_COLUMNA[indice], negrita: true, fondo: COLOR.durazno,
+          })),
+        }),
+        ...contenido.observaciones.map((fila) => new TableRow({
+          children: [fila.fecha, fila.tipo, fila.origen, fila.comentario, fila.estado]
+            .map((texto, indice) => celdaTexto(texto, ANCHO_COLUMNA[indice])),
+        })),
+      ]),
     ]
     : [];
 

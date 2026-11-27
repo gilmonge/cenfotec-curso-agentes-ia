@@ -25,3 +25,17 @@ export const ROTULO_CATEGORIA = Object.freeze({
 
 export const rotuloCategoria = (categoria) => ROTULO_CATEGORIA[categoria]?.rotulo ?? categoria;
 export const ayudaCategoria = (categoria) => ROTULO_CATEGORIA[categoria]?.ayuda ?? '';
+
+// Nombres en lenguaje de negocio de las herramientas MCP que usan los agentes.
+const ROTULO_HERRAMIENTA = {
+  consultar_glosario: 'Glosario de seguros',
+  buscar_hu_similares: 'Historias de usuario similares',
+  consultar_estandares: 'Estándares',
+  aplicar_checklist_vacios: 'Checklist de vacíos',
+  consultar_lecciones: 'Lecciones aprendidas',
+  consultar_codigo_demo: 'Búsqueda en el repositorio de código',
+  buscar_referencias_codigo: 'Referencias en el código',
+  leer_archivo_codigo: 'Lectura de un archivo del repositorio',
+};
+
+export const rotuloHerramienta = (herramienta) => ROTULO_HERRAMIENTA[herramienta] ?? herramienta;

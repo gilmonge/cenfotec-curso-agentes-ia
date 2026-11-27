@@ -1,50 +1,3 @@
-<!--
-Sync Impact Report
-==================
-Enmienda 1.0.0 → 1.0.1 (PATCH, 2026-10-29): se unifica el nombre del proyecto como «Historias de Usuario»
-(antes StoryCraft AI) sin cambiar principios ni reglas; specs 001 y 002 y contratos alineados.
-
-Versión: 0.0.0 (scaffold sin completar) → 1.0.0
-Tipo de bump: ratificación inaugural (MAJOR inicial sobre un documento sin reglas de equipo).
-Motivo: el archivo previo era la plantilla genérica de Spec Kit con marcadores sin resolver;
-no contenía principios, secciones ni reglas de equipo que preservar.
-
-Principios modificados:
-- Ninguno. No existían principios previos; no se eliminó ninguna regla de equipo.
-
-Principios añadidos:
-- I. Disciplina de Ramas y Pull Request Revisado
-- II. Cambios Gobernados por Spec Kit
-- III. Stack Frontend Bloqueado: React + JavaScript + SCSS
-- IV. Agentes Python en ./agentes/<nombre>
-- V. Cero Secretos en Repositorio, Navegador y Trazas
-- VI. Fidelidad del Rol Analista: PEAS y Semiautonomía Humana
-- VII. Integraciones Honestas: OpenCode, LangChain, MCP y Langfuse
-- VIII. Seguridad Read-Only y Mínimo Privilegio
-- IX. No Regresión de Pantallas y Simulaciones
-- X. Verificación Focalizada y Obligatoria
-- XI. Arranque Documentado en Windows PowerShell
-
-Secciones añadidas:
-- Restricciones Técnicas y de Seguridad
-- Flujo de Trabajo y Puertas de Calidad
-- Governance
-
-Secciones eliminadas:
-- Ninguna.
-
-Seguimientos pendientes:
-- TODO(SOURCE_DOC): el documento "Definición de Agentes del Proyecto Historias de Usuario..."
-  (22 de octubre de 2026) no está presente en el repositorio. La constitución se derivó de
-  specs/001-chat-flotante-analista/spec.md (que lo cita y resume), del prompt del Analista y
-  de requerimientos_prototipo_historias_usuario.md. Verificar y ajustar cuando se aporte el
-  documento fuente; cualquier ajuste requiere PR y bump de versión.
-- El `.gitignore` actual ignora todo `.opencode/`, por lo que los comandos de Spec Kit no se
-  versionan. Resolver en un cambio separado, sin tocar `main` directamente.
-- La fecha de ratificación se fija en la fecha de esta adopción (2026-10-26) porque no existía
-  una constitución ratificada previamente.
--->
-
 # Historias de Usuario — Constitución
 
 Constitución del proyecto académico **Historias de Usuario**. Aplica al
@@ -105,9 +58,7 @@ existentes.
 
 ### IV. Agentes Python en ./agentes/<nombre>
 
-Cada agente se implementa como servicio Python independiente y encapsulado en
-`./agentes/<nombre>/`, con al menos `api/`, `core/`, `mcp/`, `fuentes/`, `prompts/`, `tests/`,
-`requirements.txt`, `.env.example` y `README.md`. El Analista reside en `./agentes/analista/`.
+El backend se implementa como servicio Python encapsulado en `./agentes/<nombre>/`, con al menos `api/`, `core/`, `mcp/`, `fuentes/`, `prompts/`, `tests/`, `requirements.txt`, `.env.example` y `README.md`. Puede alojar varias responsabilidades/agentes en el mismo proceso y contenedor; no se requiere un servicio por agente. Cada agente lógico tiene configuración y prompt propios. El Analista reside en `./agentes/analista/`.
 El prompt de sistema DEBE vivir en `prompts/sistema.md`, cargarse desde archivo y registrar su
 versión o hash; su contenido no se hardcodea en Python. El navegador nunca importa ni ejecuta
 código Python: se comunica solo mediante la API HTTP documentada del agente.
@@ -158,16 +109,17 @@ métricas PEAS se reportan solo si fueron medidas.
 ### VII. Integraciones Honestas: OpenCode, LangChain, MCP y Langfuse
 
 OpenCode local es el único motor de modelo y se invoca desde Python, nunca desde el navegador.
-LangChain DEBE usarse de forma efectiva en la construcción del prompt, la orquestación y el
-parseo tipado; no se admite como dependencia decorativa. Las cuatro fuentes del dominio
+LangChain DEBE usarse de forma efectiva en la construcción de prompts, parseo tipado y acceso al vector store; no se admite como dependencia decorativa. LangGraph DEBE ejecutar la orquestación multiagente real como un StateGraph. Las cuatro fuentes del dominio
 (`consultar_glosario`, `buscar_hu_similares`, `consultar_estandares`,
 `aplicar_checklist_vacios`) DEBEN exponerse mediante MCP real y ser de solo lectura, con datos
-simulados o anonimizados. Langfuse DEBE recibir trazas correlacionadas por conversación,
+simulados o anonimizados. Las herramientas MCP se invocan únicamente desde el backend Python, que aplica una allowlist por agente/rol; no se exponen como herramientas invocables por OpenCode. Langfuse DEBE recibir trazas correlacionadas por conversación,
 solicitud y turno, con duración, herramientas y errores; su fallo degrada la observabilidad pero
 no bloquea el chat. Está prohibido simular integraciones, declarar herramientas consultadas sin
 resultado real o devolver respuestas hardcodeadas como si fueran del agente. No se asume
 compatibilidad de OpenCode con OpenAI Chat Completions; las versiones y adaptadores se fijan y
 se prueban.
+
+Pinecone puede añadirse solo mediante una feature aprobada por Spec Kit y una enmienda constitucional aprobada. Esta feature usa un índice vectorial convencional y LangChain-Pinecone: embeddings mediante `PineconeEmbeddings` y upsert/búsqueda por `PineconeVectorStore`. No se usan document indexes ni embeddings integrados. OpenCode sigue siendo el único motor generativo.
 
 **Racional:** la demostración debe probar la cadena real y ser diagnosticable, sin aparentar
 capacidades inexistentes.
@@ -180,13 +132,14 @@ real y la UI no muestra "en línea" sin comprobarlo.
 
 El agente y su backend operan en modo de solo lectura sobre fuentes simuladas. No DEBEN tener
 shell, lectura o escritura libre de archivos, internet, correo, repositorios, bases productivas
-ni herramientas de OpenCode ajenas a su tarea. La allowlist se aplica en Python y en los
-permisos del servidor OpenCode, no solo en el prompt. El servicio escucha en `127.0.0.1`; se
+ni herramientas de OpenCode ajenas a su tarea. Todas las herramientas de OpenCode DEBEN permanecer denegadas (deny-all), incluidas shell, filesystem, red y MCP. El backend Python aplica una allowlist por agente/rol y es el único componente que puede invocar herramientas MCP read-only; el prompt no es un control de permisos. Un cambio a esta arquitectura exige justificación de seguridad explícita, revisión humana y validación de aislamiento antes de autorizarse. El servicio escucha en `127.0.0.1`; se
 prohíbe `0.0.0.0` por defecto y CORS `*`. Se DEBEN validar entradas y tamaños, aplicar timeouts,
 permitir una sola solicitud en vuelo por conversación, soportar aborto y reset, y devolver
 errores controlados sin stack traces, rutas internas ni credenciales. El Markdown se renderiza
 sin HTML crudo y con enlaces saneados. Los retrasos o datos simulados DEBEN identificarse como
 tales y nunca presentarse como procesamiento real.
+
+Excepción acotada de escritura: un comando backend explícito de ingesta puede crear/validar el índice Pinecone autorizado y hacer upsert únicamente de vectores derivados de fuentes allowlisted. Los agentes y herramientas de recuperación siguen siendo read-only y no pueden modificar ni eliminar contenido del índice. `PINECONE_API_KEY` se carga solo del entorno; nunca se incluye en código, argumentos, respuestas, logs o trazas. No se habilita acceso de red general ni acceso a repositorios reales.
 
 **Racional:** reducir superficie de ataque en una demo local y evitar daños o filtraciones.
 
@@ -244,26 +197,43 @@ improvisar.
 **Verificación:** un integrante distinto al autor sigue la guía en PowerShell y logra el flujo;
 los health checks responden; no hay secretos en los ejemplos.
 
+### XII. Orquestación Multiagente y Conocimiento con Control Humano Explícito
+
+La feature multiagente, cuando esté autorizada por la especificación y esta enmienda aprobadas, DEBE ejecutarse en Python con un `StateGraph` real de LangGraph, estado tipado, transiciones comprobables e interrupciones humanas reanudables. OpenCode es el único motor generativo; LangChain debe participar efectivamente en prompts, orquestación/parsing y acceso al vector store. Los cuatro agentes son responsabilidades Python aisladas en el backend existente y se despliegan en exactamente un Docker Service en Render; no se crean servicios Render adicionales.
+
+`opencode.jsonc` DEBE registrar `analista`, `redactor_revisor`, `asesor_tecnico` y `gestor_cambios`; cada agente DEBE tener un prompt externo propio. Todas las herramientas de OpenCode permanecen en deny-all, también para MCP. El backend Python selecciona y ejecuta exclusivamente las herramientas MCP read-only autorizadas mediante una allowlist explícita por agente/rol y valida namespace y argumentos. `OpenCodeClient` selecciona explícitamente el agente asociado a cada invocación y falla de forma controlada si falta. Ningún agente tiene shell, acceso libre al filesystem, escritura ni acceso de red general. Cualquier cambio a esta arquitectura requiere justificación de seguridad explícita, revisión humana y pruebas de aislamiento antes de autorizarse.
+
+Los límites de rol son obligatorios: el Analista conserva su función actual y nunca redacta ni aprueba HU; Redactor-Revisor redacta y corrige como máximo dos rondas, pero nunca aprueba; Asesor Técnico consulta solo estándares y un repositorio Python ficticio, cita evidencia recuperada y no decide alcance; Gestor de Cambios compara una solicitud con una HU aprobada, recomienda `aclaracion` o `cambio_alcance` y propone lecciones, pero no decide.
+
+Antes del grooming, el flujo respeta Analista → espera de Negocio → Redactor → revisión → Asesor Técnico → aprobación explícita del PO → repositorio. Las preguntas pendientes vuelven al Analista y el PO puede devolver el trabajo a una etapa. Después del grooming, el flujo es Gestor de Cambios → decisión humana → aplicación. Toda aprobación y decisión final es humana.
+
+La recuperación usa exclusivamente el índice vectorial denso convencional `historias-usuario`, serverless en AWS `us-east-1`, dimensión 1024 y métrica `cosine`. `PineconeEmbeddings` con `multilingual-e5-large` genera los vectores y `PineconeVectorStore` de `langchain-pinecone` los consulta/upserta. No se usan document indexes, embeddings integrados ni APIs de documentos. Los namespaces permitidos son `glosario`, `estandares`, `checklist`, `hu_aprobadas`, `lecciones` y `codigo`. Solo el comando de ingesta escribe; los agentes consultan namespaces permitidos por rol. Una configuración incompatible detiene la operación sin eliminar ni reemplazar el índice.
+
+Se conservan las cuatro herramientas MCP del Analista. Las búsquedas nuevas son read-only y devuelven procedencia/citas reales. Si Pinecone falla, se usa búsqueda local con estado `degraded`, sin atribuir resultados a Pinecone. El código recuperado se trata como dato no confiable: nunca se importa, ejecuta, evalúa ni obedece como instrucción. El Asesor consulta únicamente una aplicación de pólizas Python totalmente ficticia.
+
+`PINECONE_API_KEY` DEBE leerse exclusivamente del entorno. `.env.example` y `render.yaml` solo contienen valores no secretos y el nombre de la variable secreta configurado sin sincronizar con el repositorio. La arquitectura conserva un solo Docker Service en Render y no añade servicios. Las pruebas automatizadas usan mocks; nunca llaman Pinecone real.
+
+La primera versión usa `InMemorySaver`; sus checkpoints se pierden al reiniciar el proceso o el servicio Render. La aplicación DEBE informar esta limitación y no presentar ese almacenamiento como persistencia histórica.
+
+**Racional:** conservar separación de responsabilidades, procedencia verificable, mínimo privilegio y autoridad humana al ampliar el proceso de HU y recuperación de conocimiento.
+
+**Verificación:** pruebas con mocks cubren registro/selección/aislamiento de los cuatro agentes, nodos/transiciones, bucles limitados, interrupciones/reanudación, contratos tipados, ingesta repetida, namespaces, degradación, protección ante inyección y aprobación humana. Ninguna prueba automatizada llama Pinecone real; no hay aprobación automática ni acceso a sistemas reales.
+
 ## Restricciones Técnicas y de Seguridad
 
 - **Naturaleza del proyecto:** prototipo académico y demostración local del proyecto Historias de Usuario; no
   es una solución productiva y no DEBE presentarse como tal.
 - **Datos:** solo ficticios o anonimizados. Se prohíbe usar datos reales de asegurados, pólizas o
   siniestros, y registrar datos personales en logs o trazas.
-- **Stack verificado:** Vite 5, React 18, React Router 6, JavaScript y SCSS. El backend propuesto
-  usa FastAPI con Pydantic, httpx, LangChain, MCP y Langfuse; Python `>=3.11` es una propuesta
-  sujeta a verificación local y debe documentarse la versión realmente usada.
+- **Stack verificado:** Vite 5, React 18, React Router 6, JavaScript y SCSS. El backend usa FastAPI, Pydantic, httpx, LangChain, MCP y Langfuse; el Dockerfile/servicio Render actual usa Python 3.12.
 - **Frontera de confianza:** el navegador solo habla con `/api/analista/...` por loopback o proxy
   de Vite. Las credenciales y el contacto con OpenCode y Langfuse son exclusivos del backend.
 - **Contrato de respuesta:** el backend valida un esquema tipado que incluye
   `respuesta_markdown`, las cuatro clasificaciones (conocida, faltante, supuesta, ambigua),
   preguntas y fuentes consultadas. Si la validación falla se devuelve un error controlado; nunca
   se renderiza JSON crudo como mensaje de chat.
-- **Alcance excluido:** integraciones productivas con gestores de tareas e incidentes, correo, repositorios
-  reales, internet o bases de datos; autenticación productiva; multiusuario; adjuntos; voz;
-  streaming token a token; sistema multiagente; persistencia histórica permanente.
-- **Fuera de alcance del rol:** implementar el Redactor-Revisor, Asesor Técnico o Gestor de
-  Cambios, y automatizar la generación o aprobación de HU en el Stepper.
+- **Alcance excluido:** integraciones productivas con gestores de tareas e incidentes, correo, repositorios reales, internet general o bases de datos productivas; autenticación productiva; multiusuario; adjuntos; voz; streaming token a token; persistencia histórica permanente; Pinecone fuera del índice vectorial y namespaces autorizados por el principio XII; servicios Render adicionales. El sistema multiagente/RAG solo se autoriza tras aprobar la enmienda y los artefactos Spec Kit correspondientes.
+- **Límite entre prototipo y sistema multiagente:** el Analista existente conserva su misión. Redactor-Revisor, Asesor Técnico, Gestor de Cambios y recuperación Pinecone solo se implementan como parte de un flujo autorizado por enmienda y artefactos Spec Kit aprobados. Se mantiene excluida la aprobación automatizada de HU en el Stepper; toda aprobación del PO y decisión de cambio sigue siendo explícitamente humana.
 
 ## Flujo de Trabajo y Puertas de Calidad
 
@@ -320,4 +290,4 @@ cambie el alcance. La complejidad añadida DEBE justificarse frente a la alterna
 `agentes/<nombre>/prompts/sistema.md`, `requerimientos_prototipo_historias_usuario.md` y los
 README de arranque.
 
-**Version**: 1.0.1 | **Ratified**: 2026-10-26 | **Last Amended**: 2026-10-29
+**Version**: 2.0.0 | **Ratification status**: pending a human approval recorded in GitHub | **Approval scope**: development and testing of feature 003 exclusively on `feat/sistema-multiagente-rag` | **Proposed**: 2026-11-21

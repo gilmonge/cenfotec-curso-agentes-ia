@@ -1,4 +1,4 @@
-// Borrador automático del asistente "Nueva Historia": guarda el avance en este navegador para
+// Borrador automático del asistente "Nueva historia": guarda el avance en este navegador para
 // no perderlo si se cae la conexión, se recarga la página o se cierra la pestaña.
 // No reemplaza a la base de datos: es solo el avance de una historia que aún no se ha guardado.
 const CLAVE_BORRADOR = 'historias_borrador_nueva';

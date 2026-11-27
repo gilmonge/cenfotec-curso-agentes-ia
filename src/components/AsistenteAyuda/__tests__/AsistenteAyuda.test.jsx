@@ -20,7 +20,7 @@ describe('chat de ayuda sin modelo', () => {
     await user.click(within(panel).getByRole('button', { name: '¿Cómo creo una historia?' }));
     const registro = within(panel).getByRole('log');
     expect(within(registro).getAllByRole('listitem').length).toBeGreaterThanOrEqual(5);
-    expect(registro).toHaveTextContent(/Nueva Historia/);
+    expect(registro).toHaveTextContent(/Nueva historia/);
   });
 
   it('explica que el código no es el identificador técnico', async () => {
@@ -56,27 +56,39 @@ describe('página de Ayuda', () => {
     const user = userEvent.setup();
     render(<MemoryRouter><AyudaComponent /></MemoryRouter>);
     expect(screen.getByText('¿Cómo funciona el Asistente IA?')).toBeInTheDocument();
+    expect(screen.getByText(/Paso 3 — Preguntas para Negocio/)).toBeInTheDocument();
     expect(screen.getByText(/Paso 5 — Aprobación del Product Owner/)).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /Acciones sobre una HU/ }));
-    ['Ver detalle', 'Editar', 'Solicitar cambio (solo HU aprobada)', 'Descargar', 'Eliminar'].forEach((titulo) => {
+    ['Retomar o descartar (HU en proceso)', 'Ver detalle', 'Editar', 'Solicitar cambio (solo HU aprobada)', 'Descargar', 'Eliminar'].forEach((titulo) => {
       expect(screen.getByRole('heading', { name: titulo })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole('tab', { name: /El agente Analista/ }));
-    expect(screen.getByRole('heading', { name: 'El agente que trabaja en el sistema' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Qué no hace' })).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: /Los agentes/ }));
+    ['Agente Analista', 'Asesor Técnico', 'Redactor-Revisor', 'Gestor de Cambios', 'Autonomía', 'Herramientas (MCP)', 'Memoria (RAG)', 'Qué no hacen'].forEach((titulo) => {
+      expect(screen.getByRole('heading', { name: titulo })).toBeInTheDocument();
+    });
 
     await user.click(screen.getByRole('tab', { name: /Ejemplo de HU generada/ }));
     expect(screen.getByRole('img', { name: /historia de usuario generada/i })).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /Tecnologías/ }));
-    expect(screen.getByText(/FastAPI/)).toBeInTheDocument();
+    expect(within(screen.getByRole('tabpanel')).getByText(/FastAPI/)).toBeInTheDocument();
+    ['Orquestación de agentes', 'Herramientas (MCP)', 'Conocimiento (RAG)', 'Repositorio de código', 'Trazabilidad'].forEach((titulo) => {
+      expect(screen.getByRole('heading', { name: titulo })).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('tab', { name: /Arquitectura/ }));
+    ['Cómo está construido', 'Capas del sistema', 'Cómo se hace un cambio', 'Pensado para producción', 'Preparado para programar con IA'].forEach((titulo) => {
+      expect(within(screen.getByRole('tabpanel')).getByText(titulo)).toBeInTheDocument();
+    });
+    expect(screen.getByRole('heading', { name: 'Agregar un agente' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /Por definir/ }));
-    expect(screen.getByRole('heading', { name: 'Flujo de aprobación' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Roles y permisos' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Usuarios e inicio de sesión' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Bitácora de seguridad' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Avisos fuera de la aplicación' })).toBeInTheDocument();
+    expect(screen.queryByText(/Falta construir el Agente Redactor-Revisor/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Usuarios e inicio de sesión' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('tab', { name: /Equipo/ }));
     const nombres = screen.getAllByRole('listitem').map((item) => item.textContent);

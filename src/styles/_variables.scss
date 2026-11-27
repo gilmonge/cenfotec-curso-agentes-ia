@@ -87,13 +87,20 @@ $shadow-md: var(--shadow-md);
 $shadow-lg: var(--shadow-lg);
 
 $radius-sm: 6px;
-$radius-md: 10px;
-$radius-lg: 16px;
+$radius-md: 8px;
+$radius-lg: 12px;
 $radius-full: 9999px;
 
-// Typography (Aptos, Segoe UI o fuente institucional; máximo dos familias)
-$font-family: 'Aptos', 'Segoe UI', system-ui, -apple-system, sans-serif;
-$font-mono: Consolas, 'Courier New', monospace;
+// Tipografía de la marca: Inter para la interfaz e IBM Plex Mono para códigos y fechas (máximo dos familias).
+$font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+$font-mono: 'IBM Plex Mono', Consolas, 'Courier New', monospace;
+
+// Navegación y marca
+$color-nav-bg: var(--color-nav-bg);
+$color-nav-text: var(--color-nav-text);
+$color-nav-muted: var(--color-nav-muted);
+$color-nav-active: var(--color-nav-active);
+$color-brand: var(--color-brand);
 
 // Transitions
 $transition-fast: 0.15s ease;

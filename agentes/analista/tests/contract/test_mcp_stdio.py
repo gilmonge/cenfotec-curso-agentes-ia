@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[4]
 async def test_stdio_server_exposes_exact_allowlist_and_validated_contracts():
     parameters = StdioServerParameters(
         command=sys.executable,
-        args=["-m", "agentes.analista.mcp.server"],
+        args=["-m", "agentes.equipo.analista.servidor_mcp"],
         cwd=str(ROOT),
         env={**os.environ, "PYTHONPATH": str(ROOT)},
     )
@@ -59,7 +59,7 @@ async def test_stdio_server_exposes_exact_allowlist_and_validated_contracts():
 async def test_stdio_server_returns_empty_success_for_unmatched_query():
     parameters = StdioServerParameters(
         command=sys.executable,
-        args=["-m", "agentes.analista.mcp.server"],
+        args=["-m", "agentes.equipo.analista.servidor_mcp"],
         cwd=str(ROOT),
         env={**os.environ, "PYTHONPATH": str(ROOT)},
     )

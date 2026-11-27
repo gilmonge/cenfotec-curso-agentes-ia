@@ -21,6 +21,9 @@ RUN npm install --prefix /opt/opencode --no-audit --no-fund @opencode/cli@2.1.2
 # 3) Imagen final
 FROM python:3.12-slim
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1 MALLOC_ARENA_MAX=2
+# git: el Asesor Técnico descarga (solo lectura) el repositorio de código que revisa.
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 RUN useradd --create-home --uid 1000 app && mkdir -p /var/data && chown app:app /var/data
 WORKDIR /app
 
@@ -31,9 +34,11 @@ COPY --from=opencode /usr/local/bin/node /usr/local/bin/node
 COPY --from=opencode /opt/opencode /opt/opencode
 COPY --from=interfaz /compilacion/dist ./dist
 COPY agentes ./agentes
+COPY ejemplos/polizas_demo ./ejemplos/polizas_demo
 COPY .agents ./.agents
 COPY opencode.jsonc ./opencode.jsonc
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY scripts/diagnostics/docker-fixture-smoke.py ./scripts/diagnostics/docker-fixture-smoke.py
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh && chown -R app:app /app
 
 USER app

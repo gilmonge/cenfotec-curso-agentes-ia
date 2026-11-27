@@ -1,5 +1,5 @@
 // Plantilla de la Historia de Usuario: campos que se piden y valores por defecto.
-// Se usa en el asistente "Nueva Historia", en la edición y en la exportación a Word.
+// Se usa en el asistente "Nueva historia", en la edición y en la exportación a Word.
 
 export const PREFIJO_HU = (import.meta.env?.VITE_PREFIJO_HU || 'HU').trim();
 export const PENDIENTE = 'Pendiente de completar';

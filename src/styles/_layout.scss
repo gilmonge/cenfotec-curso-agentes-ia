@@ -1,129 +1,284 @@
 @use './variables' as *;
 @use './mixins' as *;
 
+// Estructura: barra lateral (web) · barra de íconos (tablet) · barra superior e inferior (móvil).
 .app-container {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-.header {
-  background-color: $color-secondary;
-  border-bottom: 4px solid $color-primary;
+.app-cuerpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.barra-lateral {
   position: sticky;
   top: 0;
+  height: 100vh;
+  width: 232px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem 0.75rem;
+  background-color: $color-nav-bg;
+  color: $color-nav-text;
   z-index: 100;
-  box-shadow: $shadow-sm;
 
-  &__inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem 1.5rem;
-    @include flex-between;
-  }
-
-  &__brand {
+  &__marca {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    color: $color-on-secondary;
 
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      background: $color-primary;
-      color: $color-on-primary;
-      border-radius: $radius-sm;
-      @include flex-center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      box-shadow: 0 2px 4px rgba(26, 26, 26, 0.25);
-    }
+    &:hover { color: $color-on-secondary; text-decoration: none; }
+  }
 
-    .brand-text {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: $color-on-secondary;
-      letter-spacing: -0.02em;
-    }
+  &__logo {
+    width: 30px;
+    height: 30px;
+    flex: none;
+    border-radius: 7px;
+    background-color: $color-brand;
+    color: #1a1a1a;
+    @include flex-center;
+  }
+
+  &__nombre {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+
+    small { font-size: 0.72rem; font-weight: 400; color: $color-nav-muted; }
   }
 
   &__nav {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    @include mobile {
-      gap: 0.25rem;
-    }
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
   }
 
-  &__nav-link {
+  &__enlace {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.85rem;
+    gap: 0.65rem;
+    min-height: 40px;
+    padding: 0.5rem 0.65rem;
     border-radius: $radius-sm;
     font-size: 0.9rem;
-    font-weight: 500;
-    color: $color-on-secondary;
-    transition: all $transition-fast;
+    color: $color-nav-text;
+    transition: background-color $transition-fast, color $transition-fast;
+
+    svg { flex: none; opacity: 0.85; }
+
+    .barra-lateral__corta { display: none; }
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.16);
+      background-color: $color-nav-active;
       color: $color-on-secondary;
+      text-decoration: none;
     }
 
-    &:focus-visible {
-      outline-color: $color-on-secondary;
-    }
+    &:focus-visible { outline-color: $color-on-secondary; }
 
-    // Estado activo: peso, fondo e indicador inferior (no solo color)
+    // Activo: fondo, peso y el punto naranja de la marca (no solo color).
     &.active {
-      background-color: rgba(255, 255, 255, 0.2);
+      position: relative;
+      background-color: $color-nav-active;
       color: $color-on-secondary;
-      font-weight: 700;
-      box-shadow: inset 0 -3px 0 $color-primary;
-    }
+      font-weight: 500;
 
-    @include mobile {
-      padding: 0.4rem 0.6rem;
-      font-size: 0.875rem;
-
-      span {
-        display: none;
+      &::before {
+        content: '';
+        position: absolute;
+        left: -0.75rem;
+        top: 25%;
+        bottom: 25%;
+        width: 3px;
+        border-radius: 0 3px 3px 0;
+        background-color: $color-brand;
       }
     }
   }
 
-  &__theme-toggle {
+  &__pie {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-left: 0.75rem;
-    padding: 0.5rem 0.85rem;
-    border: 1px solid rgba(255, 255, 255, 0.55);
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  &__usuario {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem;
+    border: none;
     border-radius: $radius-sm;
     background: transparent;
     color: $color-on-secondary;
-    font-size: 0.9rem;
-    font-weight: 500;
+    text-align: left;
     cursor: pointer;
-    transition: all $transition-fast;
 
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.16);
+    &:hover { background-color: $color-nav-active; }
+    &:focus-visible { outline-color: $color-on-secondary; }
+  }
+
+  &__avatar {
+    width: 32px;
+    height: 32px;
+    flex: none;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.14);
+    font-size: 0.75rem;
+    font-weight: 600;
+    @include flex-center;
+  }
+
+  &__persona {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    small {
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: $color-nav-muted;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &__salir { flex: none; color: $color-nav-muted; }
+
+  &__tema {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: $radius-sm;
+    background: transparent;
+    color: $color-nav-text;
+    cursor: pointer;
+    @include flex-center;
+
+    &:hover { background-color: $color-nav-active; color: $color-on-secondary; }
+    &:focus-visible { outline-color: $color-on-secondary; }
+  }
+
+  // Tablet: solo íconos (el nombre queda en title y en el texto accesible).
+  @include tablet {
+    width: 72px;
+    align-items: center;
+    padding: 1rem 0.5rem;
+
+    &__nombre, &__persona, &__salir { display: none; }
+    &__marca { padding: 0; }
+
+    &__enlace {
+      width: 48px;
+      height: 44px;
+      justify-content: center;
+      padding: 0;
+
+      .barra-lateral__etiqueta {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      &.active::before { left: -0.5rem; }
     }
 
-    &:focus-visible {
-      outline-color: $color-on-secondary;
+    &__pie {
+      flex-direction: column;
+      width: 100%;
     }
 
-    @include mobile {
-      margin-left: 0.25rem;
-      padding: 0.4rem 0.6rem;
+    &__usuario { flex: none; justify-content: center; padding: 0.25rem; }
+  }
 
-      span {
-        display: none;
+  // Móvil: barra superior con la marca y la sesión; el menú pasa a una barra inferior fija.
+  @include mobile {
+    position: sticky;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+
+    &__nombre { display: flex; }
+
+    &__pie {
+      flex-direction: row;
+      width: auto;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    &__nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      flex-direction: row;
+      justify-content: space-around;
+      gap: 0;
+      padding: 0.25rem 0.25rem calc(0.25rem + env(safe-area-inset-bottom, 0px));
+      background-color: $color-surface;
+      border-top: 1px solid $color-border;
+      z-index: 120;
+    }
+
+    &__enlace {
+      flex: 1;
+      width: auto;
+      height: 56px;
+      flex-direction: column;
+      gap: 2px;
+      color: $color-text-muted;
+      font-size: 0.68rem;
+
+      // La etiqueta completa queda para lectores de pantalla (oculta a la vista desde tablet).
+      .barra-lateral__corta {
+        display: block;
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        clip: auto;
+        white-space: nowrap;
+      }
+
+      &:hover { background: transparent; color: $color-text-primary; }
+
+      &.active {
+        background: transparent;
+        color: $color-primary-text;
+        font-weight: 600;
+
+        &::before { left: 25%; right: 25%; top: 0; bottom: auto; width: auto; height: 3px; border-radius: 0 0 3px 3px; }
       }
     }
   }
@@ -135,10 +290,14 @@
   width: 100%;
   margin: 0 auto;
   // Espacio al final para que los botones flotantes de chat no tapen el último contenido.
-  padding: 2rem 1.5rem 6.5rem;
+  padding: 2rem 2.5rem 6.5rem;
+
+  @include tablet {
+    padding: 1.75rem 1.5rem 6.5rem;
+  }
 
   @include mobile {
-    padding: 1.25rem 1rem 6.5rem;
+    padding: 1.25rem 1rem 10rem;
   }
 }
 
@@ -179,8 +338,8 @@
   }
 
   &__heading {
-    font-size: 1.75rem;
-    font-weight: 700;
+    font-size: 1.625rem;
+    font-weight: 600;
     color: $color-text-primary;
     letter-spacing: -0.02em;
 
@@ -232,4 +391,9 @@
   @include mobile {
     grid-template-columns: 1fr;
   }
+}
+
+// En móvil la barra lateral pasa arriba y el contenido debajo.
+@include mobile {
+  .app-container { flex-direction: column; }
 }

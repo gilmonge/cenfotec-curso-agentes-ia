@@ -5,7 +5,7 @@ vi.mock('../../services/repositorioApi', () => ({
 }));
 
 import { historiasApi } from '../../services/repositorioApi';
-import { addStory, deleteStory, getStoredStories, habilitarSincronizacion, sincronizarHistorias } from '../storage';
+import { addStory, deleteStory, getStoredStories, guardarHistoria, habilitarSincronizacion, sincronizarHistorias } from '../storage';
 
 const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
@@ -55,5 +55,39 @@ describe('historias en la base de datos', () => {
     deleteStory(creada.id);
     await vi.waitFor(() => expect(historiasApi.remove).toHaveBeenCalledWith(creada.id));
     expect(historiasApi.save).toHaveBeenCalledWith(expect.objectContaining({ id: creada.id, title: 'Nueva' }));
+  });
+
+  it('la HU aprobada por el flujo se envía a la base y sobrevive a la siguiente sincronización', async () => {
+    const aprobada = { id: '7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f', title: 'Aprobada', status: 'aprobada', createdAt: '2026-11-26' };
+    guardarHistoria(aprobada);
+    expect(getStoredStories()).toEqual([aprobada]);
+    // La base devuelve lo que se le envió: la sincronización espera la cola de escritura antes de leer.
+    historiasApi.list.mockImplementation(async () => historiasApi.save.mock.calls.map(([historia]) => historia));
+    await sincronizarHistorias();
+    expect(historiasApi.save).toHaveBeenCalledWith(aprobada);
+    expect(getStoredStories()).toEqual([aprobada]);
+  });
+
+  it('guardarHistoria reemplaza la copia existente con el mismo identificador', () => {
+    const id = '7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f';
+    guardarHistoria({ id, title: 'Antes' });
+    guardarHistoria({ id, title: 'Después' });
+    expect(getStoredStories()).toEqual([{ id, title: 'Después' }]);
+  });
+
+  it('una lectura de la base que empezó antes de guardar no borra la HU recién guardada', async () => {
+    const aprobada = { id: '7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f', title: 'Recién aprobada', createdAt: '2026-11-26' };
+    let lectura = 0;
+    historiasApi.list.mockImplementation(async () => {
+      lectura += 1;
+      if (lectura === 1) {
+        guardarHistoria(aprobada); // se guarda mientras la primera lectura está en curso
+        return [];
+      }
+      return historiasApi.save.mock.calls.map(([historia]) => historia);
+    });
+    await sincronizarHistorias();
+    expect(lectura).toBe(2);
+    expect(getStoredStories()).toEqual([aprobada]);
   });
 });

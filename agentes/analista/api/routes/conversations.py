@@ -7,6 +7,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, Request, Response, status
 
+from agentes.analista.api.sesion import requiere_accion
+from agentes.seguridad.catalogo import ACCION
 from agentes.analista.core.conversation_store import ConversationStore, StoreError
 from agentes.analista.core.models import (
     CancelRequest,
@@ -19,7 +21,7 @@ from agentes.analista.core.models import (
     SendMessageRequest,
 )
 from agentes.analista.core.opencode_client import OpenCodeClient, OpenCodeClientError
-from agentes.analista.core.orchestrator import OrchestrationError, run_turn
+from agentes.equipo.analista.analista_service import OrchestrationError, run_turn
 from agentes.analista.core.prompt_loader import PromptLoadError, load_prompt
 
 
@@ -62,13 +64,15 @@ async def _stop_session(session_id: str | None) -> None:
         logger.warning("opencode_cleanup_failed", extra={"event": "opencode_cleanup_failed", "error_code": exc.code})
 
 
-@router.post("/conversaciones", response_model=CreateConversationResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/conversaciones", response_model=CreateConversationResponse, status_code=status.HTTP_201_CREATED,
+             dependencies=[requiere_accion(ACCION.HISTORIA_CREAR)])
 async def create_conversation(request: Request) -> CreateConversationResponse:
     store: ConversationStore = request.app.state.store
     return _conversation_response(await store.create(), request)
 
 
-@router.post("/conversaciones/{conversation_id}/mensajes", response_model=AgentTurnResponse)
+@router.post("/conversaciones/{conversation_id}/mensajes", response_model=AgentTurnResponse,
+             dependencies=[requiere_accion(ACCION.HISTORIA_CREAR)])
 async def send_message(conversation_id: UUID, body: SendMessageRequest, request: Request):
     try:
         current_prompt = load_prompt()
@@ -85,7 +89,8 @@ async def send_message(conversation_id: UUID, body: SendMessageRequest, request:
     )
 
 
-@router.post("/conversaciones/{conversation_id}/cancelar", response_model=CancelResponse)
+@router.post("/conversaciones/{conversation_id}/cancelar", response_model=CancelResponse,
+             dependencies=[requiere_accion(ACCION.HISTORIA_CREAR)])
 async def cancel_turn(conversation_id: UUID, body: CancelRequest, request: Request) -> CancelResponse:
     store: ConversationStore = request.app.state.store
     canceled, turn_id, reason = await store.cancel_turn(conversation_id, body.request_id)
@@ -94,7 +99,8 @@ async def cancel_turn(conversation_id: UUID, body: CancelRequest, request: Reque
     return CancelResponse(canceled=canceled, turn_id=turn_id, reason=reason)
 
 
-@router.post("/conversaciones/{conversation_id}/reiniciar", response_model=ResetResponse)
+@router.post("/conversaciones/{conversation_id}/reiniciar", response_model=ResetResponse,
+             dependencies=[requiere_accion(ACCION.HISTORIA_CREAR)])
 async def reset_conversation(conversation_id: UUID, request: Request) -> ResetResponse:
     store: ConversationStore = request.app.state.store
     active = await store.get(conversation_id)
@@ -108,7 +114,8 @@ async def reset_conversation(conversation_id: UUID, request: Request) -> ResetRe
     )
 
 
-@router.delete("/conversaciones/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/conversaciones/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT,
+               dependencies=[requiere_accion(ACCION.HISTORIA_CREAR)])
 async def delete_conversation(conversation_id: UUID, request: Request) -> Response:
     store: ConversationStore = request.app.state.store
     try:

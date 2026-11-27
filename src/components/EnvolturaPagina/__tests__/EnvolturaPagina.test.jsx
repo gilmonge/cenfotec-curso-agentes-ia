@@ -28,8 +28,8 @@ describe('MainLayout', () => {
     const nav = screen.getByRole('navigation');
     expect(nav).not.toHaveTextContent(/skills/i);
     expect(nav).not.toHaveTextContent(/lecciones/i);
-    expect(nav).toHaveTextContent('Dashboard');
-    expect(nav).toHaveTextContent('Nueva Historia');
+    expect(nav).toHaveTextContent('Inicio');
+    expect(nav).toHaveTextContent('Nueva historia');
     expect(nav).toHaveTextContent('Ayuda');
   });
 

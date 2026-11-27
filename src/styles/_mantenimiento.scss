@@ -1,0 +1,246 @@
+@use './variables' as *;
+
+// Mantenimiento: usuarios con sus roles y roles con sus acciones.
+.mantenimiento {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &--roles {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr) minmax(0, 2.4fr);
+    align-items: start;
+
+    @media (max-width: 760px) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  &__barra {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  &__busqueda {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: $color-text-secondary;
+
+    .input { flex: 1; }
+  }
+
+  &__editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  &__campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0 1rem;
+  }
+
+  &__grupo {
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    padding: 0.5rem 1rem 0.75rem;
+    margin: 0;
+
+    legend {
+      font-weight: 600;
+      padding: 0 0.35rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+  }
+
+  &__todas {
+    background: none;
+    border: none;
+    color: $color-primary-text;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+
+    &:hover { text-decoration: underline; }
+  }
+
+  &__casilla {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.3rem 0;
+    cursor: pointer;
+
+    .form-hint { margin: 0; width: 100%; padding-left: 1.6rem; }
+  }
+
+  &__botones {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  &__tabla-envoltura { overflow-x: auto; }
+
+  &__tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background: $color-surface;
+    border-radius: $radius-md;
+
+    th, td {
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid $color-border;
+      vertical-align: middle;
+    }
+
+    th {
+      background: $color-secondary;
+      color: $color-on-secondary;
+      font-weight: 600;
+    }
+  }
+
+  &__secundario { color: $color-text-secondary; }
+
+  &__chip {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    margin: 0.15rem 0.35rem 0.15rem 0;
+    border-radius: $radius-full;
+    background: $color-secondary-light;
+    color: $color-secondary-text;
+    font-size: 0.85rem;
+  }
+
+  &__lista-rol {
+    ul { list-style: none; margin: 0 0 0.75rem; padding: 0; }
+  }
+
+  &__rol {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: $radius-md;
+    background: none;
+    color: $color-text-primary;
+    cursor: pointer;
+    text-align: left;
+
+    .form-hint { margin: 0; }
+
+    &:hover { background: $color-surface-hover; }
+
+    &--activo {
+      border-color: $color-secondary-border;
+      background: $color-secondary-light;
+      font-weight: 600;
+    }
+  }
+
+  &__nuevo { width: 100%; justify-content: center; }
+}
+
+// Inicio de sesión: panel de marca en ciruela y formulario a la derecha (se apilan en móvil).
+.inicio-sesion {
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  background: $color-bg;
+
+  &__marca-panel {
+    flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2.5rem;
+    padding: 3.5rem;
+    background-color: $color-nav-bg;
+    color: $color-nav-text;
+
+    @media (max-width: 640px) { padding: 2rem 1.5rem; gap: 1.5rem; }
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  &__titular {
+    max-width: 26rem;
+    color: #ffffff;
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 0.85rem;
+
+    @media (max-width: 640px) { font-size: 1.5rem; }
+  }
+
+  &__bajada { max-width: 26rem; font-size: 0.95rem; line-height: 1.6; }
+
+  &__cifras {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.75rem;
+    font-size: 0.8rem;
+
+    strong { display: block; color: #ffffff; font-size: 1.25rem; font-weight: 600; }
+
+    @media (max-width: 640px) { display: none; }
+  }
+
+  &__formulario-panel {
+    flex: 1 1 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+  }
+
+  &__tarjeta {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    h2 { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.01em; }
+  }
+
+  &__boton { width: 100%; justify-content: center; margin-top: 0.5rem; }
+}
+
+.barra-lateral__logo--grande { width: 34px; height: 34px; border-radius: 8px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

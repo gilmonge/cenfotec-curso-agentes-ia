@@ -18,6 +18,14 @@ from agentes.analista.core.prompt_loader import load_prompt
 ZERO_COST = [{"input": 0, "output": 0, "cache": {"read": 0, "write": 0}}]
 
 
+def test_default_test_settings_do_not_load_real_credentials_from_dotenv():
+    settings = OpenCodeSettings()
+
+    assert settings.server_password.get_secret_value() == ""
+    assert settings.langfuse_public_key.get_secret_value() == ""
+    assert settings.langfuse_secret_key.get_secret_value() == ""
+
+
 @pytest.mark.asyncio
 async def test_expired_generation_deadline_is_reported_as_turn_timeout():
     client = OpenCodeClient(OpenCodeSettings(server_password=SecretStr("test-only")))
@@ -436,3 +444,49 @@ async def test_completed_provider_errors_are_classified(provider_error, code):
     if code == "OPENCODE_RATE_LIMITED":
         assert raised.value.retry_at is None
 
+
+
+def _agent_list_transport(sequence, prompt, calls):
+    def respond(request):
+        if request.url.path != "/api/agent":
+            return httpx.Response(404)
+        calls.append(request.url.path)
+        state = sequence[min(len(calls) - 1, len(sequence) - 1)]
+        data = [{"id": "build", "permission": []}] if state != "vacia" else []
+        if state == "completa":
+            data.append({"id": "analista", "system": prompt.text, "permission": DENY_ALL})
+        return httpx.Response(200, json={"data": data})
+
+    return httpx.MockTransport(respond)
+
+
+@pytest.mark.asyncio
+async def test_verify_agent_waits_while_opencode_finishes_loading_project_agents(monkeypatch):
+    """Secuencia observada al arrancar OpenCode 2.1.2: vacía → solo integrados → con los del proyecto."""
+    from agentes.analista.core import opencode_client
+
+    monkeypatch.setattr(opencode_client, "AGENT_LOAD_RETRY_DELAYS", (0.01, 0.01, 0.01))
+    prompt, calls = load_prompt(), []
+    transport = _agent_list_transport(["vacia", "integrados", "completa"], prompt, calls)
+    async with httpx.AsyncClient(base_url="http://opencode.test", transport=transport) as http:
+        client = OpenCodeClient(OpenCodeSettings(_env_file=None, server_password=SecretStr("test-only")), client=http, prompt=prompt)
+        agent = await client.verify_agent()
+
+    assert agent["id"] == "analista"
+    assert len(calls) == 3
+
+
+@pytest.mark.asyncio
+async def test_verify_agent_still_fails_when_the_agent_never_loads(monkeypatch):
+    from agentes.analista.core import opencode_client
+
+    monkeypatch.setattr(opencode_client, "AGENT_LOAD_RETRY_DELAYS", (0.01, 0.01))
+    prompt, calls = load_prompt(), []
+    transport = _agent_list_transport(["integrados"], prompt, calls)
+    async with httpx.AsyncClient(base_url="http://opencode.test", transport=transport) as http:
+        client = OpenCodeClient(OpenCodeSettings(_env_file=None, server_password=SecretStr("test-only")), client=http, prompt=prompt)
+        with pytest.raises(OpenCodeClientError) as raised:
+            await client.verify_agent()
+
+    assert raised.value.code == "OPENCODE_INCOMPATIBLE"
+    assert len(calls) == 3  # dos esperas + intento final

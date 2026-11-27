@@ -1,0 +1,57 @@
+.workflow-human-form,
+.workflow-results__card {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+.workflow-human-form h3,
+.workflow-results h3 {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.workflow-human-form > p,
+.workflow-results p {
+  margin: 0.2rem 0;
+}
+
+.workflow-human-form select {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+}
+
+.workflow-human-form__lesson {
+  padding: 0.75rem;
+  border-left: 3px solid var(--color-secondary-text);
+}
+
+.workflow-results {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.workflow-results__card ol,
+.workflow-results__card ul {
+  padding-left: 1.25rem;
+}
+
+.workflow-results__card li {
+  margin: 0.4rem 0;
+}
+
+.workflow-results__notice {
+  padding: 0.8rem;
+  border-radius: 6px;
+  background: var(--color-warning-light);
+  color: var(--color-warning-text);
+}

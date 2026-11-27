@@ -19,14 +19,15 @@
   padding: 0.65rem 1rem;
   border: 0;
   border-radius: 999px;
-  background: #e8710a;
+  background: var(--color-nav-bg);
   color: #fff;
-  box-shadow: 0 8px 24px rgba(51, 51, 51, 0.24);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   font: inherit;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
 
-  &:hover { background: #c75f05; }
+  &:hover { background: var(--color-secondary-hover); }
   &:focus-visible { outline: 3px solid var(--color-secondary-border); outline-offset: 3px; }
 }
 
@@ -94,7 +95,7 @@
   li { margin-bottom: 0.25rem; }
 
   &--ayuda { align-self: flex-start; background: var(--color-bg); color: var(--color-text-primary); }
-  &--persona { align-self: flex-end; background: #6f3fa0; color: #fff; }
+  &--persona { align-self: flex-end; background: var(--color-primary); color: #fff; }
 }
 
 .help-chat-panel__suggestions {
@@ -142,7 +143,7 @@
     width: 2.75rem;
     border: 0;
     border-radius: 0.6rem;
-    background: #6f3fa0;
+    background: var(--color-primary);
     color: #fff;
     cursor: pointer;
 

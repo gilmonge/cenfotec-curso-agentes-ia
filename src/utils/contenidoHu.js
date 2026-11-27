@@ -1,5 +1,5 @@
 import { PENDIENTE, ROLES_FIRMA, limpiarLista, quitarEtiqueta } from './plantillaHu';
-import { textosBitacora } from './bitacora';
+import { filasBitacora } from './bitacora';
 
 const valorOPendiente = (valor) => {
   const texto = String(valor ?? '').trim();
@@ -40,8 +40,8 @@ export function armarContenido(historia) {
       ['Dependencias', PENDIENTE],
     ],
     beneficios: limpiarLista(hu.benefits),
-    // Solo los textos: la fecha y el autor de cada nota quedan en el sistema.
-    observaciones: textosBitacora(hu),
+    // Una fila por entrada de la bitácora: Fecha | Tipo | Origen | Comentario | Estado.
+    observaciones: filasBitacora(hu),
     firmas: ROLES_FIRMA.map((rol) => [
       `${rol.rotulo}:`,
       valorOPendiente(firmante[rol.clave] || (rol.clave === 'elaborado' ? hu.createdBy : '')),
@@ -53,6 +53,8 @@ export function armarContenido(historia) {
         ['Entonces', criterio.then],
       ]
         .map(([etiqueta, texto]) => [etiqueta, quitarEtiqueta(texto, etiqueta)])
+        // «Dado que» ya trae el «que»: si el texto también empieza con «que», se quita.
+        .map(([etiqueta, texto]) => [etiqueta, etiqueta === 'Dado que' ? texto.replace(/^que\s+/i, '') : texto])
         .filter(([, texto]) => texto);
       return { partes, texto: String(criterio.text ?? '').trim() };
     }),

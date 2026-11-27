@@ -94,6 +94,14 @@ class ErrorCode(StrEnum):
     PROMPT_RESTART_REQUIRED = "PROMPT_RESTART_REQUIRED"
     TURN_TIMEOUT = "TURN_TIMEOUT"
     CAPACITY_EXCEEDED = "CAPACITY_EXCEEDED"
+    WORKFLOW_NOT_FOUND = "WORKFLOW_NOT_FOUND"
+    WORKFLOW_NOT_WAITING = "WORKFLOW_NOT_WAITING"
+    WORKFLOW_TIMEOUT = "WORKFLOW_TIMEOUT"
+    DEPENDENCY_UNAVAILABLE = "DEPENDENCY_UNAVAILABLE"
+    CONTRACT_INVALID = "CONTRACT_INVALID"
+    SESION_REQUERIDA = "SESION_REQUERIDA"
+    PERMISO_DENEGADO = "PERMISO_DENEGADO"
+    INVALID_INPUT = "INVALID_INPUT"
     INTERNAL_ERROR = "INTERNAL_ERROR"
 
 
@@ -169,6 +177,21 @@ class ToolExecution(ContractModel):
         return self
 
 
+class ConsultaRealizada(ContractModel):
+    herramienta: str = Field(min_length=1, max_length=60)
+    consulta: str = Field(min_length=1, max_length=500)
+
+
+class PasoPlan(ContractModel):
+    """Lo que el agente decidió consultar en una ronda (autonomía visible para la persona analista)."""
+
+    ronda: int = Field(ge=1, le=3)
+    origen: Literal["modelo", "predeterminado"]
+    razonamiento: str = Field(default="", max_length=800)
+    consultas: list[ConsultaRealizada] = Field(default_factory=list, max_length=6)
+    asesor_consultado: bool = False
+
+
 class AgentTurnResponse(ContractModel):
     conversation_id: UUID4
     request_id: UUID4
@@ -183,6 +206,11 @@ class AgentTurnResponse(ContractModel):
     limitaciones: list[str] = Field(max_length=10)
     duracion_ms: int = Field(ge=0)
     prompt_version: str = Field(min_length=1, max_length=40)
+    plan_agente: list[PasoPlan] = Field(default_factory=list, max_length=3)
+    # Vacíos que no se le vuelven a preguntar a Negocio: el PO los valida al aprobar la HU.
+    supuesto_validar_po: list[str] = Field(default_factory=list, max_length=50)
+    # Temas que verifica el Asesor Técnico en el código; no son preguntas para Negocio.
+    para_asesor: list[str] = Field(default_factory=list, max_length=20)
 
     @field_validator("respuesta_markdown")
     @classmethod

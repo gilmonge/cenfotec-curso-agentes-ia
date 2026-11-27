@@ -64,6 +64,12 @@ def test_pii_detector_ignores_formatted_amounts():
     assert detect_personal_data("1-2345-6789")
 
 
+def test_pii_detector_ignores_numeric_uuid_but_still_detects_phone_numbers():
+    numeric_uuid = "00000000-0000-0000-0000-123456789012"
+    assert detect_personal_data(f"Identificador técnico {numeric_uuid}") == []
+    assert detect_personal_data(f"Identificador técnico {numeric_uuid}, teléfono 123456789")
+
+
 @pytest.mark.asyncio
 async def test_change_request_creates_proposed_lesson_that_needs_approval(client):
     http, app = client
@@ -109,12 +115,46 @@ def test_agent_tools_read_approved_memory(tmp_path, monkeypatch):
     )
     repo.decidir_leccion(result["leccion_id"], "aprobar")
     monkeypatch.setenv("ANALISTA_REPO_DB", str(repo.fuente))
-    monkeypatch.setattr(tools, "_SOURCES", tools.load_sources())
     stories = tools.buscar_hu_similares("vigencia cobertura adicional renovación", 5)
     assert "0b3f6f0e-52c8-4f0b-9c1e-6a1d2f3b4c01" in {story.id for story in stories.historias}
     checklist = tools.aplicar_checklist_vacios("formato del campo de vigencia", 5)
     ids = {item.id for category in checklist.categorias for item in category.items}
     assert result['leccion_id'] in ids
+
+
+def test_change_operation_id_is_idempotent_and_keeps_lessons_proposed(tmp_path):
+    repo = RepositorioHU(tmp_path / "idempotent-changes.db")
+    hu_id = HU["id"]
+    repo.guardar_hu({k: v for k, v in HU.items() if k != "confirmo_anonimizada"})
+    payload = {
+        "hu_id": hu_id,
+        "solicitud": "Agregar consulta de movimientos",
+        "clasificacion": "cambio_alcance",
+        "causa_raiz": "Reglas de negocio",
+        "lecciones_propuestas": [
+            {"categoria": "Reglas de negocio", "pregunta_sugerida": "¿Qué período aplica?", "terminos": ["período"]},
+            {"categoria": "Datos requeridos", "pregunta_sugerida": "¿Qué filtros requiere?", "terminos": ["filtros"]},
+        ],
+        "cambio_id": G0,
+        "incluir_ids_lecciones": True,
+    }
+    first = repo.registrar_cambio(**payload)
+    retry = repo.registrar_cambio(**payload)
+
+    assert retry["solicitud_id"] == first["solicitud_id"] == G0
+    assert retry["leccion_ids"] == first["leccion_ids"]
+    assert {item["id"] for item in repo.listar_cambios(hu_id)} == {G0}
+    assert len(repo.listar_lecciones(estado="propuesta")) == 2
+
+
+def test_change_idempotency_key_cannot_be_reused_for_different_payload(tmp_path):
+    repo = RepositorioHU(tmp_path / "idempotent-key.db")
+    repo.guardar_hu({k: v for k, v in HU.items() if k != "confirmo_anonimizada"})
+    repo.registrar_cambio(hu_id=HU["id"], solicitud="Primera solicitud", clasificacion="aclaracion",
+                          causa_raiz="", cambio_id=G0)
+    with pytest.raises(Exception, match="clave de cambio"):
+        repo.registrar_cambio(hu_id=HU["id"], solicitud="Otra solicitud", clasificacion="aclaracion",
+                              causa_raiz="", cambio_id=G0)
 
 
 def test_missing_database_returns_empty_memory(tmp_path):
